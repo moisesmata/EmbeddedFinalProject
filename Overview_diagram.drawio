@@ -1,0 +1,70 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.2.2 Chrome/134.0.6998.178 Electron/35.1.2 Safari/537.36" version="26.2.2">
+  <diagram name="Page-1" id="rumqVNAoI3cSyf27jc9k">
+    <mxGraphModel dx="1372" dy="833" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-3" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="80" width="760" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-4" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="930" y="80" width="750" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-5" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Hardware&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="30" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-6" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Software&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="930" y="30" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-7" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="740" width="750" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-14" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Peripherals&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="30" y="690" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-15" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="780" width="220" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-16" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="780" width="370" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-17" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Keyboard&lt;/h1&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="740" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-18" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Monitor&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="360" y="740" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-19" value="Has 6 64bit input registers:&lt;div&gt;- x&lt;/div&gt;&lt;div&gt;- y&lt;/div&gt;&lt;div&gt;- v_x&lt;/div&gt;&lt;div&gt;- v_y&lt;/div&gt;&lt;div&gt;- m&lt;/div&gt;&lt;div style=&quot;&quot;&gt;- confirmation&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;Every i timestep calculations it outputs updated positions and velocities&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="45" y="120" width="695" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-20" value="&lt;font size=&quot;1&quot;&gt;Consists of&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="460" width="690" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-22" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Hardware Acceleration&lt;/h1&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="45" y="80" width="275" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-24" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Perpipheral Communication&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="420" width="350" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-27" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;exitX=-0.003;exitY=0.21;exitDx=0;exitDy=0;exitPerimeter=0;strokeWidth=1;" edge="1" parent="1" source="-hpIVWVpJWwLuPx6lPaj-4" target="-hpIVWVpJWwLuPx6lPaj-19">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="840" y="270" as="sourcePoint" />
+            <mxPoint x="890" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-32" value="Initial x, y, v&lt;sub&gt;x&lt;/sub&gt;, v&lt;sub&gt;y&lt;/sub&gt;, m, confirmation to start&lt;sub&gt;&amp;nbsp;&lt;/sub&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="783" y="140" width="135" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-33" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.455;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="-hpIVWVpJWwLuPx6lPaj-4">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="740" y="330" as="sourcePoint" />
+            <mxPoint x="790" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-hpIVWVpJWwLuPx6lPaj-36" value="&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;Timestep&amp;nbsp;&lt;/span&gt;x, y, v&lt;sub&gt;x&lt;/sub&gt;, v&lt;sub&gt;y&lt;/sub&gt;&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;&amp;nbsp;&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="730" y="270" width="220" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
