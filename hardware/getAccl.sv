@@ -16,11 +16,9 @@ module getAccl #(
     input logic [63:0] z1,    // Z coordinate of the first body
     input logic [63:0] x2,    // X coordinate of the second body
     input logic [63:0] y2,    // Y coordinate of the second body
-    input logic [63:0] z2,    // Z coordinate of the second body
-    input logic [63:0] m2,     // Mass of the second body
+    input logic [63:0] m2,    // Mass of the second body (premultaplied by G)
     output logic [63:0] ax,   // Acceleration in the X direction
     output logic [63:0] ay,   // Acceleration in the Y direction
-    output logic [63:0] az    // Acceleration in the Z direction
 );
     logic wire [63:0] m_late, dx, dy, dx2, dy2, dx_late, dy_late, d_inv, d_inv_2, F_val;
     logic wire [63:0] d_inv_late;
