@@ -1,0 +1,173 @@
+12       
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hmi_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hssi_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_pcie_hip_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hmi_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hssi_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_pcie_hip_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hmi_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hssi_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_pcie_hip_atoms_ncrypt.v
+52
++verilog2001ext+.v
+-Mamsrun=
+-Masflags=--32
+-Mcc=gcc
+-Mcfl= -pipe -m32 -O -I/tools/synopsys/vcs/current/include
+-Mcplusplus=g++
+-Mcrt0=
+-Mcrtn=
+-Mcsrc=
+-Mexternalobj=
+-Mldflags= -m32 -m32 -rdynamic
+-Mobjects= /tools/synopsys/vcs/current/linux/lib/libvirsim.so /tools/synopsys/vcs/current/linux/lib/liberrorinf.so /tools/synopsys/vcs/current/linux/lib/libsnpsmalloc.so /tools/synopsys/vcs/current/linux/lib/libvfs.so
+-Mout=simv
+-Msaverestoreobj=/tools/synopsys/vcs/current/linux/lib/vcs_save_restore_new.o
+-Msyslibs=/tools/synopsys/vcs/current/linux/lib/ctype-stubs_32.a -ldl
+-Mvcsaceobjs=
+-Mxcflags= -pipe -m32 -I/tools/synopsys/vcs/current/include
+-Mxllcflags=
+-gen_obj
+-lca
+-ntb_opts
+-picarchive
+-sverilog
+-timescale=1ps/1ps
+-top
+-v
+-v
+-v
+-v
+-v
+-v
+-v
+-v
+-v
+-v
+-v
+/tools/synopsys/vcs/current/linux/bin/vcs1
+dtm
+Mult
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_primitives.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/220model.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/sgate.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_mf.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_lnsim.sv
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_atoms_ncrypt.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hmi_atoms_ncrypt.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_atoms.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hssi_atoms_ncrypt.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_hssi_atoms.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_pcie_hip_atoms_ncrypt.v
+/tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_pcie_hip_atoms.v
+./../..//Mult.vo
+80
+which_declare=declare -f
+XMODIFIERS=@im=ibus
+XDG_VTNR=2
+XDG_SESSION_TYPE=wayland
+XDG_SESSION_ID=2
+XDG_SESSION_DESKTOP=gnome
+XDG_SEAT=seat0
+XDG_RUNTIME_DIR=/run/user/35093
+XDG_MENU_PREFIX=gnome-
+XDG_DATA_DIRS=/user/stud/spring25/rlp2153/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/
+XDG_CURRENT_DESKTOP=GNOME
+XAUTHORITY=/run/user/35093/.mutter-Xwaylandauth.D7E642
+WAYLAND_DISPLAY=wayland-0
+VTE_VERSION=5204
+VMR_MODE_FLAG=32
+VERDI_HOME=/tools/synopsys/verdi/verdi/current
+VCS_PYTHON3=/tools/synopsys/vcs/current/linux/bin/Python-3.6.1/bin/python3
+VCS_PATHMAP_PRELOAD_DONE=1
+VCS_MX_HOME_INTERNAL=1
+VCS_LCAMSG_PRINT_OFF=1
+VCS_HOME=/tools/synopsys/vcs/current
+VCS_EXEC_DONE=1
+VCS_DEPTH=0
+VCS_ARG_ADDED_FOR_TMP=1
+VCS_ARCH=linux
+VCS_AMD_PURE32=1
+USERNAME=rlp2153
+UNAME=/bin/uname
+TOOL_HOME=/tools/synopsys/vcs/current/linux
+SYNOPSYS_LC_ROOT=/tools/synopsys/lc/current
+SYNOPSYS_ENV_SET=1
+STROOT=/tools/synopsys/sentaurus/current
+STDB=/user/stud/spring25/rlp2153/DB
+SSH_AUTH_SOCK=/run/user/35093/keyring/ssh
+SSH_ASKPASS=/usr/libexec/openssh/gnome-ssh-askpass
+SNPS_VCS_PYTHON3=/tools/synopsys/vcs/current/linux/bin/Python-3.6.1/bin/python3
+SNPS_VCS_CLANG_PATH=/tools/synopsys/vcs/current/linux/clang
+SNPS_INTERNAL_VCS_LINUX_OS=linux
+SESSION_MANAGER=local/unix:@/tmp/.ICE-unix/2851,unix/unix:/tmp/.ICE-unix/2851
+SCRNAME=vcs
+SCRIPT_NAME=vcs
+RSOFT_PROGRAMPATH=/tools/synopsys/photonicsolutions/2021.09-3/rsoft/bin
+RSLM_SERVER=lightwave6.ee.columbia.edu:27020
+QUARTUS_ENV_SET=1
+QT_IM_MODULE=ibus
+QSYS_ROOTDIR=/tools/intel/intelFPGA/21.1/quartus/sopc_builder/bin
+PHOTONICS_SOLUTIONS_VERSION=2021.09-3
+PHOTONICS_SOLUTIONS_ROOT=/tools/synopsys/photonicsolutions
+OVA_UUM=0
+OPTO_LINK_BASE=/tools/synopsys/photonicsolutions/2021.09-3/optodesigner/bin
+MISC_ENV_SET=1
+MGLS_LICENSE_FILE=1720@bioeelincad.ee.columbia.edu
+MGC_HOME=/tools/mentor/aok_cal_2024.3_25.13
+MENTOR_ENV_SET=1
+LESSOPEN=||/usr/bin/lesspipe.sh %s
+LC_ALL=C
+KRB5CCNAME=KCM:
+HPEESOF_DIR=/tools/keysight/ADS2020
+HISTCONTROL=ignoredups
+GNOME_TERMINAL_SERVICE=:1.94
+GNOME_TERMINAL_SCREEN=/org/gnome/Terminal/screen/78ad3e92_5832_4bbb_9043_33d9e8f5f5e4
+GNOME_DESKTOP_SESSION_ID=this-is-deprecated
+GJS_DEBUG_TOPICS=JS ERROR;JS LOG
+GJS_DEBUG_OUTPUT=stderr
+GDM_LANG=en_US.UTF-8
+GDMSESSION=gnome
+FINESIMROOT=/tools/synopsys/finesim/current
+DESKTOP_SESSION=gnome
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/35093/bus
+COLORTERM=truecolor
+CDS_LIC_FILE=5280@bioeelincad.ee.columbia.edu
+CDSHOME=/tools/cadence/IC618.270
+CALIBRE_HOME=/tools/mentor/aok_cal_2024.3_25.13
+CADENCE_ENV_SET=1
+BASH_FUNC_which%%=() {  ( alias;_ eval ${which_declare} ) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot $@_}
+AWPROOTDIR=/tools/ansys/AnsysEM/AnsysEM24.2
+ANS_NODEPCHECK=1
+ANSYSLMD_LICENSE_FILE=27005@bioeelincad.ee.columbia.edu
+ADS_LICENSE_FILE=8932@bioeelincad.ee.columbia.edu
+ADS_ENV_SET=1
+0
+0
+16
+1634846469 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_primitives.v
+1634846469 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_primitives.v
+1634846469 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_primitives.v
+1745354016 ./../..//Mult.vo
+1634839770 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_pcie_hip_atoms.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_pcie_hip_atoms_ncrypt.v
+1634872000 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_hssi_atoms.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hssi_atoms_ncrypt.v
+1634872102 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_atoms.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hmi_atoms_ncrypt.v
+0 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_atoms_ncrypt.v
+1634846470 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_lnsim.sv
+1634846479 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_mf.v
+1634872000 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/sgate.v
+1634846470 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/220model.v
+1634846469 /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_primitives.v
+4
+1697255377 /tools/synopsys/vcs/current/linux/lib/libvirsim.so
+1697254404 /tools/synopsys/vcs/current/linux/lib/liberrorinf.so
+1697254316 /tools/synopsys/vcs/current/linux/lib/libsnpsmalloc.so
+1697255105 /tools/synopsys/vcs/current/linux/lib/libvfs.so
+1745356331 simv.daidir
+-1 partitionlib
