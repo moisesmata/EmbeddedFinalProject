@@ -5,7 +5,7 @@ vcs -full64 -sverilog \
     +define+FUNCTIONAL \
     +incdir+. \
     getAccl.sv \
-    shift_register.sv \
+    shiftreg.sv \
     getAccl_tb.sv \
     -y AddSub_sim/synopsys +libext+.v+.sv \
     -y Mult_sim/synopsys +libext+.v+.sv \
