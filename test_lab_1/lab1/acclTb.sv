@@ -45,6 +45,7 @@ module acclTb;
     initial begin
         // For better time printing
         $timeformat(-9, 2, " ns", 10);
+        $display("Time=%t: Starting simulation.", $time);
 
         // Initialize inputs (using floating point representation)
         rst = 1;

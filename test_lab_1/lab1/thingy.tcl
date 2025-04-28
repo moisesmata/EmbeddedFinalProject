@@ -61,15 +61,31 @@ vlog +incdir+./ \
 # Set the top-level simulation or testbench module/entity name.
 # Replace <your_top_level_tb_module> with the actual name.
 echo "Elaborating design..."
-set TOP_LEVEL_NAME acclTb.sv
+# *** FIX: Use the MODULE name, not the filename ***
+set TOP_LEVEL_NAME acclTb
 
 # Set any elaboration options you require.
 # set USER_DEFINED_ELAB_OPTIONS <elaboration options>
-set USER_DEFINED_ELAB_OPTIONS ""
+# *** FIX: Add library linking options ***
+# Add libraries for your compiled IP and standard Altera libraries.
+# Check the IP core msim_setup.tcl scripts if these names are different.
+# *** FIX: Add +acc for waveform logging visibility ***
+set USER_DEFINED_ELAB_OPTIONS "-L work -L Mult_sim -L AddSub_sim -L InvSqrt_sim -L altera_mf_ver -L lpm_ver +acc=npr"
 
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
-elab $TOP_LEVEL_NAME
+# Add -svlog to elab if your top-level is SystemVerilog
+elab $USER_DEFINED_ELAB_OPTIONS $TOP_LEVEL_NAME
+
+# --- Waveform Logging ---
+# Add signals to the wave window and log them to the WLF file
+echo "Setting up waveform logging..."
+# Log all signals recursively starting from the top level
+log -r /*
+# Example: Log specific signals
+# log clk
+# log reset
+# log /acclTb/dut_instance/internal_signal
 
 # --- Simulation ---
 # Run the simulation.
