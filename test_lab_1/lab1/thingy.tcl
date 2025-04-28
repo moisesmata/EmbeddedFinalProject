@@ -62,7 +62,6 @@ vlog +incdir+./ \
 # Replace <your_top_level_tb_module> with the actual name.
 echo "Elaborating design..."
 # *** FIX: Use the MODULE name, not the filename ***
-set TOP_LEVEL_NAME acclTb
 
 # Set any elaboration options you require.
 # set USER_DEFINED_ELAB_OPTIONS <elaboration options>
@@ -75,7 +74,7 @@ set USER_DEFINED_ELAB_OPTIONS "-L work -L Mult_sim -L AddSub_sim -L InvSqrt_sim 
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
 # Add -svlog to elab if your top-level is SystemVerilog
-elab $USER_DEFINED_ELAB_OPTIONS $TOP_LEVEL_NAME
+elab $USER_DEFINED_ELAB_OPTIONS acclTb
 
 # --- Waveform Logging ---
 # Add signals to the wave window and log them to the WLF file
