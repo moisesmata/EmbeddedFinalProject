@@ -65,7 +65,7 @@ set TOP_LEVEL_NAME acclTb.sv
 
 # Set any elaboration options you require.
 # set USER_DEFINED_ELAB_OPTIONS <elaboration options>
-set USER_DEFINED_ELAB_OPTIONS "-L altera_mf_ver -L lpm_ver" # Example options
+set USER_DEFINED_ELAB_OPTIONS ""
 
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
