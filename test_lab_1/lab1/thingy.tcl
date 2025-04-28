@@ -19,7 +19,7 @@
 
 # Call command to compile the Quartus EDA simulation library.
 echo "Compiling Quartus libraries..."
-dev_com
+# dev_com
 
 # --- Compile IP Cores ---
 # Source and compile each IP core's simulation files
