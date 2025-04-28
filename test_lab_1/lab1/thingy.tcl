@@ -48,7 +48,7 @@ com
 # Add -L altera_mf_ver etc. if needed for Altera primitives not included by IP cores
 echo "Compiling design and testbench files..."
 vlog +incdir+./ \
-     shiftreg.sv
+     shiftreg.sv \
      getAccl.sv \
      acclTb.sv
 # Example:
