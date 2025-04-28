@@ -69,7 +69,7 @@ set USER_DEFINED_ELAB_OPTIONS ""
 
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
-elab $USER_DEFINED_ELAB_OPTIONS $TOP_LEVEL_NAME
+elab $TOP_LEVEL_NAME
 
 # --- Simulation ---
 # Run the simulation.
