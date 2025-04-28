@@ -1,4 +1,3 @@
-lab1/thingy.tcl
 # TOP-LEVEL TEMPLATE - BEGIN
 #
 # QSYS_SIMDIR is used in the Quartus-generated IP simulation script to
