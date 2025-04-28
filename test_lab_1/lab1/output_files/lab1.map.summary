@@ -1,0 +1,17 @@
+Analysis & Synthesis Status : Successful - Mon Apr 28 14:22:49 2025
+Quartus Prime Version : 21.1.0 Build 842 10/21/2021 SJ Lite Edition
+Revision Name : lab1
+Top-level Entity Name : getAccl
+Family : Cyclone V
+Logic utilization (in ALMs) : N/A
+Total registers : 19321
+Total pins : 450
+Total virtual pins : 0
+Total block memory bits : 128,476
+Total DSP Blocks : 37
+Total HSSI RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total PLLs : 0
+Total DLLs : 0

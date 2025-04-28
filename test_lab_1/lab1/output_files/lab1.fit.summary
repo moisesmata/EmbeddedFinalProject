@@ -1,0 +1,20 @@
+Fitter Status : Successful - Mon Apr 28 14:27:12 2025
+Quartus Prime Version : 21.1.0 Build 842 10/21/2021 SJ Lite Edition
+Revision Name : lab1
+Top-level Entity Name : getAccl
+Family : Cyclone V
+Device : 5CGTFD9E5F35C7
+Timing Models : Final
+Logic utilization (in ALMs) : 5,701 / 113,560 ( 5 % )
+Total registers : 16070
+Total pins : 450 / 616 ( 73 % )
+Total virtual pins : 0
+Total block memory bits : 128,356 / 12,492,800 ( 1 % )
+Total RAM Blocks : 21 / 1,220 ( 2 % )
+Total DSP Blocks : 37 / 342 ( 11 % )
+Total HSSI RX PCSs : 0 / 12 ( 0 % )
+Total HSSI PMA RX Deserializers : 0 / 12 ( 0 % )
+Total HSSI TX PCSs : 0 / 12 ( 0 % )
+Total HSSI PMA TX Serializers : 0 / 12 ( 0 % )
+Total PLLs : 0 / 20 ( 0 % )
+Total DLLs : 0 / 4 ( 0 % )
