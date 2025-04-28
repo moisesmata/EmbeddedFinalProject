@@ -74,7 +74,7 @@ module acclTb;
 
         // --- Test Case 3 ---
         $display("Time=%t: Applying Test Case 3", $time);
-        x1 = $realtobits(1.0); y1 = $realtobitslab1(2.0); z1 = $realtobits(3.0);
+        x1 = $realtobits(1.0); y1 = $realtobits(2.0); z1 = $realtobits(3.0);
         x2 = $realtobits(4.0); y2 = $realtobits(5.0); m2 = $realtobits(50.0); // Example values
         # (CLK_PERIOD * (LATENCY + 10)); // Wait for output + margin
 
