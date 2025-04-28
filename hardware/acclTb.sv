@@ -47,10 +47,10 @@ module getAccl_tb;
         // For better time printing
         $timeformat(-9, 2, " ns", 10);
 
-        // Initialize inputs
+        // Initialize inputs (using floating point representation)
         rst = 1;
-        x1 = 64'd0; y1 = 64'd0; z1 = 64'd0;
-        x2 = 64'd0; y2 = 64'd0; m2 = 64'd0;
+        x1 = $realtobits(0.0); y1 = $realtobits(0.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(0.0);
 
         // Apply reset
         # (CLK_PERIOD * 5);
@@ -62,20 +62,20 @@ module getAccl_tb;
 
         // --- Test Case 1 ---
         $display("Time=%t: Applying Test Case 1", $time);
-        x1 = 64'd10; y1 = 64'd0; z1 = 64'd0;
-        x2 = 64'd0; y2 = 64'd0; m2 = 64'd100; // Example values
+        x1 = $realtobits(10.0); y1 = $realtobits(0.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(100.0); // Example values
         # (CLK_PERIOD * (LATENCY + 10)); // Wait for output + margin
 
         // --- Test Case 2 ---
         $display("Time=%t: Applying Test Case 2", $time);
-        x1 = 64'd5; y1 = 64'd5; z1 = 64'd0;
-        x2 = 64'd-5; y2 = 64'd-5; m2 = 64'd200; // Example values
+        x1 = $realtobits(5.0); y1 = $realtobits(5.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(-5.0); y2 = $realtobits(-5.0); m2 = $realtobits(200.0); // Example values
         # (CLK_PERIOD * (LATENCY + 10)); // Wait for output + margin
 
         // --- Test Case 3 ---
         $display("Time=%t: Applying Test Case 3", $time);
-        x1 = 64'd1; y1 = 64'd2; z1 = 64'd3;
-        x2 = 64'd4; y2 = 64'd5; m2 = 64'd50; // Example values
+        x1 = $realtobits(1.0); y1 = $realtobits(2.0); z1 = $realtobits(3.0);
+        x2 = $realtobits(4.0); y2 = $realtobits(5.0); m2 = $realtobits(50.0); // Example values
         # (CLK_PERIOD * (LATENCY + 10)); // Wait for output + margin
 
         $display("Time=%t: Simulation finished.", $time);
