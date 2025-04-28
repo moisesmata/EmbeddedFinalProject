@@ -6,7 +6,7 @@ vcs -full64 -sverilog \
     +incdir+. \
     getAccl.sv \
     shiftreg.sv \
-    getAccl_tb.sv \
+    acclTb.sv \
     -y AddSub_sim/synopsys +libext+.v+.sv \
     -y Mult_sim/synopsys +libext+.v+.sv \
     -y InvSqrt_sim/synopsys +libext+.v+.sv \
