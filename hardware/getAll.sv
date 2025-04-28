@@ -14,4 +14,7 @@ module getAll #(
     input logic [ADDR_WIDTH-1:0] addr,
     input logic chipselect,
     output logic read_data
-)
+);
+    
+
+endmodule
