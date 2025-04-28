@@ -93,6 +93,5 @@ run -a
 
 # Report success to the shell.
 echo "Simulation finished successfully."
-exit -code 0
 #
 # TOP-LEVEL TEMPLATE - END
