@@ -50,7 +50,7 @@ echo "Compiling design and testbench files..."
 vlog -sv  +incdir+./ \
      shiftreg.sv \
      getAccl.sv \
-     acclTb.sv
+     getAcclTb.sv
 
 # Example:
 # vlog +incdir+../src \
@@ -75,7 +75,7 @@ set USER_DEFINED_ELAB_OPTIONS "-L altera_mf_ver -L lpm_ver +acc=npr"
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
 # Add -svlog to elab if your top-level is SystemVerilog
-elab $USER_DEFINED_ELAB_OPTIONS acclTb
+elab $USER_DEFINED_ELAB_OPTIONS getAcclTb
 
 # --- Waveform Logging ---
 # Add signals to the wave window and log them to the WLF file
@@ -85,7 +85,7 @@ log -r /*
 # Example: Log specific signals
 # log clk
 # log reset
-# log /acclTb/dut_instance/internal_signal
+# log /getAcclTb/dut_instance/internal_signal
 
 # --- Simulation ---
 # Run the simulation.
@@ -96,12 +96,12 @@ run -a
 echo "Simulation finished successfully."
 #
 # TOP-LEVEL TEMPLATE - END
-add wave -position end  sim:/acclTb/x1
-add wave -position end  sim:/acclTb/y1
-add wave -position end  sim:/acclTb/x2
-add wave -position end  sim:/acclTb/x2
-add wave -position end  sim:/acclTb/y2
-add wave -position end  sim:/acclTb/m2
-add wave -position end  sim:/acclTb/ax
-add wave -position end  sim:/acclTb/ay
-add wave -position 0  sim:/acclTb/clk
+add wave -position end  sim:/getAcclTb/x1
+add wave -position end  sim:/getAcclTb/y1
+add wave -position end  sim:/getAcclTb/x2
+add wave -position end  sim:/getAcclTb/x2
+add wave -position end  sim:/getAcclTb/y2
+add wave -position end  sim:/getAcclTb/m2
+add wave -position end  sim:/getAcclTb/ax
+add wave -position end  sim:/getAcclTb/ay
+add wave -position 0  sim:/getAcclTb/clk

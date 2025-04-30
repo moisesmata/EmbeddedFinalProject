@@ -1,6 +1,6 @@
 
 `timescale 1 ps / 1 ps
-module acclTb;
+module getAcclTb;
 
     // Parameters
     parameter CLK_PERIOD = 10; // Clock period in ns (100 MHz)
