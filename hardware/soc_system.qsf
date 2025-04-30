@@ -862,3 +862,4 @@ set_global_assignment -name QIP_FILE AddSub.qip
 set_global_assignment -name SIP_FILE AddSub.sip
 set_global_assignment -name QIP_FILE InvSqrt.qip
 set_global_assignment -name SIP_FILE InvSqrt.sip
+set_global_assignment -name QIP_FILE RAM.qip
