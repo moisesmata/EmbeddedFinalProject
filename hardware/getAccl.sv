@@ -3,7 +3,7 @@
 // The wrapping program has to ensure that valid data is being fed in, and that it keeps track of what is coming out.
 // Latency is <<INPUT THIS>> cycles
 
-// `timescale 1 ps / 1 ps
+`timescale 1 ps / 1 ps
 
 module getAccl #(
     parameter MultTime = 11, // Number of cycles for mult
@@ -14,12 +14,11 @@ module getAccl #(
     input logic clk,          // Clock signal
     input logic [63:0] x1,    // X coordinate of the first body
     input logic [63:0] y1,    // Y coordinate of the first body
-    input logic [63:0] z1,    // Z coordinate of the first body
     input logic [63:0] x2,    // X coordinate of the second body
     input logic [63:0] y2,    // Y coordinate of the second body
     input logic [63:0] m2,    // Mass of the second body (premultaplied by G)
     output logic [63:0] ax,   // Acceleration in the X direction
-    output logic [63:0] ay   // Acceleration in the Y direction
+    output logic [63:0] ay   // Acceleration in the Y di    ); rection
 );
     logic [63:0] m_late, dx, dy, dx2, dy2, dx_late, dy_late, d_inv, d_inv_2, d_inv_3, f_val, d2;
     logic [63:0] d_inv_late;

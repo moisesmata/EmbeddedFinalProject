@@ -1,9 +1,0 @@
-{"vcs1":{"timestamp_begin":1745356322.105051141, "rt":5.73, "ut":0.56, "st":0.09}}
-{"vcselab":{"timestamp_begin":1745356327.881227394, "rt":2.62, "ut":0.15, "st":0.05}}
-{"link":{"timestamp_begin":1745356330.536761951, "rt":0.49, "ut":0.05, "st":0.02}}
-{"SNPS_VCS_INTERNAL_ROOT_START_TIME": 1745356321.833935669}
-{"VCS_COMP_START_TIME": 1745356321.833935669}
-{"VCS_COMP_END_TIME": 1745356331.095477008}
-{"VCS_USER_OPTIONS": "-lca -timescale=1ps/1ps -sverilog +verilog2001ext+.v -ntb_opts dtm -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_primitives.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/220model.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/sgate.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_mf.v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/altera_lnsim.sv -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_atoms_ncrypt.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hmi_atoms_ncrypt.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_atoms.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_hssi_atoms_ncrypt.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_hssi_atoms.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/synopsys/cyclonev_pcie_hip_atoms_ncrypt.v -v /tools/intel/intelFPGA/21.1/quartus//eda/sim_lib/cyclonev_pcie_hip_atoms.v ./../..//Mult.vo -top Mult"}
-{"vcs1": {"peak_mem": 259700}}
-{"vcselab": {"peak_mem": 147480}}

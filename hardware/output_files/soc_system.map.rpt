@@ -1,5 +1,5 @@
 Analysis & Synthesis report for soc_system
-Mon Apr 28 13:11:22 2025
+Wed Apr 30 13:52:27 2025
 Quartus Prime Version 21.1.0 Build 842 10/21/2021 SJ Lite Edition
 
 
@@ -145,7 +145,7 @@ https://fpgasoftware.intel.com/eula.
 +-------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                  ;
 +---------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status     ; Successful - Mon Apr 28 13:11:22 2025       ;
+; Analysis & Synthesis Status     ; Successful - Wed Apr 30 13:52:26 2025       ;
 ; Quartus Prime Version           ; 21.1.0 Build 842 10/21/2021 SJ Lite Edition ;
 ; Revision Name                   ; soc_system                                  ;
 ; Top-level Entity Name           ; soc_system_top                              ;
@@ -2745,7 +2745,7 @@ Info: Running Quartus Prime Analysis & Synthesis
     Info: Intel and sold by Intel or its authorized distributors.  Please
     Info: refer to the applicable agreement for further details, at
     Info: https://fpgasoftware.intel.com/eula.
-    Info: Processing started: Mon Apr 28 13:07:43 2025
+    Info: Processing started: Wed Apr 30 13:48:43 2025
 Info: Command: quartus_map soc_system
 Info (20032): Parallel compilation is enabled and will use up to 4 processors
 Info (12021): Found 1 design units, including 1 entities, in source file soc_system_top.sv
@@ -2941,10 +2941,10 @@ Info (21057): Implemented 1048 device resources after synthesis - the final reso
     Info (21061): Implemented 37 logic cells
     Info (21066): Implemented 1 delay-locked loops
 Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 93 warnings
-    Info: Peak virtual memory: 877 megabytes
-    Info: Processing ended: Mon Apr 28 13:11:22 2025
-    Info: Elapsed time: 00:03:39
-    Info: Total CPU time (on all processors): 00:03:47
+    Info: Peak virtual memory: 882 megabytes
+    Info: Processing ended: Wed Apr 30 13:52:27 2025
+    Info: Elapsed time: 00:03:44
+    Info: Total CPU time (on all processors): 00:03:45
 
 
 +------------------------------------------+

@@ -1,5 +1,6 @@
 
-module getAccl_tb;
+`timescale 1 ps / 1 ps
+module acclTb;
 
     // Parameters
     parameter CLK_PERIOD = 10; // Clock period in ns (100 MHz)
@@ -26,7 +27,6 @@ module getAccl_tb;
         .clk(clk),
         .x1(x1),
         .y1(y1),
-        .z1(z1), // z1 is an input to the module but not used in the provided logic
         .x2(x2),
         .y2(y2),
         .m2(m2),
@@ -58,12 +58,28 @@ module getAccl_tb;
 
         // Wait for reset to propagate
         # (CLK_PERIOD);
+	@(posedge clk);
 
         // --- Test Case 1 ---
         $display("Time=%t: Applying Test Case 1", $time);
-        x1 = $realtobits(10.0); y1 = $realtobits(0.0); z1 = $realtobits(0.0);
-        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(100.0); // Example values
-        # (CLK_PERIOD * (LATENCY + 10)); // Wait for output + margin
+        x1 = $realtobits(10.0); y1 = $realtobits(20.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(500.0); // Example values
+        # (CLK_PERIOD * (1)); // Wait for output + margin
+        x1 = $realtobits(10.0); y1 = $realtobits(100.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(400.0); // Example values
+	# (CLK_PERIOD * (1)); // Wait for output + margin
+        x1 = $realtobits(10.0); y1 = $realtobits(-10.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(300.0); // Example values
+	# (CLK_PERIOD * (1)); // Wait for output + margin
+        x1 = $realtobits(-100.0); y1 = $realtobits(10.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(200.0); // Example values
+	# (CLK_PERIOD * (1)); // Wait for output + margin
+        x1 = $realtobits(1000.0); y1 = $realtobits(1000.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(100000000000.0); // Example values
+	# (CLK_PERIOD * (1)); // Wait for output + margin
+
+
+
 
         // --- Test Case 2 ---
         $display("Time=%t: Applying Test Case 2", $time);
