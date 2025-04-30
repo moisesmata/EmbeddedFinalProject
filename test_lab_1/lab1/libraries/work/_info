@@ -1,0 +1,187 @@
+m255
+K4
+z2
+!s11f vlog 2024.2 2024.05, May 20 2024
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+d/homes/user/stud/spring25/rlp2153/EmbeddedFinalProject/test_lab_1/lab1
+vacclTb
+Z0 2shiftreg.sv|getAccl.sv|acclTb.sv
+Z1 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z2 !s110 1746034130
+!i10b 1
+!s100 ]<S1[kz960JNLbK2n:DMz2
+I]JKomBKSB8J28JNkPCZ?@1
+S1
+Z3 d/user/stud/spring25/rlp2153/EmbeddedFinalProject/test_lab_1/lab1
+w1745971031
+Z4 8acclTb.sv
+Z5 FacclTb.sv
+!i122 143
+L0 3 104
+Z6 VDg1SIo80bB@j0V0VzS_@n1
+Z7 OP;L;2024.2;79
+r1
+!s85 0
+31
+Z8 !s108 1746034130.000000
+Z9 !s107 acclTb.sv|getAccl.sv|shiftreg.sv|
+Z10 !s90 -reportprogress|300|-sv|+incdir+./|shiftreg.sv|getAccl.sv|acclTb.sv|
+!i113 1
+o-sv
+Z11 !s92 -sv +incdir+./
+Z12 tCvgOpt 0
+naccl@tb
+vAddSub
+2AddSub_sim/AddSub.vo
+!s110 1746034127
+!i10b 1
+!s100 ?3odl;g@]5XA<z;IiMN;31
+IW3X6dKeV]OHiN<N>EaWT:1
+R3
+w1745862511
+8AddSub_sim/AddSub.vo
+FAddSub_sim/AddSub.vo
+!i122 141
+L0 32 19569
+R6
+R7
+r1
+!s85 0
+31
+!s108 1746034127.000000
+!s107 AddSub_sim/AddSub.vo|
+!s90 -reportprogress|300|AddSub_sim/AddSub.vo|
+!i113 1
+R12
+n@add@sub
+vgetAccl
+R0
+R1
+R2
+!i10b 1
+!s100 b[TNAOMlXJQU=W`c>NZTZ3
+Ih8n]daT;eA><]oKimi^V]0
+S1
+R3
+w1745966907
+8getAccl.sv
+FgetAccl.sv
+!i122 143
+L0 8 133
+R6
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!i113 1
+o-sv
+R11
+R12
+nget@accl
+vgetAccl_tb
+R0
+R1
+!s110 1745968796
+!i10b 1
+!s100 `9ho82;DHMIMF7Q2XU<Qe3
+InK[?]P^DU:]@3GO<ZiUT[0
+S1
+R3
+w1745966874
+R4
+R5
+!i122 99
+L0 2 102
+R6
+R7
+r1
+!s85 0
+31
+!s108 1745968796.000000
+R9
+R10
+!i113 1
+o-sv
+R11
+R12
+nget@accl_tb
+vInvSqrt
+2InvSqrt_sim/InvSqrt.vo
+R2
+!i10b 1
+!s100 @;2XU5jj8D7Aa`0CAdE>R2
+IlD59EK]FTPC4OXSbAL3E`2
+R3
+w1745862579
+8InvSqrt_sim/InvSqrt.vo
+FInvSqrt_sim/InvSqrt.vo
+!i122 142
+L0 32 13101
+R6
+R7
+r1
+!s85 0
+31
+!s108 1746034129.000000
+!s107 InvSqrt_sim/InvSqrt.vo|
+!s90 -reportprogress|300|InvSqrt_sim/InvSqrt.vo|
+!i113 1
+R12
+n@inv@sqrt
+vMult
+2Mult_sim/Mult.vo
+!s110 1746034125
+!i10b 1
+!s100 E6MVAieM>f`WNHfMZ0C_P2
+ISz24ZQi<U0NV>Y>FT`kXG2
+R3
+w1745862427
+8Mult_sim/Mult.vo
+FMult_sim/Mult.vo
+!i122 140
+L0 32 6515
+R6
+R7
+r1
+!s85 0
+31
+!s108 1746034123.000000
+!s107 Mult_sim/Mult.vo|
+!s90 -reportprogress|300|Mult_sim/Mult.vo|
+!i113 1
+R12
+n@mult
+vshift_register
+R0
+R1
+R2
+!i10b 1
+!s100 R<9VI<:]a7hoMOI0L@H3J1
+IV2a@d1hab]_7c<>CWCMeI2
+S1
+R3
+w1745862310
+8shiftreg.sv
+Fshiftreg.sv
+!i122 143
+L0 1 32
+R6
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!i113 1
+o-sv
+R11
+R12

@@ -47,10 +47,11 @@ com
 # Replace <your_design_files.v> and <your_testbench.v> with actual file names/paths.
 # Add -L altera_mf_ver etc. if needed for Altera primitives not included by IP cores
 echo "Compiling design and testbench files..."
-vlog +incdir+./ \
+vlog -sv  +incdir+./ \
      shiftreg.sv \
      getAccl.sv \
      acclTb.sv
+
 # Example:
 # vlog +incdir+../src \
 #      ../src/my_module1.v \
@@ -69,7 +70,7 @@ echo "Elaborating design..."
 # Add libraries for your compiled IP and standard Altera libraries.
 # Check the IP core msim_setup.tcl scripts if these names are different.
 # *** FIX: Add +acc for waveform logging visibility ***
-set USER_DEFINED_ELAB_OPTIONS "-L work -L Mult_sim -L AddSub_sim -L InvSqrt_sim -L altera_mf_ver -L lpm_ver +acc=npr"
+set USER_DEFINED_ELAB_OPTIONS "-L altera_mf_ver -L lpm_ver +acc=npr"
 
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
@@ -95,3 +96,12 @@ run -a
 echo "Simulation finished successfully."
 #
 # TOP-LEVEL TEMPLATE - END
+add wave -position end  sim:/acclTb/x1
+add wave -position end  sim:/acclTb/y1
+add wave -position end  sim:/acclTb/x2
+add wave -position end  sim:/acclTb/x2
+add wave -position end  sim:/acclTb/y2
+add wave -position end  sim:/acclTb/m2
+add wave -position end  sim:/acclTb/ax
+add wave -position end  sim:/acclTb/ay
+add wave -position 0  sim:/acclTb/clk

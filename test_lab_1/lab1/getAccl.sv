@@ -3,7 +3,7 @@
 // The wrapping program has to ensure that valid data is being fed in, and that it keeps track of what is coming out.
 // Latency is <<INPUT THIS>> cycles
 
-// `timescale 1 ps / 1 ps
+`timescale 1 ps / 1 ps
 
 module getAccl #(
     parameter MultTime = 11, // Number of cycles for mult

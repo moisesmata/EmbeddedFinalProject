@@ -1,4 +1,5 @@
 
+`timescale 1 ps / 1 ps
 module acclTb;
 
     // Parameters
@@ -37,34 +38,48 @@ module acclTb;
     // Clock Generation
     initial begin
         clk = 0;
-        
+        forever #(CLK_PERIOD / 2) clk = ~clk;
     end
-	 always #(CLK_PERIOD / 2) clk = ~clk;
 
     // Reset and Stimulus Generation
     initial begin
         // For better time printing
         $timeformat(-9, 2, " ns", 10);
-        $display("Time=%t: Starting simulation.", $time);
 
         // Initialize inputs (using floating point representation)
         rst = 1;
         x1 = $realtobits(0.0); y1 = $realtobits(0.0); z1 = $realtobits(0.0);
         x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(0.0);
 
-        // Apply resetlab1
+        // Apply reset
         # (CLK_PERIOD * 5);
         rst = 0;
         $display("Time=%t: Deasserting reset.", $time);
 
         // Wait for reset to propagate
         # (CLK_PERIOD);
+	@(posedge clk);
 
         // --- Test Case 1 ---
         $display("Time=%t: Applying Test Case 1", $time);
-        x1 = $realtobits(10.0); y1 = $realtobits(0.0); z1 = $realtobits(0.0);
-        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(100.0); // Example values
-        # (CLK_PERIOD * (LATENCY + 10)); // Wait for output + margin
+        x1 = $realtobits(10.0); y1 = $realtobits(20.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(500.0); // Example values
+        # (CLK_PERIOD * (1)); // Wait for output + margin
+        x1 = $realtobits(10.0); y1 = $realtobits(100.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(400.0); // Example values
+	# (CLK_PERIOD * (1)); // Wait for output + margin
+        x1 = $realtobits(10.0); y1 = $realtobits(-10.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(300.0); // Example values
+	# (CLK_PERIOD * (1)); // Wait for output + margin
+        x1 = $realtobits(-100.0); y1 = $realtobits(10.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(200.0); // Example values
+	# (CLK_PERIOD * (1)); // Wait for output + margin
+        x1 = $realtobits(1000.0); y1 = $realtobits(1000.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(100000000000.0); // Example values
+	# (CLK_PERIOD * (1)); // Wait for output + margin
+
+
+
 
         // --- Test Case 2 ---
         $display("Time=%t: Applying Test Case 2", $time);
