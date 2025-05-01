@@ -125,7 +125,7 @@ module nbody #(
         .data_b ( x_data_b ),
         .wren_a ( wren_x ),
         .wren_b ( 0 ),
-        .q_a ( out_i_x )
+        .q_a ( out_i_x ),
         .q_b ( out_j_x )
 	);
     RAM2	RAM_y (
@@ -136,7 +136,7 @@ module nbody #(
         .data_b ( y_data_b ),
         .wren_a ( wren_y ),
         .wren_b ( 0 ),
-        .q_a ( out_i_y )
+        .q_a ( out_i_y ),
         .q_b ( out_j_y )
 	);
     RAM	RAM_m (
