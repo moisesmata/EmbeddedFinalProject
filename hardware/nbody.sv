@@ -40,7 +40,7 @@ module nbody #(
 
     logic go;
     logic done;
-    logic read;
+    logic read_sw;
     logic [$clog2(BODIES)-1:0] num_bodies;
     logic [DATA_WIDTH-1:0] gap, gap_counter;
     logic [DATA_WIDTH-1:0] write_mem;
@@ -75,7 +75,7 @@ module nbody #(
                     //once read and done are both low (and go is high obvisously), we can start the next cycle
 
                     if(go == 1) begin //handshake logic
-                        if(read == 1) begin
+                        if(read_sw == 1) begin
                             done <= 0;
                         end else if (done == 0) begin
                             state <= 2'b01;
