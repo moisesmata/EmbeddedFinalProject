@@ -35,7 +35,7 @@ module nbody #(
     input logic write,
     input logic [ADDR_WIDTH-1:0] addr,
     input logic chipselect,
-    output logic readdata[DATA_WIDTH-1:0]
+    output logic [DATA_WIDTH-1:0] readdata
 );
 
     logic go;
