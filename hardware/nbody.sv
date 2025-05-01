@@ -30,12 +30,12 @@ module nbody #(
 )(
     input logic clk,
     input logic rst,
-    input logic [DATA_WIDTH-1:0] write_data,
+    input logic [DATA_WIDTH-1:0] writedata,
     input logic read,
     input logic write,
     input logic [ADDR_WIDTH-1:0] addr,
     input logic chipselect,
-    output logic read_data[DATA_WIDTH-1:0]
+    output logic readdata[DATA_WIDTH-1:0]
 );
 
     logic go;
