@@ -28,7 +28,6 @@
 //synopsys translate_off
 
 //synthesis_resources = altera_syncram 1 lut 1359 mux21 56 oper_add 10 oper_mult 4 oper_mux 65 
-`timescale 1 ps / 1 ps
 module  Mult
 	( 
 	a,

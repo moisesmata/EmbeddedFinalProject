@@ -22,12 +22,34 @@ module getAccl #(
 );
     logic [63:0] m_late, dx, dy, dx2, dy2, dx_late, dy_late, d_inv, d_inv_2, d_inv_3, f_val, d2;
     logic [63:0] d_inv_late;
+    logic [63:0] x1_real, y1_real, x2_real, y2_real, m2_real;
+
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            x1_real <= 0;
+            y1_real <= 0;
+            x2_real <= 1;
+            y2_real <= 1;
+            m2_real <= 0;
+        end else begin
+            x1_real <= x1;
+            y1_real <= y1;
+            y2_real <= y2;
+            if (x1 == x2 && y1 == y2) begin
+                m2_real <= 0; // Set m2 to 0 if comparing a body to itself
+                x2_real <= x2 + 17
+            end else begin
+                m2_real <= m2;
+                x2_real <= x2;
+            end
+        end
+    end
 
     shift_register #(.SHIFTS(AddTime + MultTime + AddTime + InvSqrtTime + MultTime * 2)) shiftM // This is 20+49+37+11+11 for each of the objects this has to pass around
     (
         .clk(clk),
         .rst(rst),
-        .in(m2),
+        .in(m2_real),
         .out(m_late)
     ); 
     shift_register #(.SHIFTS(MultTime + AddTime + InvSqrtTime + MultTime * 3)) shiftDX // This is 49+37+11+11 for each of the objects this has to pass around
@@ -48,15 +70,16 @@ module getAccl #(
     AddSub subX(
         .clk(clk),
         .areset(rst),
-        .a(x1),
-        .b(x2),
+        .a(x1_real),
+        .b(x2_real),
         .s(dx)
     );
+
     AddSub subY(
         .clk(clk),
         .areset(rst),
-        .a(y1),
-        .b(y2),
+        .a(y1_real),
+        .b(y2_real),
         .s(dy)
     );
 
