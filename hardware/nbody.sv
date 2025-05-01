@@ -55,7 +55,8 @@ module nbody #(
     logic [DATA_WIDTH-1:0] ax, ay;
     // Odd things will happen if you try to write when the hardware is not in a state where it expects you too, as the addresses passed into the ram will be wrong, but you will still be writing.
     logic state_2_pos_write; // This one is 0 when when we are not in state 2, if if we are, it tracks whether we are writing (based on latency of adders and such)
-    logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc;
+    logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc, state_2_read_loc;
+
     logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i;
     assign state_2_pos_write = (state == 2'b10) ? (state_2_read_loc == AddTime) : 0;
     always_ff @(posedge clk or posedge rst) begin
