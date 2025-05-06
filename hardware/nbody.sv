@@ -138,7 +138,7 @@ module nbody #(
                     if (go == 0) begin
                         state <= SW_READ_WRITE;
                     end
-                    else if () begin
+                    else if (endstate) begin
                         // Finished, start UPDATE_POS
                         state <= UPDATE_POS;
                     end
