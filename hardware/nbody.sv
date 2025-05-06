@@ -26,7 +26,7 @@ module nbody #(
     parameter BODY_ADDR_WIDTH = $clog2(BODIES),
     parameter MultTime = 11, // Number of cycles for mult
     parameter AddTime = 20, // Number of cycles for add/sub 
-    parameter InvSqrtTime = 27 // Number of cycles for invsqert
+    parameter InvSqrtTime = 27, // Number of cycles for invsqert
     parameter AcclLatency = AddTime + MultTime + AddTime + InvSqrtTime + MultTime * 4 + 1 // The one is for the startup thing we need to do to confirm we dont devide by 0
 )(
     input logic clk,
@@ -70,7 +70,7 @@ module nbody #(
 
     logic endstate;
 
-    logic first_time
+    logic first_time;
 
     logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i, state_1_read_j, state_1_read_i;
 
