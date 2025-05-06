@@ -1,4 +1,4 @@
-RAM2	RAM2_inst (
+RAM2 RAM2_inst (
 	.address_a ( address_a_sig ),
 	.address_b ( address_b_sig ),
 	.clock ( clock_sig ),
