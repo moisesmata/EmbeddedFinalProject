@@ -867,6 +867,8 @@ set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_symbol
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_signal_integrity
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_boundary_scan
+
+set_global_assignment -name SOURCE_FILE RAM.cmp
 set_global_assignment -name QSYS_FILE soc_system.qsys
 set_global_assignment -name SOURCE_FILE InvSqrt.cmp
 set_global_assignment -name SOURCE_FILE Mult.cmp
