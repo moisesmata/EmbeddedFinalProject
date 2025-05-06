@@ -75,6 +75,8 @@ module nbody #(
         if (rst) begin
             state <= SW_READ_WRITE;
             gap_counter <= 0;
+            body_num_i <= 0;
+            body_num_j <= 0;
         end else begin
             state_1_vrwite_i <= 0;
             state_1_vrwite_j <= 0;
