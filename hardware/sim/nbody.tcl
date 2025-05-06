@@ -50,7 +50,8 @@ echo "Compiling design and testbench files..."
 vlog -sv  +incdir+./ \
      ../shift_register.sv \
      ../getAccl.sv \
-     getAcclTb.sv
+     ../nbody.sv \
+     nbodyTb.sv
 
 # Example:
 # vlog +incdir+../src \
@@ -75,7 +76,7 @@ set USER_DEFINED_ELAB_OPTIONS "-L altera_mf_ver -L lpm_ver +acc=npr"
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
 # Add -svlog to elab if your top-level is SystemVerilog
-elab $USER_DEFINED_ELAB_OPTIONS getAcclTb
+elab $USER_DEFINED_ELAB_OPTIONS nbodyTb
 
 # --- Waveform Logging ---
 # Add signals to the wave window and log them to the WLF file
@@ -96,12 +97,12 @@ run -a
 echo "Simulation finished successfully."
 #
 # TOP-LEVEL TEMPLATE - END
-add wave -position end  sim:/getAcclTb/x1
-add wave -position end  sim:/getAcclTb/y1
-add wave -position end  sim:/getAcclTb/x2
-add wave -position end  sim:/getAcclTb/x2
-add wave -position end  sim:/getAcclTb/y2
-add wave -position end  sim:/getAcclTb/m2
-add wave -position end  sim:/getAcclTb/ax
-add wave -position end  sim:/getAcclTb/ay
-add wave -position 0  sim:/getAcclTb/clk
+add wave -position end  sim:/nbodyTb/x1
+add wave -position end  sim:/nbodyTb/y1
+add wave -position end  sim:/nbodyTb/x2
+add wave -position end  sim:/nbodyTb/x2
+add wave -position end  sim:/nbodyTb/y2
+add wave -position end  sim:/nbodyTb/m2
+add wave -position end  sim:/nbodyTb/ax
+add wave -position end  sim:/nbodyTb/ay
+add wave -position 0  sim:/nbodyTb/clk

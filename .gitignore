@@ -1,3 +1,8 @@
 # Drawio backup files
 *.drawio.bkp
+
+# Hardware compiled files and output reports
 hardware/output_files/*
+hardware/db/*
+hardware/incremental_db/*
+hardware/simulation/*

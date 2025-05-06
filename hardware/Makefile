@@ -220,7 +220,7 @@ $(TARFILE) : $(TARFILES)
 #
 # Remove all generated files
 
-.PHONY : clean quartus-clean qsys-clean project-clean
+.PHONY : clean quartus-clean qsys-clean project-clean lint
 clean : quartus-clean qsys-clean project-clean dtb-clean preloader-clean \
 	uboot-clean
 
@@ -249,3 +249,12 @@ kernel-clean :
 
 config-clean :
 	rm -rf $(KERNEL_CONFIG)
+
+lint-nbody:
+	verilator --lint-only -Wall nbody.sv
+
+lint-getAccl:
+	verilator --lint-only -Wall getAccl.sv
+
+lint-shift_register:
+	verilator --lint-only -Wall shift_register.sv

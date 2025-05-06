@@ -1,0 +1,80 @@
+m255
+K4
+z2
+!s11f vlog 2021.2 2021.04, Apr 14 2021
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/home/user/Documents/Columbia/EmbeddedSystems/EmbeddedFinalProject/hardware/sim
+vAddSub
+Z1 !s110 1746413644
+!i10b 1
+!s100 AY0elcjdX]cn[:OiM9YF_1
+I5[n3@`On:^efmO@kjB1<H3
+R0
+Z2 w1745522024
+8../AddSub_sim/AddSub.vo
+F../AddSub_sim/AddSub.vo
+!i122 1
+L0 32 19569
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+Z4 OL;L;2021.2;73
+r1
+!s85 0
+31
+Z5 !s108 1746413644.000000
+!s107 ../AddSub_sim/AddSub.vo|
+!s90 -reportprogress|300|../AddSub_sim/AddSub.vo|
+!i113 0
+Z6 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z7 tCvgOpt 0
+n@add@sub
+vInvSqrt
+R1
+!i10b 1
+!s100 gdk<ZjAA:Y4?W[=77RZTL0
+IDEMM5ZXbAFaPLYHfa4VJ`3
+R0
+R2
+8../InvSqrt_sim/InvSqrt.vo
+F../InvSqrt_sim/InvSqrt.vo
+!i122 2
+L0 32 13101
+R3
+R4
+r1
+!s85 0
+31
+R5
+!s107 ../InvSqrt_sim/InvSqrt.vo|
+!s90 -reportprogress|300|../InvSqrt_sim/InvSqrt.vo|
+!i113 0
+R6
+R7
+n@inv@sqrt
+vMult
+R1
+!i10b 1
+!s100 81A^>8Fb0?jdm>=0c17OM1
+IJf96FkAcUCi9j@_zEPCKA1
+R0
+w1746411422
+8../Mult_sim/Mult.vo
+F../Mult_sim/Mult.vo
+!i122 0
+L0 31 6515
+R3
+R4
+r1
+!s85 0
+31
+R5
+!s107 ../Mult_sim/Mult.vo|
+!s90 -reportprogress|300|../Mult_sim/Mult.vo|
+!i113 0
+R6
+R7
+n@mult
