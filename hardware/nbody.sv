@@ -27,6 +27,7 @@ module nbody #(
     parameter MultTime = 11, // Number of cycles for mult
     parameter AddTime = 20, // Number of cycles for add/sub 
     parameter InvSqrtTime = 27 // Number of cycles for invsqert
+    parameter AcclLatency = AddTime + MultTime + AddTime + InvSqrtTime + MultTime * 4 + 1 // The one is for the startup thing we need to do to confirm we dont devide by 0
 )(
     input logic clk,
     input logic rst,
@@ -49,23 +50,27 @@ module nbody #(
     logic read_sw;
     logic [$clog2(BODIES)-1:0] num_bodies;
     logic [DATA_WIDTH-1:0] gap, gap_counter;
-    logic [DATA_WIDTH-1:0] write_mem;
+    logic [DATA_WIDTH-1:0] write_vx, write_vy, write_x, write_y;
     logic wren_x, wren_y, wren_m, wren_vx, wren_vy;
     logic [DATA_WIDTH-1:0] out_x, out_y, out_m, out_vx, out_vy;
     logic [1:0] state;
     logic [BODY_ADDR_WIDTH-1:0] v_read_or_software_or_state2_read;
     logic [BODY_ADDR_WIDTH-1:0] i_or_software_or_state2_write;
     logic [BODY_ADDR_WIDTH-1:0] body_num_i, body_num_j;
+    logic [BODY_ADDR_WIDTH-1:0] j_or_state2_read;
 
     assign i_or_software_or_state2_write = (state == SW_READ_WRITE) ? body_num_i : addr[BODY_ADDR_WIDTH-1:0]; //TODO change this to do the state 2 thing
     
     logic [DATA_WIDTH-1:0] accl_x1, accl_y1, accl_x2, accl_y2, accl_m2; 
     logic [DATA_WIDTH-1:0] ax, ay;
+    logic [DATA_WIDTH-1:0] out_i_x, out_i_y, out_j_x, out_j_y; 
     // Odd things will happen if you try to write when the hardware is not in a state where it expects you too, as the addresses passed into the ram will be wrong, but you will still be writing.
     logic state_2_pos_write; // This one is 0 when when we are not in state 2, if if we are, it tracks whether we are writing (based on latency of adders and such)
     logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc, state_2_read_loc;
 
     logic endstate;
+
+    logic first_time
 
     logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i, state_1_read_j, state_1_read_i;
 
@@ -85,9 +90,9 @@ module nbody #(
                 if (addr[15:9] == 7'b1000000) begin
                     readdata <= {{(DATA_WIDTH-1){1'b0}}, done};
                 end else if (addr[15:9] == 7'b1000001) begin
-                    readdata <= {{(DATA_WIDTH-1){1'b0}}, out_x};
+                    readdata <=  out_i_x;
                 end else if (addr[15:9] == 7'b1000010) begin
-                    readdata <= {{(DATA_WIDTH-1){1'b0}}, out_y};
+                    readdata <= out_i_y;
                 end
             end
 
@@ -97,13 +102,20 @@ module nbody #(
                     // if we raised done, we are waiting for read to go high before dropping done
                     //once read and done are both low (and go is high obvisously), we can start the next cycle
                     i_or_software_or_state2_write <= addr[BODY_ADDR_WIDTH-1:0];
-                    
+                    write_x <= writedata;
+                    write_y <= writedata;
+                    write_vx <= writedata;
+                    write_vy <= writedata;
                     if(go == 1) begin //handshake logic
                         if(read_sw == 1) begin
                             done <= 0;
                         end else if (done == 0) begin
                             state <= CALC_ACCEL;
                         end
+                    end
+                    else begin
+                        first_time <= 1;
+                        done <= 1;
                     end
                     // zeroing out all the shit
                     
@@ -124,10 +136,10 @@ module nbody #(
                         if (body_num_j == num_bodies - 1) begin
                             // Check if we have gone through all the bodies, if
                             // not update i and j.
-                            if (body_num_i == num_bodies - 1) begin
-                                // Finished inputs into acceleration
-                            end
-                            else begin
+
+                            // If this is not the case, we dont really case, as we will never see those outputs because of the trailer.
+
+                            if (body_num_i != num_bodies - 1) begin
                                 // We have reached the final body_j. Increment
                                 // i and reset j
                                 body_num_i <= body_num_i + 1;
@@ -135,6 +147,10 @@ module nbody #(
                             end
                         end
                     end
+                    // TODO: NEED TO GIT RID OF THIS, JUST FOR TESTING N SHIT
+                    write_vx <= ax;
+                    write_vy <= ay;
+                    
                 end
                 UPDATE_POS: begin // Update positions
                     i_or_software_or_state2_write <= state_2_write_loc;
@@ -159,6 +175,9 @@ module nbody #(
                             end
                         end
                     end 
+                    // TODO: Get rid of this, just for testing
+                    write_x <= out_vx;
+                    write_y <= out_vy;
                     //TODO: zero out everything else that I need to
                 end
                 default: state <= SW_READ_WRITE; // Default to idle state
@@ -175,8 +194,8 @@ module nbody #(
         .clock ( clk ),
         .address_a ( i_or_software_or_state2_write ),
         .address_b ( j_or_state2_read ),
-        .data_a ( x_data_a ),
-        .data_b ( x_data_b ),
+        .data_a ( write_x ),
+        .data_b ( 64'b0 ),
         .wren_a ( wren_x ),
         .wren_b ( 0 ),
         .q_a ( out_i_x ),
@@ -186,8 +205,8 @@ module nbody #(
         .clock ( clk ),
         .address_a ( i_or_software_or_state2_write ),
         .address_b ( j_or_state2_read ),
-        .data_a ( y_data_a ),
-        .data_b ( y_data_b ),
+        .data_a ( write_y ),
+        .data_b ( 64'b0 ),
         .wren_a ( wren_y ),
         .wren_b ( 0 ),
         .q_a ( out_i_y ),
@@ -195,15 +214,15 @@ module nbody #(
 	);
     RAM	RAM_m (
         .clock ( clk ),
-        .data ( write_mem ),
-        .rdaddress ( j ),
+        .data ( writedata ),
+        .rdaddress ( body_num_j ),
         .wraddress ( addr[BODY_ADDR_WIDTH-1:0] ),
         .wren ( wren_m ),
         .q ( out_m )
 	);
     RAM	RAM_vx (
         .clock ( clk ),
-        .data ( write_mem ),
+        .data ( write_vy ),
         .rdaddress ( v_read_or_software_or_state2_read ),
         .wraddress ( vwrite_or_software ),
         .wren ( wren_vx ),
@@ -211,7 +230,7 @@ module nbody #(
 	);
     RAM	RAM_vy (
         .clock ( clk ),
-        .data ( write_mem ),
+        .data ( write_vx ),
         .rdaddress ( v_read_or_software_or_state2_read ),
         .wraddress ( vwrite_or_software ),
         .wren ( wren_vy ),
@@ -225,11 +244,11 @@ module nbody #(
     ) accl (
         .rst(rst), // NOT CORRECT TODO
         .clk(clk),
-        .x1(accl_x1),
-        .y1(accl_y1),
-        .x2(accl_x2),
-        .y2(accl_y2),
-        .m2(accl_m2),
+        .x1(out_i_x),
+        .y1(out_i_y),
+        .x2(out_j_x),
+        .y2(out_j_y),
+        .m2(out_m),
         .ax(ax),
         .ay(ay)
     );
