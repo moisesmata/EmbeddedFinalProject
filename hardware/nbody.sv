@@ -20,10 +20,10 @@
 
 
 module nbody #(
-    parameter BODIES = 512;
-    parameter DATA_WIDTH = 64;
-    parameter ADDR_WIDTH = 16;
-    parameter BODY_ADDR_WIDTH = $clog2(BODIES);
+    parameter BODIES = 512,
+    parameter DATA_WIDTH = 64,
+    parameter ADDR_WIDTH = 16,
+    parameter BODY_ADDR_WIDTH = $clog2(BODIES),
     parameter MultTime = 11, // Number of cycles for mult
     parameter AddTime = 20, // Number of cycles for add/sub 
     parameter InvSqrtTime = 27 // Number of cycles for invsqert
@@ -38,6 +38,12 @@ module nbody #(
     output logic [DATA_WIDTH-1:0] readdata
 );
 
+    localparam SW_READ_WRITE = 2'b00;
+    localparam CALC_ACCEL = 2'b01;
+    localparam UPDATE_POS = 2'b10;
+    // Assuming sub == add
+    localparam totAccelTime = (AddTime * 2) + (MultTime * 5) + InvSqrtTime;
+
     logic go;
     logic done;
     logic read_sw;
@@ -49,7 +55,7 @@ module nbody #(
     logic [1:0] state;
     logic [BODY_ADDR_WIDTH-1:0] v_read_or_software_or_state2_read;
     logic [BODY_ADDR_WIDTH-1:0] i_or_software_or_state2_write;
-    assign i_or_software_or_state2_write = (state == 2'b00) ? body_num_i : addr[BODY_ADDR_WIDTH-1:0]; //TODO change this to do the state 2 thing
+    assign i_or_software_or_state2_write = (state == SW_READ_WRITE) ? body_num_i : addr[BODY_ADDR_WIDTH-1:0]; //TODO change this to do the state 2 thing
     
     logic [DATA_WIDTH-1:0] accl_x1, accl_y1, accl_x2, accl_y2, accl_m2; 
     logic [DATA_WIDTH-1:0] ax, ay;
@@ -58,11 +64,12 @@ module nbody #(
     logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc, state_2_read_loc;
 
     logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i, state_1_read_j, state_1_read_i;
-    assign state_2_pos_write = (state == 2'b10) ? (state_2_read_loc == AddTime) : 0;
+    assign state_2_pos_write = (state == UPDATE_POS) ? (state_2_read_loc == AddTime) : 0;
+
     always_ff @(posedge clk or posedge rst) begin
         //TODO: logic for letting software read and write values goes here
         if (rst) begin
-            state <= 2'b00;
+            state <= SW_READ_WRITE;
             gap_counter <= 0;
         end else begin
             state_1_vrwite_i <= 0;
@@ -72,58 +79,78 @@ module nbody #(
             state_2_write_loc <= 0;
             state_2_read_loc <= 0;
             case (state)
-                2'b00: begin // Software reading/writing 
+                SW_READ_WRITE: begin // Software reading/writing 
                     //if go is not high, then we are not going to do anything (except take in writes from software)
-
                     // if we raised done, we are waiting for read to go high before dropping done
-
                     //once read and done are both low (and go is high obvisously), we can start the next cycle
 
                     if(go == 1) begin //handshake logic
                         if(read_sw == 1) begin
                             done <= 0;
                         end else if (done == 0) begin
-                            state <= 2'b01;
+                            state <= CALC_ACCEL;
                         end
                     end
                     // zeroing out all the shit
                     
                 end
-                2'b01: begin // Compute accelerations, update velocities
+                CALC_ACCEL: begin // Compute accelerations, update velocities
                     if (go == 0) begin
-                        state <= 2'b00;
+                        state <= SW_READ_WRITE;
                     end
-                    //TODO: all this bullshit
+                    else if (endstate) begin
+                        // Finished, start UPDATE_POS
+                        state <= UPDATE_POS;
+                    end
+                    else begin
+                        // Actually running.
+                        // By default, body_num_j increases by 1
+                        body_num_j <= body_num_j + 1;
+                        if (body_num_j == num_bodies - 1) begin
+                            // Check if we have gone through all the bodies, if
+                            // not update i and j.
+                            if (body_num_i == num_bodies - 1) begin
+                                // Finished inputs into acceleration
+                            end
+                            else begin
+                                // We have reached the final body_j. Increment
+                                // i and reset j
+                                body_num_i <= body_num_i + 1;
+                                body_num_j <= 0;
+                            end
+                        end
+                    end
                 end
-                2'b10: begin // Update positions
+                UPDATE_POS: begin // Update positions
                     state_2_read_loc <= state_2_read_loc + 1;
                     if (go == 0) begin
-                        state <= 2'b00;
+                        state <= SW_READ_WRITE;
                     end else if (state_2_pos_write) begin
                         if (state_2_write_loc != num_bodies - 1) begin
                             state_2_write_loc <= state_2_write_loc + 1;
                         end else begin
                             state_2_write_loc <= 0;
                             if (gap_counter == gap) begin
-                                state <= 2'b00;
+                                state <= SW_READ_WRITE;
                             end else begin
-                                state <= 2'b01;
+                                state <= CALC_ACCEL;
                                 gap_counter <= gap_counter + 1;
                             end
                         end
                     end 
                     //TODO: zero out everything else that I need to
                 end
-                default: state <= 2'b00; // Default to idle state
+                default: state <= SW_READ_WRITE; // Default to idle state
             endcase
         end
     end
-    assign wren_x = (state == 2'b00) ? ((addr[15:9] == 2'b0000011) ? write : 0) : state_2_pos_write;
-    assign wren_y = (state == 2'b00) ? ((addr[15:9] == 2'b0000100) ? write : 0) : state_2_pos_write;
-    assign wren_m = (addr[15:9] == 2'b0000101) ? write : 0;
-    assign wren_vx = (addr[15:9] == 2'b0000110) ? write : 0;
-    assign wren_vy = (addr[15:9] == 2'b0000111) ? write : 0;
-    RAM2	RAM_x (
+    // Write enable for software
+    assign wren_x = (state == SW_READ_WRITE) ? ((addr[15:9] == 7'b0000011) ? write : 0) : state_2_pos_write;
+    assign wren_y = (state == SW_READ_WRITE) ? ((addr[15:9] == 7'b0000100) ? write : 0) : state_2_pos_write;
+    assign wren_m = (addr[15:9] == 7'b0000101) ? write : 0;
+    assign wren_vx = (addr[15:9] == 7'b0000110) ? write : 0;
+    assign wren_vy = (addr[15:9] == 7'b0000111) ? write : 0;
+    RAM2	RAM_x(
         .clock ( clk ),
         .address_a ( i_or_software_or_state2_write ),
         .address_b ( j_or_state2_read ),
@@ -134,7 +161,7 @@ module nbody #(
         .q_a ( out_i_x ),
         .q_b ( out_j_x )
 	);
-    RAM2	RAM_y (
+    RAM2    RAM_y(
         .clock ( clk ),
         .address_a ( i_or_software_or_state2_write ),
         .address_b ( j_or_state2_read ),
@@ -185,13 +212,4 @@ module nbody #(
         .ax(ax),
         .ay(ay)
     );
-
-
-
-
-
-
-
-    
-
 endmodule
