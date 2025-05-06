@@ -16,8 +16,15 @@ Sim dir               :  simulation/modelsim
 
 =======================================================
 
+<<<<<<< HEAD
 Info: Starting NativeLink simulation with ModelSim software
 Sourced NativeLink script /tools/intel/intelFPGA/21.1/quartus/common/tcl/internal/nativelink/modelsim.tcl
 Warning: File soc_system_run_msim_rtl_verilog.do already exists - backing up current file as soc_system_run_msim_rtl_verilog.do.bak1
 Info: Spawning ModelSim Simulation software 
+=======
+Info: Starting NativeLink simulation with Questa Intel FPGA software
+Sourced NativeLink script /home/user/intelFPGA_lite/21.1/quartus/common/tcl/internal/nativelink/modelsim.tcl
+Warning: File soc_system_run_msim_rtl_systemverilog.do already exists - backing up current file as soc_system_run_msim_rtl_systemverilog.do.bak
+Info: Spawning Questa Intel FPGA Simulation software 
+>>>>>>> 69f2e1d3c1f99fe11b24340b0f929bdd94ebcd8f
 Info: NativeLink simulation flow was successful

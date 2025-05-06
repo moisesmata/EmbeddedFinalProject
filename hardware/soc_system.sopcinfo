@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="soc_system" kind="soc_system" version="1.0" fabric="QSYS">
  <!-- Format version 21.1 842 (Future versions may contain additional information.) -->
+<<<<<<< HEAD
  <!-- 2025.05.06.18:40:22 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
   <value>1746571214</value>
+=======
+ <!-- 2025.05.06.17:52:06 -->
+ <!-- A collection of modules and connections -->
+ <parameter name="AUTO_GENERATION_ID">
+  <type>java.lang.Integer</type>
+  <value>1746568326</value>
+>>>>>>> 69f2e1d3c1f99fe11b24340b0f929bdd94ebcd8f
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>

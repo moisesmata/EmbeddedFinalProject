@@ -1,6 +1,8 @@
 m255
 K4
 z2
+Z0 !s99 nomlopt
+R0
 !s11f vlog 2021.2 2021.04, Apr 14 2021
 13
 !s112 1.1
@@ -8,73 +10,162 @@ z2
 !i10e 25
 !i10f 100
 cModel Technology
-Z0 d/home/user/Documents/Columbia/EmbeddedSystems/EmbeddedFinalProject/hardware/sim
+Z1 d/home/user/Documents/Columbia/EmbeddedSystems/EmbeddedFinalProject/hardware/sim
+T_opt
+!s110 1746568863
+VIX2Mgg6N<@QKYcF[1HQ@G3
+04 4 4 work Mult fast 0
+04 9 4 work getAcclTb fast 0
+=2-000ae431a4f1-681a869f-a752a-c3fe
+!s124 OEM10U18 
+o-quiet -auto_acc_if_foreign -work work -L altera_mf_ver -L lpm_ver -L work -L work_lib -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L cyclonev_hssi_ver -L cyclonev_pcie_hip_ver -L altera_mf_ver -L lpm_ver
+Z2 tCvgOpt 0
+n@_opt
+OL;O;2021.2;73
+R1
 vAddSub
-Z1 !s110 1746413644
+Z3 !s110 1746568894
 !i10b 1
 !s100 AY0elcjdX]cn[:OiM9YF_1
 I5[n3@`On:^efmO@kjB1<H3
-R0
-Z2 w1745522024
+R1
+Z4 w1745522024
 8../AddSub_sim/AddSub.vo
 F../AddSub_sim/AddSub.vo
-!i122 1
+!i122 12
 L0 32 19569
-Z3 VDg1SIo80bB@j0V0VzS_@n1
-Z4 OL;L;2021.2;73
+Z5 VDg1SIo80bB@j0V0VzS_@n1
+Z6 OL;L;2021.2;73
 r1
 !s85 0
 31
-Z5 !s108 1746413644.000000
+Z7 !s108 1746568894.000000
 !s107 ../AddSub_sim/AddSub.vo|
 !s90 -reportprogress|300|../AddSub_sim/AddSub.vo|
 !i113 0
-Z6 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
-Z7 tCvgOpt 0
+Z8 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R2
 n@add@sub
-vInvSqrt
+vgetAccl
+Z9 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z10 !s110 1746568895
+!i10b 1
+!s100 a_kl9mlj0h5L7zAmO9OJS3
+IFmSQN_Hnmzl;C[l>zE@9f1
+S1
 R1
+w1746554742
+8../getAccl.sv
+F../getAccl.sv
+!i122 14
+L0 8 156
+R5
+R6
+r1
+!s85 0
+31
+Z11 !s108 1746568895.000000
+!s107 getAcclTb.sv|../getAccl.sv|../shift_register.sv|
+Z12 !s90 -reportprogress|300|-sv|+incdir+./|../shift_register.sv|../getAccl.sv|getAcclTb.sv|
+!i113 0
+Z13 o-sv -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z14 !s92 -sv +incdir+./ -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R2
+nget@accl
+vgetAcclTb
+R9
+R10
+!i10b 1
+!s100 l5PHT1i]Qg_jPBnLM2OY=3
+Ihf2_NQ]^1OUaSnL<KzDUi0
+S1
+R1
+w1746411422
+8getAcclTb.sv
+FgetAcclTb.sv
+!i122 14
+L0 3 104
+R5
+R6
+r1
+!s85 0
+31
+R11
+Z15 !s107 getAcclTb.sv|../getAccl.sv|../shift_register.sv|
+R12
+!i113 0
+R13
+R14
+R2
+nget@accl@tb
+vInvSqrt
+R10
 !i10b 1
 !s100 gdk<ZjAA:Y4?W[=77RZTL0
 IDEMM5ZXbAFaPLYHfa4VJ`3
-R0
-R2
+R1
+R4
 8../InvSqrt_sim/InvSqrt.vo
 F../InvSqrt_sim/InvSqrt.vo
-!i122 2
+!i122 13
 L0 32 13101
-R3
-R4
+R5
+R6
 r1
 !s85 0
 31
-R5
+R11
 !s107 ../InvSqrt_sim/InvSqrt.vo|
 !s90 -reportprogress|300|../InvSqrt_sim/InvSqrt.vo|
 !i113 0
-R6
-R7
+R8
+R2
 n@inv@sqrt
 vMult
-R1
+R3
 !i10b 1
-!s100 81A^>8Fb0?jdm>=0c17OM1
-IJf96FkAcUCi9j@_zEPCKA1
-R0
-w1746411422
+!s100 Vm2fL5G;i809gcj38AI8J3
+I9_REm9jcIb9WXlmhi4X9<2
+R1
+w1746568859
 8../Mult_sim/Mult.vo
 F../Mult_sim/Mult.vo
-!i122 0
-L0 31 6515
-R3
-R4
+!i122 11
+L0 32 6515
+R5
+R6
 r1
 !s85 0
 31
-R5
+R7
 !s107 ../Mult_sim/Mult.vo|
 !s90 -reportprogress|300|../Mult_sim/Mult.vo|
 !i113 0
-R6
-R7
+R8
+R2
 n@mult
+vshift_register
+R9
+R10
+!i10b 1
+!s100 R<9VI<:]a7hoMOI0L@H3J1
+Ig1_60PTMdGPdMiNcP:Hnb2
+S1
+R1
+w1746553982
+8../shift_register.sv
+F../shift_register.sv
+!i122 14
+L0 1 32
+R5
+R6
+r1
+!s85 0
+31
+R11
+R15
+R12
+!i113 0
+R13
+R14
+R2
