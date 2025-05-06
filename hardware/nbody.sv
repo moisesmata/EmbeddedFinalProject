@@ -47,7 +47,7 @@ module nbody #(
     logic wren_x, wren_y, wren_m, wren_vx, wren_vy;
     logic [DATA_WIDTH-1:0] out_x, out_y, out_m, out_vx, out_vy;
     logic [1:0] state;
-    logic [BODY_ADDR_WIDTH-1:0] body_num_i, body_num_j, v_read_or_software_or_state2_read;
+    logic [BODY_ADDR_WIDTH-1:0] v_read_or_software_or_state2_read;
     logic [BODY_ADDR_WIDTH-1:0] i_or_software_or_state2_write;
     assign i_or_software_or_state2_write = (state == 2'b00) ? body_num_i : addr[BODY_ADDR_WIDTH-1:0]; //TODO change this to do the state 2 thing
     
@@ -57,16 +57,20 @@ module nbody #(
     logic state_2_pos_write; // This one is 0 when when we are not in state 2, if if we are, it tracks whether we are writing (based on latency of adders and such)
     logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc, state_2_read_loc;
 
-    logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i;
+    logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i, state_1_read_j, state_1_read_i;
     assign state_2_pos_write = (state == 2'b10) ? (state_2_read_loc == AddTime) : 0;
     always_ff @(posedge clk or posedge rst) begin
-        //TODO: logic for letting software readn and write values goes here
+        //TODO: logic for letting software read and write values goes here
         if (rst) begin
             state <= 2'b00;
             gap_counter <= 0;
-            body_num_i <= 0;
-            body_num_j <= 0;
         end else begin
+            state_1_vrwite_i <= 0;
+            state_1_vrwite_j <= 0;
+            state_1_read_j <= 0;
+            state_1_read_i <= 0;
+            state_2_write_loc <= 0;
+            state_2_read_loc <= 0;
             case (state)
                 2'b00: begin // Software reading/writing 
                     //if go is not high, then we are not going to do anything (except take in writes from software)
@@ -83,6 +87,7 @@ module nbody #(
                         end
                     end
                     // zeroing out all the shit
+                    
                 end
                 2'b01: begin // Compute accelerations, update velocities
                     if (go == 0) begin
