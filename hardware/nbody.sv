@@ -55,6 +55,8 @@ module nbody #(
     logic [1:0] state;
     logic [BODY_ADDR_WIDTH-1:0] v_read_or_software_or_state2_read;
     logic [BODY_ADDR_WIDTH-1:0] i_or_software_or_state2_write;
+    logic [BODY_ADDR_WIDTH-1:0] body_num_i, body_num_j;
+
     assign i_or_software_or_state2_write = (state == SW_READ_WRITE) ? body_num_i : addr[BODY_ADDR_WIDTH-1:0]; //TODO change this to do the state 2 thing
     
     logic [DATA_WIDTH-1:0] accl_x1, accl_y1, accl_x2, accl_y2, accl_m2; 
@@ -62,6 +64,8 @@ module nbody #(
     // Odd things will happen if you try to write when the hardware is not in a state where it expects you too, as the addresses passed into the ram will be wrong, but you will still be writing.
     logic state_2_pos_write; // This one is 0 when when we are not in state 2, if if we are, it tracks whether we are writing (based on latency of adders and such)
     logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc, state_2_read_loc;
+
+    logic endstate;
 
     logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i, state_1_read_j, state_1_read_i;
     assign state_2_pos_write = (state == UPDATE_POS) ? (state_2_read_loc == AddTime) : 0;
