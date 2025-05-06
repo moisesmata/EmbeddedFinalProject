@@ -27,7 +27,8 @@ module nbody #(
     parameter MultTime = 11, // Number of cycles for mult
     parameter AddTime = 20, // Number of cycles for add/sub 
     parameter InvSqrtTime = 27, // Number of cycles for invsqert
-    parameter AcclLatency = AddTime + MultTime + AddTime + InvSqrtTime + MultTime * 4 + 1 // The one is for the startup thing we need to do to confirm we dont devide by 0
+    parameter AcclLatency = AddTime + MultTime + AddTime + InvSqrtTime + MultTime * 4 + 1, // The one is for the startup thing we need to do to confirm we dont devide by 0
+    parameter MinBodies = 21
 )(
     input logic clk,
     input logic rst,
@@ -56,10 +57,9 @@ module nbody #(
     logic [1:0] state;
     logic [BODY_ADDR_WIDTH-1:0] v_read_or_software_or_state2_read;
     logic [BODY_ADDR_WIDTH-1:0] i_or_software_or_state2_write;
-    logic [BODY_ADDR_WIDTH-1:0] body_num_i, body_num_j;
+    logic [BODY_ADDR_WIDTH-1:0] s1_body_num_i_read, s1_body_num_j_read;
     logic [BODY_ADDR_WIDTH-1:0] j_or_state2_read;
-
-    assign i_or_software_or_state2_write = (state == SW_READ_WRITE) ? body_num_i : addr[BODY_ADDR_WIDTH-1:0]; //TODO change this to do the state 2 thing
+    logic [BODY_ADDR_WIDTH-1:0] s1_counter;
     
     logic [DATA_WIDTH-1:0] accl_x1, accl_y1, accl_x2, accl_y2, accl_m2; 
     logic [DATA_WIDTH-1:0] ax, ay;
@@ -79,8 +79,8 @@ module nbody #(
         if (rst) begin
             state <= SW_READ_WRITE;
             gap_counter <= 0;
-            body_num_i <= 0;
-            body_num_j <= 0;
+            s1_body_num_i_read <= 0;
+            s1_body_num_j_read <= 0;
         end else begin
             state_1_vrwite_i <= 0;
             state_1_vrwite_j <= 0;
@@ -96,6 +96,17 @@ module nbody #(
                 end else if (addr[15:9] == 7'b1000010) begin
                     readdata <= out_i_y;
                 end
+            end
+            if (write == 1) begin
+                if (addr[15:9] == 7'b0000000) begin
+                    go <= writedata[0];
+                end else if (addr[15:9] == 7'b0000001) begin
+                    read_sw <= writedata[0];
+                end else if (addr[15:9] == 7'b0000010) begin
+                    num_bodies <= writedata[BODY_ADDR_WIDTH-1:0];
+                end else if (addr[15:9] == 7'b0001000) begin
+                    gap <= writedata[BODY_ADDR_WIDTH-1:0];
+                end 
             end
 
             case (state)
@@ -123,29 +134,29 @@ module nbody #(
                     
                 end
                 CALC_ACCEL: begin // Compute accelerations, update velocities
-                    i_or_software_or_state2_write <= body_num_i;
+                    i_or_software_or_state2_write <= s1_body_num_i_read;
                     if (go == 0) begin
                         state <= SW_READ_WRITE;
                     end
-                    else if (endstate) begin
+                    else if () begin
                         // Finished, start UPDATE_POS
                         state <= UPDATE_POS;
                     end
                     else begin
                         // Actually running.
-                        // By default, body_num_j increases by 1
-                        body_num_j <= body_num_j + 1;
-                        if (body_num_j == num_bodies - 1) begin
+                        // By default, s1_body_num_j_read increases by 1
+                        s1_body_num_j_read <= s1_body_num_j_read + 1;
+                        if (s1_body_num_j_read == num_bodies - 1) begin
                             // Check if we have gone through all the bodies, if
                             // not update i and j.
 
                             // If this is not the case, we dont really case, as we will never see those outputs because of the trailer.
 
-                            if (body_num_i != num_bodies - 1) begin
+                            if (s1_body_num_i_read != num_bodies - 1) begin
                                 // We have reached the final body_j. Increment
                                 // i and reset j
-                                body_num_i <= body_num_i + 1;
-                                body_num_j <= 0;
+                                s1_body_num_i_read <= s1_body_num_i_read + 1;
+                                s1_body_num_j_read <= 0;
                             end
                         end
                     end
@@ -219,7 +230,7 @@ module nbody #(
     RAM	RAM_m (
         .clock ( clk ),
         .data ( writedata ),
-        .rdaddress ( body_num_j ),
+        .rdaddress ( s1_body_num_j_read ),
         .wraddress ( addr[BODY_ADDR_WIDTH-1:0] ),
         .wren ( wren_m ),
         .q ( out_m )
