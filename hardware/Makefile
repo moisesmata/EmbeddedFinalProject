@@ -258,3 +258,5 @@ lint-getAccl:
 
 lint-shift_register:
 	verilator --lint-only -Wall shift_register.sv
+
+lint-all: lint-nbody lint-getAccl lint-shift_register
