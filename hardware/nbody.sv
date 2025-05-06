@@ -68,7 +68,6 @@ module nbody #(
     logic endstate;
 
     logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i, state_1_read_j, state_1_read_i;
-    assign state_2_pos_write = (state == UPDATE_POS) ? (state_2_read_loc == AddTime) : 0;
 
     always_ff @(posedge clk or posedge rst) begin
         //TODO: logic for letting software read and write values goes here
@@ -84,12 +83,23 @@ module nbody #(
             state_1_read_i <= 0;
             state_2_write_loc <= 0;
             state_2_read_loc <= 0;
+            if (read == 1) begin
+                if (addr[15:9] == 7'b1000000) begin
+                    readdata <= {{(DATA_WIDTH-1){1'b0}}, done};
+                end else if (addr[15:9] == 7'b1000001) begin
+                    readdata <= {{(DATA_WIDTH-1){1'b0}}, out_x};
+                end else if (addr[15:9] == 7'b1000010) begin
+                    readdata <= {{(DATA_WIDTH-1){1'b0}}, out_y};
+                end
+            end
+
             case (state)
                 SW_READ_WRITE: begin // Software reading/writing 
                     //if go is not high, then we are not going to do anything (except take in writes from software)
                     // if we raised done, we are waiting for read to go high before dropping done
                     //once read and done are both low (and go is high obvisously), we can start the next cycle
-
+                    i_or_software_or_state2_write <= addr[BODY_ADDR_WIDTH-1:0];
+                    
                     if(go == 1) begin //handshake logic
                         if(read_sw == 1) begin
                             done <= 0;
@@ -101,6 +111,7 @@ module nbody #(
                     
                 end
                 CALC_ACCEL: begin // Compute accelerations, update velocities
+                    i_or_software_or_state2_write <= body_num_i;
                     if (go == 0) begin
                         state <= SW_READ_WRITE;
                     end
@@ -128,12 +139,18 @@ module nbody #(
                     end
                 end
                 UPDATE_POS: begin // Update positions
+                    i_or_software_or_state2_write <= state_2_write_loc;
                     state_2_read_loc <= state_2_read_loc + 1;
                     if (go == 0) begin
                         state <= SW_READ_WRITE;
+                    if (state_2_read_loc == AddTime) begin
+                        // finished the startup time, now we can start writing things back
+                        state_2_pos_write <= 1;
+                    end
                     end else if (state_2_pos_write) begin
                         if (state_2_write_loc != num_bodies - 1) begin
                             state_2_write_loc <= state_2_write_loc + 1;
+
                         end else begin
                             state_2_write_loc <= 0;
                             if (gap_counter == gap) begin
@@ -218,4 +235,5 @@ module nbody #(
         .ax(ax),
         .ay(ay)
     );
+
 endmodule
