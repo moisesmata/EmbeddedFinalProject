@@ -1,9 +1,9 @@
 m255
 K4
 z2
+!s11f MIXED_VERSIONS
 Z0 !s99 nomlopt
 R0
-!s11f vlog 2021.2 2021.04, Apr 14 2021
 13
 !s112 1.1
 !i10d 8192
@@ -24,148 +24,154 @@ n@_opt
 OL;O;2021.2;73
 R1
 vAddSub
-Z3 !s110 1746568894
+2../AddSub_sim/AddSub.vo
+!s110 1746571664
 !i10b 1
-!s100 AY0elcjdX]cn[:OiM9YF_1
-I5[n3@`On:^efmO@kjB1<H3
-R1
-Z4 w1745522024
+!s100 ?3odl;g@]5XA<z;IiMN;31
+IgiY7i`HR<4zT_jcL67:C81
+Z3 d/user/stud/spring25/rlp2153/EmbeddedFinalProject/hardware/sim
+w1746561648
 8../AddSub_sim/AddSub.vo
 F../AddSub_sim/AddSub.vo
-!i122 12
+!i122 16
 L0 32 19569
-Z5 VDg1SIo80bB@j0V0VzS_@n1
-Z6 OL;L;2021.2;73
+Z4 VDg1SIo80bB@j0V0VzS_@n1
+Z5 OP;L;2024.2;79
 r1
 !s85 0
 31
-Z7 !s108 1746568894.000000
+!s108 1746571664.000000
 !s107 ../AddSub_sim/AddSub.vo|
 !s90 -reportprogress|300|../AddSub_sim/AddSub.vo|
-!i113 0
-Z8 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+!i113 1
+Z6 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
 R2
 n@add@sub
 vgetAccl
-Z9 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
-Z10 !s110 1746568895
+Z7 2../shift_register.sv|../getAccl.sv|getAcclTb.sv
+Z8 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z9 !s110 1746571666
 !i10b 1
-!s100 a_kl9mlj0h5L7zAmO9OJS3
-IFmSQN_Hnmzl;C[l>zE@9f1
+!s100 ^k]@>>Vh;]8gQ2]2mz7L:0
+I0:3^VaG5nGMlmaeMeVHNf2
 S1
-R1
-w1746554742
+R3
+w1746553945
 8../getAccl.sv
 F../getAccl.sv
-!i122 14
+!i122 18
 L0 8 156
+R4
 R5
-R6
 r1
 !s85 0
 31
-Z11 !s108 1746568895.000000
+Z10 !s108 1746571666.000000
 !s107 getAcclTb.sv|../getAccl.sv|../shift_register.sv|
-Z12 !s90 -reportprogress|300|-sv|+incdir+./|../shift_register.sv|../getAccl.sv|getAcclTb.sv|
-!i113 0
-Z13 o-sv -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
-Z14 !s92 -sv +incdir+./ -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z11 !s90 -reportprogress|300|-sv|+incdir+./|../shift_register.sv|../getAccl.sv|getAcclTb.sv|
+!i113 1
+Z12 o-sv -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z13 !s92 -sv +incdir+./ -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
 R2
 nget@accl
 vgetAcclTb
+R7
+R8
 R9
-R10
 !i10b 1
-!s100 l5PHT1i]Qg_jPBnLM2OY=3
-Ihf2_NQ]^1OUaSnL<KzDUi0
+!s100 ONW1>AFNP`[XSkii4bD:Y1
+IiEY58fY;mT:@HHDD;Z3A62
 S1
-R1
-w1746411422
+R3
+w1746128195
 8getAcclTb.sv
 FgetAcclTb.sv
-!i122 14
+!i122 18
 L0 3 104
+R4
 R5
-R6
 r1
 !s85 0
 31
+R10
+Z14 !s107 getAcclTb.sv|../getAccl.sv|../shift_register.sv|
 R11
-Z15 !s107 getAcclTb.sv|../getAccl.sv|../shift_register.sv|
+!i113 1
 R12
-!i113 0
 R13
-R14
 R2
 nget@accl@tb
 vInvSqrt
-R10
+2../InvSqrt_sim/InvSqrt.vo
+R9
 !i10b 1
-!s100 gdk<ZjAA:Y4?W[=77RZTL0
-IDEMM5ZXbAFaPLYHfa4VJ`3
-R1
-R4
+!s100 @;2XU5jj8D7Aa`0CAdE>R2
+ImWdFW``GV:g`DF1bR7?a_0
+R3
+w1746561715
 8../InvSqrt_sim/InvSqrt.vo
 F../InvSqrt_sim/InvSqrt.vo
-!i122 13
+!i122 17
 L0 32 13101
+R4
 R5
-R6
 r1
 !s85 0
 31
-R11
+R10
 !s107 ../InvSqrt_sim/InvSqrt.vo|
 !s90 -reportprogress|300|../InvSqrt_sim/InvSqrt.vo|
-!i113 0
-R8
+!i113 1
+R6
 R2
 n@inv@sqrt
 vMult
-R3
+2../Mult_sim/Mult.vo
+!s110 1746571663
 !i10b 1
-!s100 Vm2fL5G;i809gcj38AI8J3
-I9_REm9jcIb9WXlmhi4X9<2
-R1
-w1746568859
+!s100 E6MVAieM>f`WNHfMZ0C_P2
+IfX1iT9GP<Y]<:ARAUoE8f2
+R3
+w1746571405
 8../Mult_sim/Mult.vo
 F../Mult_sim/Mult.vo
-!i122 11
+!i122 15
 L0 32 6515
+R4
 R5
-R6
 r1
 !s85 0
 31
-R7
+!s108 1746571663.000000
 !s107 ../Mult_sim/Mult.vo|
 !s90 -reportprogress|300|../Mult_sim/Mult.vo|
-!i113 0
-R8
+!i113 1
+R6
 R2
 n@mult
 vshift_register
+R7
+R8
 R9
-R10
 !i10b 1
 !s100 R<9VI<:]a7hoMOI0L@H3J1
 Ig1_60PTMdGPdMiNcP:Hnb2
 S1
-R1
-w1746553982
+R3
+w1746555619
 8../shift_register.sv
 F../shift_register.sv
-!i122 14
+!i122 18
 L0 1 32
+R4
 R5
-R6
 r1
 !s85 0
 31
-R11
-R15
-R12
-!i113 0
-R13
+R10
 R14
+R11
+!i113 1
+R12
+R13
 R2
