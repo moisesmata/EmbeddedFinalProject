@@ -66,7 +66,7 @@ module nbody #(
     logic [DATA_WIDTH-1:0] out_i_x, out_i_y, out_j_x, out_j_y; 
     // Odd things will happen if you try to write when the hardware is not in a state where it expects you too, as the addresses passed into the ram will be wrong, but you will still be writing.
     logic state_2_pos_write; // This one is 0 when when we are not in state 2, if if we are, it tracks whether we are writing (based on latency of adders and such)
-    logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc, state_2_read_loc;
+    logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc, state_2_read_loc, vwrite_or_software;
 
     logic endstate;
 
@@ -164,8 +164,8 @@ module nbody #(
                         state_2_pos_write <= 1;
                     end
                     end else if (state_2_pos_write) begin
-                        if (state_2_write_loc != num_bodies - 1) begin
-                            state_2_write_loc <= state_2_write_loc + 1;
+                        if (vwrite_or_software != num_bodies - 1) begin
+                            vwrite_or_software <= vwrite_or_software + 1;
 
                         end else begin
                             state_2_write_loc <= 0;
@@ -176,7 +176,9 @@ module nbody #(
                                 gap_counter <= gap_counter + 1;
                             end
                         end
-                    end 
+                    end else begin
+                        vwrite_or_software <= 0;
+                    end
                     // TODO: Get rid of this, just for testing
                     write_x <= out_vx;
                     write_y <= out_vy;
