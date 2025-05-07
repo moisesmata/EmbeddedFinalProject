@@ -7,18 +7,18 @@
 // 0000001 = READ
 // 0000010 = N_BODIES
 // 0001000 = GAP
-// 0000011 = WRITE_X
-// 0000100 = WRITE_Y
-// 0000101 = WRITE_M
+// 0000011 = write_x_data
+// 0000100 = write_y_data
+// 0000101 = write_m_data
 // 0000110 = WRITE_VX
-// 0000111 = WRITE_VY
+// 0000111 = write_vy_data
 
 // 1000000 = DONE
 // 1000001 = READ_X
 // 1000010 = READ_Y
 
 
-
+`timescale 1 ps / 1 ps
 module nbody #(
     parameter BODIES = 512,
     parameter DATA_WIDTH = 64,
@@ -51,23 +51,31 @@ module nbody #(
     logic read_sw;
     logic [$clog2(BODIES)-1:0] num_bodies;
     logic [DATA_WIDTH-1:0] gap, gap_counter;
-    logic [DATA_WIDTH-1:0] write_vx, write_vy, write_x, write_y;
+    logic [DATA_WIDTH-1:0] write_vx, write_vy_data, write_m_data, write_x_data, write_y_data;
     logic wren_x, wren_y, wren_m, wren_vx, wren_vy;
     logic [DATA_WIDTH-1:0] out_x, out_y, out_m, out_vx, out_vy;
     logic [1:0] state;
-    logic [BODY_ADDR_WIDTH-1:0] v_read_or_software_or_state2_read;
-    logic [BODY_ADDR_WIDTH-1:0] i_or_software_or_state2_write;
+    logic [BODY_ADDR_WIDTH-1:0] v_read_addr;
+    logic [BODY_ADDR_WIDTH-1:0] pos_input_1_addr;
     logic [BODY_ADDR_WIDTH-1:0] s1_body_num_i_read, s1_body_num_j_read;
-    logic [BODY_ADDR_WIDTH-1:0] j_or_state2_read;
+    logic [BODY_ADDR_WIDTH-1:0] pos_input_2_addr;
     logic [BODY_ADDR_WIDTH-1:0] s1_counter;
     
-    logic [DATA_WIDTH-1:0] accl_x1, accl_y1, accl_x2, accl_y2, accl_m2; 
     logic [DATA_WIDTH-1:0] ax, ay;
-    logic [DATA_WIDTH-1:0] out_i_x, out_i_y, out_j_x, out_j_y; 
-    // Odd things will happen if you try to write when the hardware is not in a state where it expects you too, as the addresses passed into the ram will be wrong, but you will still be writing.
-    logic state_2_pos_write; // This one is 0 when when we are not in state 2, if if we are, it tracks whether we are writing (based on latency of adders and such)
-    logic [BODY_ADDR_WIDTH-1:0] state_2_write_loc, state_2_read_loc, vwrite_or_software;
+    logic [DATA_WIDTH-1:0] ax_shifted, ay_shifted;
 
+    logic [BODY_ADDR_WIDTH-1:0] p_read_i, p_read_j, v_read_i, v_read_j, v_write_i, v_write_j;
+    logic valid_accl, valid_dv;
+
+    logic [DATA_WIDTH-1:0] x_output_1, y_output_1, x_output_2, y_output_2; 
+    // Odd things will happen if you try to write when the hardware is not in a state where it expects you too, as the addresses passed into the ram will be wrong, but you will still be writing.
+    logic state_2_write_enable; // This one is 0 when when we are not in state 2, if if we are, it tracks whether we are writing (based on latency of adders and such)
+    logic [BODY_ADDR_WIDTH-1:0] v_write_addr;
+    
+    logic [BODY_ADDR_WIDTH-1:0] state_2_read, state_2_pos_write;
+
+    logic [DATA_WIDTH-1:0] add_x_out, add_y_out, add_x_input_1, add_x_input_2, add_y_input_1, add_y_input_2;
+    logic [31:0] state_1_timer;
     logic endstate;
 
     logic first_time;
@@ -81,23 +89,25 @@ module nbody #(
             gap_counter <= 0;
             s1_body_num_i_read <= 0;
             s1_body_num_j_read <= 0;
+            // TODO : EVERYTHING TO 0
         end else begin
             state_1_vrwite_i <= 0;
             state_1_vrwite_j <= 0;
             state_1_read_j <= 0;
             state_1_read_i <= 0;
-            state_2_write_loc <= 0;
-            state_2_read_loc <= 0;
-            if (read == 1) begin
+            if (read == 1 && chipselect == 1) begin
                 if (addr[15:9] == 7'b1000000) begin
                     readdata <= {{(DATA_WIDTH-1){1'b0}}, done};
                 end else if (addr[15:9] == 7'b1000001) begin
-                    readdata <=  out_i_x;
+                    readdata <=  x_output_1;
                 end else if (addr[15:9] == 7'b1000010) begin
-                    readdata <= out_i_y;
+                    readdata <= y_output_1;
+                end else begin 
+                    readdata <= {64{1'b1}};
                 end
+
             end
-            if (write == 1) begin
+            if (write == 1 && chipselect == 1) begin
                 if (addr[15:9] == 7'b0000000) begin
                     go <= writedata[0];
                 end else if (addr[15:9] == 7'b0000001) begin
@@ -114,140 +124,256 @@ module nbody #(
                     //if go is not high, then we are not going to do anything (except take in writes from software)
                     // if we raised done, we are waiting for read to go high before dropping done
                     //once read and done are both low (and go is high obvisously), we can start the next cycle
-                    i_or_software_or_state2_write <= addr[BODY_ADDR_WIDTH-1:0];
-                    write_x <= writedata;
-                    write_y <= writedata;
+                    pos_input_1_addr <= addr[BODY_ADDR_WIDTH-1:0];
+
+
+                    //TODO: set addr things
+                    // All the memories get the addr.
+                    write_x_data <= writedata;
+                    write_y_data <= writedata;
+                    write_m_data <= writedata;
                     write_vx <= writedata;
-                    write_vy <= writedata;
+                    write_vy_data <= writedata;
+
+                    // Write enable for the different memories
+                    wren_x <= (addr[15:9] == 7'b0000011) ? write : 0;
+                    wren_y <= (addr[15:9] == 7'b0000100) ? write : 0;
+                    wren_m <= (addr[15:9] == 7'b0000101) ? write : 0;
+                    wren_vx <= (addr[15:9] == 7'b0000110) ? write : 0;
+                    wren_vy <= (addr[15:9] == 7'b0000111) ? write : 0;
+
+
+                    
                     if(go == 1) begin //handshake logic
                         if(read_sw == 1) begin
                             done <= 0;
                         end else if (done == 0) begin
                             state <= CALC_ACCEL;
+                            state_1_timer <= 0;
                         end
                     end
                     else begin
                         first_time <= 1;
-                        done <= 1;
+                        done <= 0;
                     end
                     // zeroing out all the shit
                     
+
                 end
                 CALC_ACCEL: begin // Compute accelerations, update velocities
-                    i_or_software_or_state2_write <= s1_body_num_i_read;
-                    if (go == 0) begin
+                    pos_input_1_addr <= s1_body_num_i_read;
+                    if (go == 1'b0) begin
                         state <= SW_READ_WRITE;
                     end
-                    else if (endstate) begin
+                    else if (v_write_i == num_bodies - 1 && v_write_j == num_bodies - 1) begin
                         // Finished, start UPDATE_POS
                         state <= UPDATE_POS;
+                        state_2_write_enable <= 1'b0;
+                        state_2_pos_write <= 0;
+                        v_read_addr <= 0;
+                        pos_input_2_addr <= 0;
+                        pos_input_1_addr <= 0;
+                        wren_x <= 1'b0;
+                        wren_y <= 1'b0;
                     end
                     else begin
-                        // Actually running.
-                        // By default, s1_body_num_j_read increases by 1
-                        s1_body_num_j_read <= s1_body_num_j_read + 1;
-                        if (s1_body_num_j_read == num_bodies - 1) begin
-                            // Check if we have gone through all the bodies, if
-                            // not update i and j.
-
-                            // If this is not the case, we dont really case, as we will never see those outputs because of the trailer.
-
-                            if (s1_body_num_i_read != num_bodies - 1) begin
-                                // We have reached the final body_j. Increment
-                                // i and reset j
-                                s1_body_num_i_read <= s1_body_num_i_read + 1;
-                                s1_body_num_j_read <= 0;
-                            end
+                        state_1_timer <= state_1_timer + 1;
+                        p_read_i <= p_read_i + 1;
+                        if (state_1_timer == totAccelTime) begin
+                            valid_accl <= 1'b1;
                         end
+                        if (state_1_timer == totAccelTime + AddTime) begin
+                            valid_dv <= 1'b1;
+                        end
+                        if (valid_accl) begin
+                            v_read_j <= v_read_j + 1;
+                        end
+                        if (valid_dv) begin
+                            v_write_j <= v_write_j + 1;
+                        end
+
+                        if (p_read_j == num_bodies - 1) begin
+                            p_read_j <= 0;
+                            p_read_i <= p_read_i + 1;
+                        end
+
+                        if (v_read_j == num_bodies - 1) begin
+                            v_read_j <= 0;
+                            v_read_i <= v_read_i + 1;
+                        end
+
+                        if (v_write_j == num_bodies - 1) begin
+                            v_write_j <= 0;
+                            v_write_i <= v_write_i + 1;
+                        end 
+                        
+
+                        
                     end
-                    // TODO: NEED TO GIT RID OF THIS, JUST FOR TESTING N SHIT
-                    write_vx <= ax;
-                    write_vy <= ay;
                     
                 end
                 UPDATE_POS: begin // Update positions
-                    i_or_software_or_state2_write <= state_2_write_loc;
-                    state_2_read_loc <= state_2_read_loc + 1;
+
+                    
+
+                    state_2_read <= state_2_read + 1;
+
                     if (go == 0) begin
                         state <= SW_READ_WRITE;
-                    if (state_2_read_loc == AddTime) begin
+                    if (v_read_addr == AddTime) begin
                         // finished the startup time, now we can start writing things back
-                        state_2_pos_write <= 1;
+                        state_2_write_enable <= 1'b1;
                     end
-                    end else if (state_2_pos_write) begin
-                        if (vwrite_or_software != num_bodies - 1) begin
-                            vwrite_or_software <= vwrite_or_software + 1;
-
+                    end else if (state_2_write_enable) begin
+                        if (state_2_pos_write != num_bodies - 1) begin
+                            state_2_pos_write <= state_2_pos_write + 1; // must be zeroed out at the start
                         end else begin
-                            state_2_write_loc <= 0;
+                            state_2_write_enable <= 1'b0;
+                            state_2_pos_write <= 0;
+                            first_time <= 0;
                             if (gap_counter == gap) begin
                                 state <= SW_READ_WRITE;
+                                done <= 1;
                             end else begin
                                 state <= CALC_ACCEL;
                                 gap_counter <= gap_counter + 1;
+                                // TODO: maybe reset some more values
                             end
                         end
-                    end else begin
-                        vwrite_or_software <= 0;
                     end
-                    // TODO: Get rid of this, just for testing
-                    write_x <= out_vx;
-                    write_y <= out_vy;
+
                     //TODO: zero out everything else that I need to
                 end
                 default: state <= SW_READ_WRITE; // Default to idle state
             endcase
         end
     end
+
+    always_comb begin : blockName
+        case (state)
+            SW_READ_WRITE: begin
+                // No combinational logic needed for adders in this state
+            end
+            CALC_ACCEL: begin
+
+                pos_input_1_addr = p_read_i;
+                m_read_addr = p_read_i;
+
+                pos_input_2_addr = p_read_j;
+
+
+                v_read_addr = v_read_j;
+
+
+                //TODO: We are assuming big indian, if not, deal with it
+                if (first_time) begin
+                    ax_shifted = {ax[63], ax[62:52] - 11'b1, ax[51:0]};
+                    ay_shifted = {ay[63], ay[62:52] - 11'b1, ay[51:0]};
+                end else begin
+                    ax_shifted = ax;
+                    ay_shifted = ay;
+                end
+
+
+                add_x_input_1 = ax_shifted;
+                add_x_input_2 = out_vx;
+                add_y_input_1 = ay_shifted;
+                add_y_input_2 = out_vy;
+
+                v_write_addr = v_write_j;
+
+                write_vx_data = add_x_out;
+                write_vy_data = add_y_out;
+               
+                wren_vx = valid_dv;
+                wren_vy = valid_dv;
+
+
+
+                
+
+            end
+            UPDATE_POS: begin
+                v_read_addr = state_2_read; //also zero at the start, these should always hold the same value (v_read and pos)
+                pos_input_2_addr = state_2_read;
+
+                pos_input_1_addr = state_2_pos_write; 
+
+                wren_x = state_2_write_enable;
+                wren_y = state_2_write_enable;
+
+                write_x_data = add_x_out; //Make sure this is zeroed out before hand
+                write_y_data = add_y_out;
+
+                add_x_input_1 = x_output_2;
+                add_x_input_2 = out_vx;
+                add_y_input_1 = y_output_2;
+                add_y_input_2 = out_vy;
+            end
+            default: begin
+                // No action
+            end
+        endcase
+    end
     // Write enable for software
-    assign wren_x = (state == SW_READ_WRITE) ? ((addr[15:9] == 7'b0000011) ? write : 0) : state_2_pos_write;
-    assign wren_y = (state == SW_READ_WRITE) ? ((addr[15:9] == 7'b0000100) ? write : 0) : state_2_pos_write;
-    assign wren_m = (addr[15:9] == 7'b0000101) ? write : 0;
-    assign wren_vx = (addr[15:9] == 7'b0000110) ? write : 0;
-    assign wren_vy = (addr[15:9] == 7'b0000111) ? write : 0;
-    RAM2	RAM_x(
+
+    AddSub AddX(
+        .clk(clk),
+        .areset(rst),
+        .a(add_x_input_1),
+        .b(add_x_input_2),
+        .q(add_x_out)
+    );
+    AddSub AddY(
+        .clk(clk),
+        .areset(rst),
+        .a(add_y_input_1),
+        .b(add_y_input_2),
+        .q(add_y_out)
+    );
+    RAM2	x(
         .clock ( clk ),
-        .address_a ( i_or_software_or_state2_write ),
-        .address_b ( j_or_state2_read ),
-        .data_a ( write_x ),
+        .address_a ( pos_input_1_addr ),
+        .address_b ( pos_input_2_addr ),
+        .data_a ( write_x_data ),
         .data_b ( 64'b0 ),
         .wren_a ( wren_x ),
-        .wren_b ( 0 ),
-        .q_a ( out_i_x ),
-        .q_b ( out_j_x )
+        .wren_b ( 1'b0 ),
+        .q_a ( x_output_1 ),
+        .q_b ( x_output_2 )
 	);
-    RAM2    RAM_y(
+    RAM2    y(
         .clock ( clk ),
-        .address_a ( i_or_software_or_state2_write ),
-        .address_b ( j_or_state2_read ),
-        .data_a ( write_y ),
+        .address_a ( pos_input_1_addr ),
+        .address_b ( pos_input_2_addr ),
+        .data_a ( write_y_data ),
         .data_b ( 64'b0 ),
         .wren_a ( wren_y ),
-        .wren_b ( 0 ),
-        .q_a ( out_i_y ),
-        .q_b ( out_j_y )
+        .wren_b ( 1'b0 ),
+        .q_a ( y_output_1 ),
+        .q_b ( y_output_2 )
 	);
     RAM	RAM_m (
         .clock ( clk ),
-        .data ( writedata ),
-        .rdaddress ( s1_body_num_j_read ),
+        .data ( write_m_data ),
+        .rdaddress ( m_read_addr ),
         .wraddress ( addr[BODY_ADDR_WIDTH-1:0] ),
         .wren ( wren_m ),
         .q ( out_m )
 	);
     RAM	RAM_vx (
         .clock ( clk ),
-        .data ( write_vy ),
-        .rdaddress ( v_read_or_software_or_state2_read ),
-        .wraddress ( vwrite_or_software ),
+        .data ( write_vy_data ),
+        .rdaddress ( v_read_addr ),
+        .wraddress ( v_write_addr ),
         .wren ( wren_vx ),
         .q ( out_vx )
 	);
     RAM	RAM_vy (
         .clock ( clk ),
         .data ( write_vx ),
-        .rdaddress ( v_read_or_software_or_state2_read ),
-        .wraddress ( vwrite_or_software ),
+        .rdaddress ( v_read_addr ),
+        .wraddress ( v_write_addr ),
         .wren ( wren_vy ),
         .q ( out_vy )
 	);
@@ -259,10 +385,10 @@ module nbody #(
     ) accl (
         .rst(rst), // NOT CORRECT TODO
         .clk(clk),
-        .x1(out_i_x),
-        .y1(out_i_y),
-        .x2(out_j_x),
-        .y2(out_j_y),
+        .x1(x_output_1),
+        .y1(y_output_1),
+        .x2(x_output_2),
+        .y2(y_output_2),
         .m2(out_m),
         .ax(ax),
         .ay(ay)
