@@ -40,10 +40,11 @@ struct nbody_dev {
 	n_body_sim_config_t sim_config;
 	int go;
 	int done;
+	int read;
 } dev;
 
 static void write_parameters(n_body_parameters_t *parameters){
-	for (int i = 0; i < 512; i++){
+	for (int i = 0; i < ioread64(N_ADDR(dev.virtbase)); i++){
 		iowrite64(parameters->bodies[i].x , X_ADDR(dev.virtbase, i)); //Writing to memory
 		iowrite64(parameters->bodies[i].y , Y_ADDR(dev.virtbase, i));
 		iowrite64(parameters->bodies[i].m , M_ADDR(dev.virtbase, i));
@@ -55,9 +56,9 @@ static void write_parameters(n_body_parameters_t *parameters){
 }
 
 /* Start the N-body simulation in hardware */
-static void set_simulation_parameters(n_body_sim_config_t *parameters){
+static void write_simulation_parameters(n_body_sim_config_t *parameters){
 	iowrite64(parameters->N, N_ADDR(dev.virtbase));
-	iowrite64(parameters->dt, GAP_ADDR(dev.virtbase));
+	iowrite64(parameters->gap, GAP_ADDR(dev.virtbase));
 	dev.sim_config = *parameters;
 }
 
@@ -69,8 +70,18 @@ static void read_positions(all_positions_t *positions){
 	}
 }
 
-static void start_simulation(int go){
+static void write_go(int go){
 	iowrite64(go,GO_ADDR(dev.virtbase));
+	dev.go = go;
+}
+
+static void write_read(int read){
+	iowrite64(read, READX_ADDR(dev.virtbase));
+	dev.read = read;
+}
+
+static void read_done(int *status){
+	*status = ioread64(DONE_ADDR(dev.virtbase));
 }
 
 /* Handle ioctl calls from userspace */
@@ -95,33 +106,33 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	//sim_config = dev.sim_config;
 		if (copy_from_user(&sim_config, (n_body_sim_config_t *)arg, sizeof(n_body_sim_config_t)))
 			return -EFAULT;
-		set_simulation_parameters(&sim_config);
+		write_simulation_parameters(&sim_config);
 		break;
 
-    case NBODY_START_SIM:
+    case WRITE_GO:
 	//go = dev.go;
         if (copy_from_user(&go, (int *)arg, sizeof(int)))
             return -EFAULT;
-        start_simulation(go);
+        write_go(go);
         break;
+	
+	case WRITE_READ:
+	//read = dev.read;
+		if (copy_from_user(&go, (int *)arg, sizeof(int)))
+			return -EFAULT;
+		write_read(go);
+		break;
 
-	case NBODY_READ_DONE:
-		status = ioread64(DONE_ADDR(dev.virtbase));
+	case READ_DONE:
+		read_done(&status);
 		if (copy_to_user((int *)arg, &status, sizeof(int)))
 			return -EFAULT;
 		break;
 
 	case NBODY_READ_POSITIONS:
 		read_positions(&all_positions);
-		if (copy_to_user((all_positions *)arg, &all_positions, sizeof(all_positions_t)))
+		if (copy_to_user((all_positions_t *)arg, &all_positions, sizeof(all_positions_t)))
 			return -EFAULT;
-		break;
-
-	case NBODY_SET_READ:
-		if (copy_from_user(&go, (int *)arg, sizeof(int)))
-				return -EFAULT;
-		iowrite64(go, READX_ADDR(dev.virtbase));
-		iowrite64(go, READY_ADDR(dev.virtbase));
 		break;
 
     default:

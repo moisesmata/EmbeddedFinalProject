@@ -11,13 +11,12 @@
 #define MAX_BODIES 512 //Max number of bodies
 
 typedef struct {
-  float x, y, vx, vy, m, n;
+  double x, y, vx, vy, m, n;
 } body_t;
 
 typedef struct{
   body_t bodies[MAX_BODIES]; 
-  int N; 
-} n_body_initial_parameters_t;
+} n_body_parameters_t;
 
 
 // --------------------------------------
@@ -25,7 +24,7 @@ typedef struct{
 // --------------------------------------
 
 typedef struct{
-  float x, y;
+  double x, y;
 } body_pos_t;
 
 typedef struct{
@@ -39,19 +38,19 @@ typedef struct{
 typedef struct {
   //other needed start params?
   int N;
-  int dt;
+  int gap;
 } nbody_sim_config_t;
 
 
 #define NBODY_MAGIC 'n'
 
 /* ioctls and their arguments */
-#define NBODY_SET_BODY_PARAMETERS      _IOW(NBODY_MAGIC, 1, n_body_initial_parameters_t)
+#define NBODY_SET_BODY_PARAMETERS      _IOW(NBODY_MAGIC, 1, n_body_parameters_t)
 #define NBODY_SET_SIM_PARAMETERS      _IOW(NBODY_MAGIC, 2, nbody_sim_config_t)
-#define NBODY_START_SIM           _IOW(NBODY_MAGIC, 3, int)
-#define NBODY_READ_DONE           _IOR(NBODY_MAGIC, 4, int)
+#define WRITE_GO           _IOW(NBODY_MAGIC, 3, int)
+#define READ_DONE           _IOR(NBODY_MAGIC, 4, int)
 #define NBODY_READ_POSITIONS      _IOR(NBODY_MAGIC, 5, all_positions_t)
-#define NBODY_SET_READ            _IOW(NBODY_MAGIC, 6, int)
+#define WRITE_READ            _IOW(NBODY_MAGIC, 6, int)
 //might need more ioctls?
 
 #endif
