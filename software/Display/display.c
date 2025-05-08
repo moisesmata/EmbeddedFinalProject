@@ -7,7 +7,6 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include "nbody_driver.h"
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -27,7 +26,7 @@ int low = 0x00000000;
 // Setting the Body parameters for the Sim
 // ----------------------------------------------------
 void set_body_parameters(double* input_parameters, int N){
-  n_body_parameters_t vla;
+  n_body_initial_parameters_t vla;
   for(int i = 0; i < N; i ++){
     body_t body;
     body.x = input_parameters[5*i];
@@ -37,7 +36,7 @@ void set_body_parameters(double* input_parameters, int N){
     body.m = input_parameters[5*i+4];
     body.n = i;
 
-    vla.bodies[i] = body;
+    vla[i] = &body;
   }
   
   if(ioctl(nbody_fd, NBODY_SET_BODY_PARAMETERS, &vla)){
@@ -76,7 +75,7 @@ int poll_done(){
   int done; 
   if (ioctl(nbody_fd, READ_DONE, &done)) {
       perror("ioctl(READ_DONE) failed");
-      return -1;
+      return;
   }
   if(done > 0){
     return 1;
@@ -90,7 +89,7 @@ int poll_done(){
 all_positions_t read_positions(int N){
   //ioctl goes here
   all_positions_t vla;
-  if (ioctl(nbody_fd, NBODY_READ_POSITIONS, &vla)){
+  if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
     perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
     return;
   } 
@@ -101,10 +100,10 @@ all_positions_t read_positions(int N){
 // Set the read signal
 // ----------------------------------------------------
 void set_read(int read){
-  if(ioctl(nbody_fd, WRITE_READ, read)){
-    perror("ioctl(WRITE_READ) failed");
+  if(ioctl(nbody_fd, NBODY_SET_READ, read)){
+    perror("ioctl(NBODY_SET_READ) failed");
     return;
-  }
+  } ; 
 }
 
 // ----------------------------------------------------
@@ -113,13 +112,9 @@ void set_read(int read){
 double* get_initial_state(char* filename, int N){
   //Allocate Space for a the Body Paremeters
   double* initial_state = (double*)malloc(N * 5 * sizeof(double));
-  if (!initial_state) {
-    fprintf(stderr, "Memory allocation failed\n");
-    return NULL;
-  }
 
   //Open the file and read it
-  FILE* file = fopen(filename, "r");
+  FILE* file = fopen(filename, 'r');
   if(!file){
     fprintf(stderr, "Could not open file %s\n", filename);
     return NULL; 
@@ -147,9 +142,15 @@ double* get_initial_state(char* filename, int N){
 // ----------------------------------------------------
 int main(int argc, char** argv){  
   //Check to make sure that the 
-  if (argc != 3) {
-    fprintf(stderr, "Usage: ./nbody <# of bodies> <# of outputs>\n");
-    return -1;
+  if(argc > 3){
+    perror("Too many arguments!\n");
+    return -1; 
+  } else if (argc < 3){
+    perror("Usage: ./nbody <# of bodies> <# of outputs> \n");
+    return -1; 
+  } else{
+    perror("Idk how this would happen but there's an error\n");
+    return -1; 
   }
 
   //Parse User Input
@@ -182,12 +183,7 @@ int main(int argc, char** argv){
   printf("Initial Bodies Parameters Read In\n");
 
   //Create an array that saves all the timesteps
-  all_positions_t* position_history = malloc(time_steps * sizeof(all_positions_t));
-  if (!position_history) {
-      fprintf(stderr, "Failed to allocate memory for position history\n");
-      free(initial_state);
-      return -1;
-  }
+  
 
   // The initial parameters are read in - Send them to the driver
   set_body_parameters(initial_state, N);
@@ -211,8 +207,8 @@ int main(int argc, char** argv){
         set_read(high);
       }
     }
-    //Read the positions from the driver
-    position_history[t] = read_positions(N);
+    //The polling is over, now we gotta go N times over the data and update the positions
+    read_positions(N);
 
     //Reading is finished, set read to low!
     set_read(low);
@@ -224,28 +220,8 @@ int main(int argc, char** argv){
 
   printf("Simulation Complete! Activating Display...");
 
-  // Write all data to a CSV file
-  FILE* output = fopen("nbody_results.csv", "w");
-  if (output) {
-      fprintf(output, "timestep,body_id,x,y\n");
-      for (int t = 0; t < time_steps; t++) {
-          for (int i = 0; i < N; i++) {
-              fprintf(output, "%d,%d,%f,%f\n", 
-                      t, i, 
-                      position_history[t].bodies[i].x, 
-                      position_history[t].bodies[i].y);
-          }
-      }
-      fclose(output);
-      printf("Results saved to nbody_results.csv\n");
-  } else {
-      fprintf(stderr, "Failed to open output file\n");
-  }
-
-  // Free allocated memory
-  free(position_history);
-  free(initial_state);
-
+  //TODO: Add the display? What if we just did this in software with a graphics library
+  
   printf("N-Body Userspace program terminating\n");
   return 0;
 }

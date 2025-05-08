@@ -5,11 +5,13 @@
  * Columbia University
  *
  * Register map:
- * 
- * Byte Offset  7 ... 0   Meaning
- *        0    |  Red  |  Red component of background color (0-255)
- *        1    | Green |  Green component
- *        2    | Blue  |  Blue component
+
+ *  Memory-mapped framebuffer:
+ * - 32K addressable locations (15-bit address)
+ * - Each 32-bit word contains 32 pixels (1 bit per pixel)
+ * - Addressing: 0x0000 to 0x7FFF
+ * - Pixel data: 1 = white (0xFF), 0 = black (0x00)
+ * - Pixels are read from framebuffer in sequence and displayed on screen
  */
 // This module is built to run on 50 mhz, to get it on 100 you need to do some things.
 module vga_ball(input logic        clk,

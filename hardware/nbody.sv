@@ -10,7 +10,7 @@
 // 0000011 = write_x_data
 // 0000100 = write_y_data
 // 0000101 = write_m_data
-// 0000110 = WRITE_VX
+// 0000110 = write_vx_data 
 // 0000111 = write_vy_data
 
 // 1000000 = DONE
@@ -124,6 +124,24 @@ module nbody #(
                     //if go is not high, then we are not going to do anything (except take in writes from software)
                     // if we raised done, we are waiting for read to go high before dropping done
                     //once read and done are both low (and go is high obvisously), we can start the next cycle
+                    pos_input_1_addr <= addr[BODY_ADDR_WIDTH-1:0];
+
+
+                    //TODO: set addr things
+                    // All the memories get the addr.
+                    write_x_data <= writedata;
+                    write_y_data <= writedata;
+                    write_m_data <= writedata;
+                    write_vx <= writedata;
+                    write_vy_data <= writedata;
+
+                    // Write enable for the different memories
+                    wren_x <= (addr[15:9] == 7'b0000011) ? write : 0;
+                    wren_y <= (addr[15:9] == 7'b0000100) ? write : 0;
+                    wren_m <= (addr[15:9] == 7'b0000101) ? write : 0;
+                    wren_vx <= (addr[15:9] == 7'b0000110) ? write : 0;
+                    wren_vy <= (addr[15:9] == 7'b0000111) ? write : 0;
+
 
 
                     if(go == 1) begin //handshake logic
@@ -384,7 +402,7 @@ module nbody #(
 	);
     RAM	RAM_vx (
         .clock ( clk ),
-        .data ( write_vy_data ),
+        .data ( write_vx_data ),
         .rdaddress ( v_read_addr ),
         .wraddress ( v_write_addr ),
         .wren ( wren_vx ),
@@ -392,7 +410,7 @@ module nbody #(
 	);
     RAM	RAM_vy (
         .clock ( clk ),
-        .data ( write_vx ),
+        .data ( write_vy_data ),
         .rdaddress ( v_read_addr ),
         .wraddress ( v_write_addr ),
         .wren ( wren_vy ),
