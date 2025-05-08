@@ -1,5 +1,5 @@
 `timescale 1 ps / 1 ps
-module nBodyTb;
+module nbodyTb;
 
     // Parameters
     parameter CLK_PERIOD = 10; // Clock period in ns (100 MHz)
@@ -24,6 +24,27 @@ module nBodyTb;
         .addr(addr),
         .chipselect(chipselect)
     );
+    // --- Define arrays for body data (size 21) ---
+    localparam NUM_BODIES_TO_INIT = 21;
+    localparam DEFINED_BODIES = 3;
+
+    real x_coords[NUM_BODIES_TO_INIT];
+    real y_coords[NUM_BODIES_TO_INIT];
+    real vx_coords[NUM_BODIES_TO_INIT];
+    real vy_coords[NUM_BODIES_TO_INIT];
+    real mass_values[NUM_BODIES_TO_INIT];
+
+    // Define select codes for the upper address bits (assuming ADDR_WIDTH=16, BODY_ADDR_WIDTH=9)
+    // These values should match what your nbody.sv expects for addr[15:9]
+    localparam GO     = 7'h00; // Example: 000_0000
+    localparam DONE   = 7'b1000000;
+    localparam X_SEL  = 7'h03; // Example: 000_0000
+    localparam Y_SEL  = 7'h04; // Example: 000_0001
+    localparam VX_SEL = 7'h06; // Example: 000_0010
+    localparam VY_SEL = 7'h07; // Example: 000_0011
+    localparam M_SEL  = 7'h05; // Example: 000_0100
+    // Adjust BODY_ADDR_WIDTH if your nbody module supports a different number of bodies than 512
+    localparam BODY_ADDR_WIDTH = 9;
 
     initial begin
         clk = 0;
@@ -37,8 +58,8 @@ module nBodyTb;
         rst = 0;
         $display("Time=%t: Deasserting reset.", $time);
         // Initialize inputs
-        # CLK_PERIOD;
-        @posedge clk;
+        // # CLK_PERIOD;
+        // @posedge clk;
         // Writing N_BODIES
         chipselect = 1;
         write = 1;
@@ -46,27 +67,8 @@ module nBodyTb;
         addr = 16'b0000010000000000;
         writedata = 64'd21;
 
-        #CLK_PERIOD; // Wait a cycle before starting the new sequence
+        # (CLK_PERIOD); // Wait a cycle before starting the new sequence
 
-        // --- Define arrays for body data (size 21) ---
-        localparam NUM_BODIES_TO_INIT = 21;
-        localparam DEFINED_BODIES = 3;
-
-        real x_coords[NUM_BODIES_TO_INIT];
-        real y_coords[NUM_BODIES_TO_INIT];
-        real vx_coords[NUM_BODIES_TO_INIT];
-        real vy_coords[NUM_BODIES_TO_INIT];
-        real mass_values[NUM_BODIES_TO_INIT];
-
-        // Define select codes for the upper address bits (assuming ADDR_WIDTH=16, BODY_ADDR_WIDTH=9)
-        // These values should match what your nbody.sv expects for addr[15:9]
-        localparam X_SEL  = 7'h03; // Example: 000_0000
-        localparam Y_SEL  = 7'h04; // Example: 000_0001
-        localparam VX_SEL = 7'h06; // Example: 000_0010
-        localparam VY_SEL = 7'h07; // Example: 000_0011
-        localparam M_SEL  = 7'h05; // Example: 000_0100
-        // Adjust BODY_ADDR_WIDTH if your nbody module supports a different number of bodies than 512
-        localparam BODY_ADDR_WIDTH = 9;
 
 
         // --- Populate the first 3 elements with specific values ---
@@ -130,8 +132,8 @@ module nBodyTb;
         @(posedge clk);
         chipselect = 0;
         write      = 0;
-        addr       = '0;
-        writedata  = '0;
+        addr       = 0;
+        writedata  = 0;
         $display("Time=%t: Finished writing body initial conditions.", $time);
 
         // You would typically trigger the 'go' signal here if your nbody module has one
@@ -145,6 +147,18 @@ module nBodyTb;
         // @(posedge clk);
         // chipselect = 0;
         // write = 0;
+        @(posedge clk);
+            chipselect = 1'b1;
+            write      = 1'b1;
+            addr       = (GO << BODY_ADDR_WIDTH);
+            writedata  = 1'b1;
+
+        @(posedge clk);
+            write      = 1'b0;
+            writedata  = 1'b0;
+            read       = 1'b1;
+            addr       = (DONE << BODY_ADDR_WIDTH);
+
 
         # (CLK_PERIOD * 2000); // Wait for simulation to run for a while
         $display("Time=%t: Testbench finishing.", $time);

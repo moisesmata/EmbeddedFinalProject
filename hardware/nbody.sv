@@ -55,7 +55,7 @@ module nbody #(
     logic wren_x, wren_y, wren_m, wren_vx, wren_vy;
     logic [DATA_WIDTH-1:0] out_x, out_y, out_m, out_vx, out_vy;
     logic [1:0] state;
-    logic [BODY_ADDR_WIDTH-1:0] v_read_addr;
+    logic [BODY_ADDR_WIDTH-1:0] m_read_addr, v_read_addr;
     logic [BODY_ADDR_WIDTH-1:0] pos_input_1_addr;
     logic [BODY_ADDR_WIDTH-1:0] s1_body_num_i_read, s1_body_num_j_read;
     logic [BODY_ADDR_WIDTH-1:0] pos_input_2_addr;
@@ -132,6 +132,12 @@ module nbody #(
                         end else if (done == 0) begin
                             state <= CALC_ACCEL;
                             state_1_timer <= 0;
+                            v_write_i <= 0;
+                            v_write_j <= 0;
+                            v_read_i  <= 0;
+                            v_read_j  <= 0;
+                            p_read_i  <= 0;
+                            p_read_j  <= 0;
                         end
                     end
                     else begin
