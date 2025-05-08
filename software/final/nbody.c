@@ -182,7 +182,12 @@ int main(int argc, char** argv){
   printf("Initial Bodies Parameters Read In\n");
 
   //Create an array that saves all the timesteps
-  
+  all_positions_t* position_history = malloc(time_steps * sizeof(all_positions_t));
+  if (!position_history) {
+      fprintf(stderr, "Failed to allocate memory for position history\n");
+      free(initial_state);
+      return -1;
+  }
 
   // The initial parameters are read in - Send them to the driver
   set_body_parameters(initial_state, N);
@@ -206,8 +211,8 @@ int main(int argc, char** argv){
         set_read(high);
       }
     }
-    //The polling is over, now we gotta go N times over the data and update the positions
-    read_positions(N);
+    //Read the positions from the driver
+    position_history[t] = read_positions(N);
 
     //Reading is finished, set read to low!
     set_read(low);
@@ -219,10 +224,29 @@ int main(int argc, char** argv){
 
   printf("Simulation Complete! Activating Display...");
 
-  //TODO: Add the display? What if we just did this in software with a graphics library
-  
-  printf("N-Body Userspace program terminating\n");
+  // Write all data to a CSV file
+  FILE* output = fopen("nbody_results.csv", "w");
+  if (output) {
+      fprintf(output, "timestep,body_id,x,y\n");
+      for (int t = 0; t < time_steps; t++) {
+          for (int i = 0; i < N; i++) {
+              fprintf(output, "%d,%d,%f,%f\n", 
+                      t, i, 
+                      position_history[t].bodies[i].x, 
+                      position_history[t].bodies[i].y);
+          }
+      }
+      fclose(output);
+      printf("Results saved to nbody_results.csv\n");
+  } else {
+      fprintf(stderr, "Failed to open output file\n");
+  }
+
+  // Free allocated memory
+  free(position_history);
   free(initial_state);
+
+  printf("N-Body Userspace program terminating\n");
   return 0;
 }
 
