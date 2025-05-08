@@ -1,23 +1,3 @@
-/* * Device driver for the VGA video generator
- *
- * A Platform device implemented using the misc subsystem
- *
- * Stephen A. Edwards
- * Columbia University
- *
- * References:
- * Linux source: Documentation/driver-model/platform.txt
- *               drivers/misc/arm-charlcd.c
- * http://www.linuxforu.com/tag/linux-device-drivers/
- * http://free-electrons.com/docs/
- *
- * "make" to build
- * insmod vga_ball.ko
- *
- * Check code style with
- * checkpatch.pl --file --no-tree vga_ball.c
- */
-
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/errno.h>
@@ -31,171 +11,242 @@
 #include <linux/of_address.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
-#include "vga_ball.h"
+#include "display_driver.h"
 
-#define DRIVER_NAME "vga_ball"
+#define DRIVER_NAME "vga_display"
 
-/* Device registers */
-#define POS_X1(x) (x)
-#define POS_Y1(x) ((x)+2)
-#define POS_X2(x) ((x)+4)
-#define POS_Y2(x) ((x)+6)
+//how many words in the framebuffer
+#define FRAMEBUFFER_SIZE 0x8000  
 
-/*
- * Information about our device
- */
-struct vga_ball_dev {
-	struct resource res; /* Resource: our registers */
-	void __iomem *virtbase; /* Where registers can be accessed in memory */
-        vga_ball_props_t properties;
+#define BYTE_PER_ROW (DISPLAY_WIDTH / 8)
+#define X_Y_TO_ADDR(base, x, y) ( base + ((y * BYTE_PER_ROW + (x / 8)) * 4))
+
+struct vga_display_dev {
+    struct resource res;     
+    void __iomem *virtbase;     
+    vga_display_arg_t vga_display_arg; 
 } dev;
 
 /*
- * Write segments of a single digit
- * Assumes digit is in range and the device information has been set up
+ * Set a pixel in the framebuffer
+ * x, y: coordinates (0-1279, 0-479)
  */
-static void write_properties(vga_ball_props_t *properties)
+static inline void set_pixel(unsigned short x, unsigned short y, int value)
 {
-	iowrite16(properties->x, POS_X(dev.virtbase) );
-	iowrite16(properties->y, POS_Y(dev.virtbase) );
-	iowrite16(properties->rg_color, BG_RG(dev.virtbase) );
-	dev.properties = *properties;
+    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT)
+        return;  
+        
+	//Find the byte the pixel is in, and the bit in that byte
+    unsigned int addr = X_Y_TO_ADDR(dev.virtbase, x, y);
+    unsigned int bit = x % 8; 
+    u32 bit_mask = 1U << bit;
+    u32 current = ioread32(addr);
+
+    if (value) {
+        // Set the bit to 1 (turn pixel on)
+        iowrite32(current | bit_mask, addr);
+    } else {
+        // Clear the bit to 0 (turn pixel off)
+        iowrite32(current & ~bit_mask, addr);
+    }
 }
 
 /*
- * Handle ioctl() calls from userspace:
- * Read or write the segments on single digits.
- * Note extensive error checking of arguments
+ * Clear the entire framebuffer
  */
-static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+static void clear_framebuffer(void)
 {
-	vga_ball_arg_t vla;
+    int i;
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(0, dev.virtbase + (i * 4));
+    }
+}
 
-	switch (cmd) {
-	case VGA_BALL_WRITE_PROPERTIES:
-		if (copy_from_user(&vla, (vga_ball_arg_t *) arg,
-				   sizeof(vga_ball_arg_t)))
-			return -EACCES;
-		write_properties(&vla.properties);
-		break;
+/*
+ * Draw a filled circle with correction for y aspect ratio
+ * x0, y0: Center coordinates of the circle
+ * radius: Radius of the circle in pixels
+ * This uses the circle drawing method from our lab 3.
+ */
+static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius)
+{
+    int radius_squared = radius * radius;
+    
+    int x_min = (x0 > radius) ? (x0 - radius) : 0;
+    int y_min = (y0 > radius) ? (y0 - radius/2) : 0;  // Divide by 2 for y aspect ratio
+    int x_max = (x0 + radius < DISPLAY_WIDTH) ? (x0 + radius) : (DISPLAY_WIDTH - 1);
+    int y_max = (y0 + radius/2 < DISPLAY_HEIGHT) ? (y0 + radius/2) : (DISPLAY_HEIGHT - 1);
+    
+    int x, y;
+    for (y = y_min; y <= y_max; y++) {
+        for (x = x_min; x <= x_max; x++) {
 
-	case VGA_BALL_READ_PROPERTIES:
-	  	vla.properties = dev.properties;
-		if (copy_to_user((vga_ball_arg_t *) arg, &vla,
-				 sizeof(vga_ball_arg_t)))
-			return -EACCES;
-		break;
+            int dx = x - x0;
+            int dy = y - y0;
+            int distance_squared = dx*dx + 4*dy*dy;
+            
+            // If distance is less than or equal to radius, this pixel is in the circle
+            if (distance_squared <= radius_squared) {
+                set_pixel(x, y, 1);
+            }
+        }
+    }
+}
 
-	default:
-		return -EINVAL;
-	}
+/*
+ * Draw all bodies in the simulation
+ */
+static void draw_all_bodies(vga_display_arg_t *arg)
+{
+    clear_framebuffer();  // Clear screen before drawing new state
+    
+    unsigned int i;
+    unsigned int num_bodies = arg->num_bodies > MAX_BODIES ? MAX_BODIES : arg->num_bodies;
+    
+    for (i = 0; i < num_bodies; i++) {
+        vga_ball_props_t *body = &arg->bodies[i];
+        draw_circle(body->x, body->y, body->radius);
+    }
+    
+    // Save current state
+    dev.vga_display_arg = *arg;
+}
 
-	return 0;
+/*
+ * Handle ioctl() calls from userspace
+ */
+static long vga_display_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+{
+    vga_display_arg_t vla;
+
+    switch (cmd) {
+    case VGA_DISPLAY_WRITE_PROPERTIES:
+        if (copy_from_user(&vla, (vga_display_arg_t *) arg, sizeof(vga_display_arg_t)))
+            return -EACCES;
+        draw_all_bodies(&vla);
+        break;
+
+    case VGA_DISPLAY_CLEAR_SCREEN:
+        clear_framebuffer();
+        dev.vga_display_arg.num_bodies = 0;  // No bodies displayed
+        break;
+
+    default:
+        return -EINVAL;
+    }
+
+    return 0;
 }
 
 /* The operations our device knows how to do */
-static const struct file_operations vga_ball_fops = {
-	.owner		= THIS_MODULE,
-	.unlocked_ioctl = vga_ball_ioctl,
+static const struct file_operations vga_display_fops = {
+    .owner          = THIS_MODULE,
+    .unlocked_ioctl = vga_display_ioctl,
 };
 
 /* Information about our device for the "misc" framework -- like a char dev */
-static struct miscdevice vga_ball_misc_device = {
-	.minor		= MISC_DYNAMIC_MINOR,
-	.name		= DRIVER_NAME,
-	.fops		= &vga_ball_fops,
+static struct miscdevice vga_display_misc_device = {
+    .minor       = MISC_DYNAMIC_MINOR,
+    .name        = DRIVER_NAME,
+    .fops        = &vga_display_fops,
 };
 
 /*
  * Initialization code: get resources (registers) and display
  * a welcome message
  */
-static int __init vga_ball_probe(struct platform_device *pdev)
+static int __init vga_display_probe(struct platform_device *pdev)
 {
-        vga_ball_props_t blue = { 400, 200, 0 };
-	int ret;
+    int ret;
 
-	/* Register ourselves as a misc device: creates /dev/vga_ball */
-	ret = misc_register(&vga_ball_misc_device);
+    /* Register ourselves as a misc device: creates /dev/vga_display */
+    ret = misc_register(&vga_display_misc_device);
+    if (ret) {
+        pr_err("%s: failed to register misc device\n", DRIVER_NAME);
+        return ret;
+    }
 
-	/* Get the address of our registers from the device tree */
-	ret = of_address_to_resource(pdev->dev.of_node, 0, &dev.res);
-	if (ret) {
-		ret = -ENOENT;
-		goto out_deregister;
-	}
+    /* Get the address of our registers from the device tree */
+    ret = of_address_to_resource(pdev->dev.of_node, 0, &dev.res);
+    if (ret) {
+        ret = -ENOENT;
+        goto out_deregister;
+    }
 
-	/* Make sure we can use these registers */
-	if (request_mem_region(dev.res.start, resource_size(&dev.res),
-			       DRIVER_NAME) == NULL) {
-		ret = -EBUSY;
-		goto out_deregister;
-	}
+    /* Make sure we can use these registers */
+    if (request_mem_region(dev.res.start, resource_size(&dev.res),
+                   DRIVER_NAME) == NULL) {
+        ret = -EBUSY;
+        goto out_deregister;
+    }
 
-	/* Arrange access to our registers */
-	dev.virtbase = of_iomap(pdev->dev.of_node, 0);
-	if (dev.virtbase == NULL) {
-		ret = -ENOMEM;
-		goto out_release_mem_region;
-	}
+    /* Arrange access to our registers */
+    dev.virtbase = of_iomap(pdev->dev.of_node, 0);
+    if (dev.virtbase == NULL) {
+        ret = -ENOMEM;
+        goto out_release_mem_region;
+    }
         
-	/* Set an initial props */
-        write_properties(&blue);
-
-	return 0;
+    /* Initialize the device with empty screen */
+    clear_framebuffer();
+    dev.vga_display_arg.num_bodies = 0;
+    
+    pr_info("%s: initialized\n", DRIVER_NAME);
+    return 0;
 
 out_release_mem_region:
-	release_mem_region(dev.res.start, resource_size(&dev.res));
+    release_mem_region(dev.res.start, resource_size(&dev.res));
 out_deregister:
-	misc_deregister(&vga_ball_misc_device);
-	return ret;
+    misc_deregister(&vga_display_misc_device);
+    return ret;
 }
 
 /* Clean-up code: release resources */
-static int vga_ball_remove(struct platform_device *pdev)
+static int vga_display_remove(struct platform_device *pdev)
 {
-	iounmap(dev.virtbase);
-	release_mem_region(dev.res.start, resource_size(&dev.res));
-	misc_deregister(&vga_ball_misc_device);
-	return 0;
+    iounmap(dev.virtbase);
+    release_mem_region(dev.res.start, resource_size(&dev.res));
+    misc_deregister(&vga_display_misc_device);
+    return 0;
 }
 
 /* Which "compatible" string(s) to search for in the Device Tree */
 #ifdef CONFIG_OF
-static const struct of_device_id vga_ball_of_match[] = {
-	{ .compatible = "csee4840,vga_ball-1.0" },
-	{},
+static const struct of_device_id vga_display_of_match[] = {
+    { .compatible = "csee4840,vga_display-1.0" },
+    {},
 };
-MODULE_DEVICE_TABLE(of, vga_ball_of_match);
+MODULE_DEVICE_TABLE(of, vga_display_of_match);
 #endif
 
 /* Information for registering ourselves as a "platform" driver */
-static struct platform_driver vga_ball_driver = {
-	.driver	= {
-		.name	= DRIVER_NAME,
-		.owner	= THIS_MODULE,
-		.of_match_table = of_match_ptr(vga_ball_of_match),
-	},
-	.remove	= __exit_p(vga_ball_remove),
+static struct platform_driver vga_display_driver = {
+    .driver = {
+        .name   = DRIVER_NAME,
+        .owner  = THIS_MODULE,
+        .of_match_table = of_match_ptr(vga_display_of_match),
+    },
+    .remove = __exit_p(vga_display_remove),
+    .probe  = vga_display_probe,
 };
 
 /* Called when the module is loaded: set things up */
-static int __init vga_ball_init(void)
+static int __init vga_display_init(void)
 {
-	pr_info(DRIVER_NAME ": init\n");
-	return platform_driver_probe(&vga_ball_driver, vga_ball_probe);
+    pr_info("%s: init\n", DRIVER_NAME);
+    return platform_driver_register(&vga_display_driver);
 }
 
-/* Calball when the module is unloaded: release resources */
-static void __exit vga_ball_exit(void)
+/* Called when the module is unloaded: release resources */
+static void __exit vga_display_exit(void)
 {
-	platform_driver_unregister(&vga_ball_driver);
-	pr_info(DRIVER_NAME ": exit\n");
+    platform_driver_unregister(&vga_display_driver);
+    pr_info("%s: exit\n", DRIVER_NAME);
 }
 
-module_init(vga_ball_init);
-module_exit(vga_ball_exit);
+module_init(vga_display_init);
+module_exit(vga_display_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Stephen A. Edwards, Columbia University");
-MODULE_DESCRIPTION("VGA ball driver");
+MODULE_AUTHOR("Based on work by Stephen A. Edwards, Columbia University");
+MODULE_DESCRIPTION("VGA framebuffer driver for N-body simulation");
