@@ -10,7 +10,7 @@
 // 0000011 = write_x_data
 // 0000100 = write_y_data
 // 0000101 = write_m_data
-// 0000110 = WRITE_VX
+// 0000110 = write_vx_data 
 // 0000111 = write_vy_data
 
 // 1000000 = DONE
@@ -51,7 +51,7 @@ module nbody #(
     logic read_sw;
     logic [$clog2(BODIES)-1:0] num_bodies;
     logic [DATA_WIDTH-1:0] gap, gap_counter;
-    logic [DATA_WIDTH-1:0] write_vx, write_vy_data, write_m_data, write_x_data, write_y_data;
+    logic [DATA_WIDTH-1:0] write_vx, write_vy_data, write_vx_data, write_m_data, write_x_data, write_y_data;
     logic wren_x, wren_y, wren_m, wren_vx, wren_vy;
     logic [DATA_WIDTH-1:0] out_x, out_y, out_m, out_vx, out_vy;
     logic [1:0] state;
@@ -132,7 +132,7 @@ module nbody #(
                     write_x_data <= writedata;
                     write_y_data <= writedata;
                     write_m_data <= writedata;
-                    write_vx <= writedata;
+                    write_vx_data <= writedata;
                     write_vy_data <= writedata;
 
                     // Write enable for the different memories
@@ -363,7 +363,7 @@ module nbody #(
 	);
     RAM	RAM_vx (
         .clock ( clk ),
-        .data ( write_vy_data ),
+        .data ( write_vx_data ),
         .rdaddress ( v_read_addr ),
         .wraddress ( v_write_addr ),
         .wren ( wren_vx ),
@@ -371,7 +371,7 @@ module nbody #(
 	);
     RAM	RAM_vy (
         .clock ( clk ),
-        .data ( write_vx ),
+        .data ( write_vy_data ),
         .rdaddress ( v_read_addr ),
         .wraddress ( v_write_addr ),
         .wren ( wren_vy ),
