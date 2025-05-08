@@ -42,7 +42,7 @@ module vga_ball(input logic        clk,
       .q(readdata)
     );
 
-    assign rdaddress = placecounter[19:5] + 15'b1;
+    assign rdaddress = placecounter[20:6] + 15'b1;
 
     always_ff @(posedge clk or posedge reset) begin
       if (reset) begin
@@ -55,7 +55,7 @@ module vga_ball(input logic        clk,
     end
 
    always_comb begin
-      if (readdata[placecounter[4:0]] == 1'b1) begin
+      if (readdata[placecounter[5:1]] == 1'b1) begin
          VGA_R = 8'hff;
          VGA_G = 8'hff;
          VGA_B = 8'hff;
