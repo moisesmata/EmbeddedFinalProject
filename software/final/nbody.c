@@ -18,24 +18,25 @@
 #define MAXCHAR 1000
 
 int nbody_fd;
-int high = 1;
-int low = 0;
+
+int high = 0xFFFFFFFF;
+int low = 0x00000000;
 
 // ----------------------------------------------------
 // Setting the Body parameters for the Sim
 // ----------------------------------------------------
-void set_body_parameters(float* input_parameters, int N){
+void set_body_parameters(double* input_parameters, int N){
   n_body_initial_parameters_t vla;
   for(int i = 0; i < N; i ++){
     body_t body;
-    body.x = input_parameters[5*N];
-    body.y = input_parameters[5*N+1];
-    body.vx = input_parameters[5*N+2];
-    body.vy = input_parameters[5*N+3];
-    body.m = input_parameters[5*N+4];
-    body.n = N;
+    body.x = input_parameters[5*i];
+    body.y = input_parameters[5*i+1];
+    body.vx = input_parameters[5*i+2];
+    body.vy = input_parameters[5*i+3];
+    body.m = input_parameters[5*i+4];
+    body.n = i;
 
-    vla[i] = body;
+    vla[i] = &body;
   }
   
   if(ioctl(nbody_fd, NBODY_SET_BODY_PARAMETERS, &vla)){
@@ -50,7 +51,7 @@ void set_body_parameters(float* input_parameters, int N){
 void set_simulation_parameters(int N, int output_step){ //dt is always 2
   nbody_sim_config_t vla; 
   vla.N = N;
-  vla.output_step = output_step; 
+  vla.gap = output_step; 
   if(ioctl(nbody_fd, NBODY_SET_SIM_PARAMETERS, &vla)){
     perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
     return;
@@ -61,8 +62,8 @@ void set_simulation_parameters(int N, int output_step){ //dt is always 2
 // Set the go signal high to start thes sim
 // ----------------------------------------------------
 void set_go(int go){
-  if(ioctl(nbody_fd, NBODY_START_SIM, go)){
-    perror("ioctl(NBODY_START_SIM) failed");
+  if(ioctl(nbody_fd, WRITE_GO, go)){
+    perror("ioctl(WRITE_GO) failed");
     return;
   } 
 }
@@ -71,14 +72,35 @@ void set_go(int go){
 // Continuously poll the read signal
 // ----------------------------------------------------
 int poll_done(){
+  int done; 
+  if (ioctl(nbody_fd, READ_DONE, &done)) {
+      perror("ioctl(READ_DONE) failed");
+      return;
+  }
+  if(done > 0){
+    return 1;
+  }
   return 0; 
+}
+
+// ----------------------------------------------------
+// Read all the positions into the struct
+// ----------------------------------------------------
+all_positions_t read_positions(int N){
+  //ioctl goes here
+  all_positions_t vla;
+  if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
+    perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
+    return;
+  } 
+  return vla;
 }
 
 // ----------------------------------------------------
 // Set the read signal
 // ----------------------------------------------------
-void set_read(int x){
-  if(ioctl(nbody_fd, NBODY_SET_READ, go)){
+void set_read(int read){
+  if(ioctl(nbody_fd, NBODY_SET_READ, read)){
     perror("ioctl(NBODY_SET_READ) failed");
     return;
   } ; 
@@ -87,9 +109,9 @@ void set_read(int x){
 // ----------------------------------------------------
 // Function to read the input CSV
 // ----------------------------------------------------
-float* get_initial_state(char* filename, int N){
+double* get_initial_state(char* filename, int N){
   //Allocate Space for a the Body Paremeters
-  float* initial_state = (float*)malloc(N * 5 * sizeof(float));
+  double* initial_state = (double*)malloc(N * 5 * sizeof(double));
 
   //Open the file and read it
   FILE* file = fopen(filename, 'r');
@@ -118,13 +140,13 @@ float* get_initial_state(char* filename, int N){
 // ----------------------------------------------------
 // Main function - Runs Everything
 // ----------------------------------------------------
-int main(int argc, char** argv){ 
+int main(int argc, char** argv){  
   //Check to make sure that the 
   if(argc > 3){
     perror("Too many arguments!\n");
     return -1; 
   } else if (argc < 3){
-    perror("Usage: ./nbody <# of bodies> <# of time steps> \n");
+    perror("Usage: ./nbody <# of bodies> <# of outputs> \n");
     return -1; 
   } else{
     perror("Idk how this would happen but there's an error\n");
@@ -155,16 +177,20 @@ int main(int argc, char** argv){
     fprintf(stderr, "could not open %s\n", filename);
     return -1;
   }
+
   // Read in Initial N-Body State FROM CSV File
-  float* initial_state = get_initial_state("input.csv", N);
+  double* initial_state = get_initial_state("input.csv", N);
   printf("Initial Bodies Parameters Read In\n");
+
+  //Create an array that saves all the timesteps
+  
 
   // The initial parameters are read in - Send them to the driver
   set_body_parameters(initial_state, N);
 
   //Then set the initial parameters for the simulation
   int output_step = 5;
-  set_body_parameters(N,ouput_step);
+  set_simulation_parameters(N,output_step);
   
   //Send the go signal
   set_go(high);
@@ -182,17 +208,18 @@ int main(int argc, char** argv){
       }
     }
     //The polling is over, now we gotta go N times over the data and update the positions
+    read_positions(N);
 
-    
-    
-    //Updating is done, set read to low
+    //Reading is finished, set read to low!
     set_read(low);
 
-    //Increment Time
+    //Increment Time Thing
     t += 1;
   }
+  set_go(low);
 
   printf("Simulation Complete! Activating Display...");
+
   //TODO: Add the display? What if we just did this in software with a graphics library
   
   printf("N-Body Userspace program terminating\n");
