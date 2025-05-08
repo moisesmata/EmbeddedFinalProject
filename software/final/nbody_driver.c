@@ -40,10 +40,11 @@ struct nbody_dev {
 	n_body_sim_config_t sim_config;
 	int go;
 	int done;
+	int read;
 } dev;
 
 static void write_parameters(n_body_parameters_t *parameters){
-	for (int i = 0; i < 512; i++){
+	for (int i = 0; i < ioread64(N_ADDR(dev.virtbase)); i++){
 		iowrite64(parameters->bodies[i].x , X_ADDR(dev.virtbase, i)); //Writing to memory
 		iowrite64(parameters->bodies[i].y , Y_ADDR(dev.virtbase, i));
 		iowrite64(parameters->bodies[i].m , M_ADDR(dev.virtbase, i));
@@ -57,7 +58,7 @@ static void write_parameters(n_body_parameters_t *parameters){
 /* Start the N-body simulation in hardware */
 static void write_simulation_parameters(n_body_sim_config_t *parameters){
 	iowrite64(parameters->N, N_ADDR(dev.virtbase));
-	iowrite64(parameters->dt, GAP_ADDR(dev.virtbase));
+	iowrite64(parameters->gap, GAP_ADDR(dev.virtbase));
 	dev.sim_config = *parameters;
 }
 
@@ -130,7 +131,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 
 	case NBODY_READ_POSITIONS:
 		read_positions(&all_positions);
-		if (copy_to_user((all_positions *)arg, &all_positions, sizeof(all_positions_t)))
+		if (copy_to_user((all_positions_t *)arg, &all_positions, sizeof(all_positions_t)))
 			return -EFAULT;
 		break;
 

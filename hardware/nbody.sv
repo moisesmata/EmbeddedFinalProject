@@ -132,7 +132,7 @@ module nbody #(
                     write_x_data <= writedata;
                     write_y_data <= writedata;
                     write_m_data <= writedata;
-                    write_vx_data <= writedata;
+                    write_vx <= writedata;
                     write_vy_data <= writedata;
 
                     // Write enable for the different memories
@@ -143,7 +143,7 @@ module nbody #(
                     wren_vy <= (addr[15:9] == 7'b0000111) ? write : 0;
 
 
-                    
+
                     if(go == 1) begin //handshake logic
                         if(read_sw == 1) begin
                             done <= 0;
@@ -161,7 +161,6 @@ module nbody #(
 
                 end
                 CALC_ACCEL: begin // Compute accelerations, update velocities
-                    pos_input_1_addr <= s1_body_num_i_read;
                     if (go == 1'b0) begin
                         state <= SW_READ_WRITE;
                     end
@@ -170,11 +169,9 @@ module nbody #(
                         state <= UPDATE_POS;
                         state_2_write_enable <= 1'b0;
                         state_2_pos_write <= 0;
-                        v_read_addr <= 0;
-                        pos_input_2_addr <= 0;
-                        pos_input_1_addr <= 0;
-                        wren_x <= 1'b0;
-                        wren_y <= 1'b0;
+                        state_2_read <= 0;
+                        state_2_pos_write <= 0;
+                        state_2_write_enable <= 1'b0;
                     end
                     else begin
                         state_1_timer <= state_1_timer + 1;
@@ -252,18 +249,55 @@ module nbody #(
     always_comb begin : blockName
         case (state)
             SW_READ_WRITE: begin
-                // No combinational logic needed for adders in this state
+                //TODO: set addr things
+                // All the memories get the addr.
+                pos_input_1_addr = addr[BODY_ADDR_WIDTH-1:0];
+                pos_input_2_addr = addr[BODY_ADDR_WIDTH-1:0];
+                m_read_addr = addr[BODY_ADDR_WIDTH-1:0];
+                v_read_addr = addr[BODY_ADDR_WIDTH-1:0];
+                v_write_addr = addr[BODY_ADDR_WIDTH-1:0];
+
+                write_x_data = writedata;
+                write_y_data = writedata;
+                write_m_data = writedata;
+                write_vx_data = writedata;
+                write_vy_data = writedata;
+
+                // Write enable for the different memories
+                wren_x = (addr[15:9] == 7'b0000011) ? write : 0;
+                wren_y = (addr[15:9] == 7'b0000100) ? write : 0;
+                wren_m = (addr[15:9] == 7'b0000101) ? write : 0;
+                wren_vx = (addr[15:9] == 7'b0000110) ? write : 0;
+                wren_vy = (addr[15:9] == 7'b0000111) ? write : 0;
+                    
+                ax_shifted = 0;
+                ay_shifted = 0;
+                add_x_input_1 = 0;
+                add_x_input_2 = 0;
+                add_y_input_1 = 0;
+                add_y_input_2 = 0;
+
             end
             CALC_ACCEL: begin
 
                 pos_input_1_addr = p_read_i;
-                m_read_addr = p_read_i;
-
                 pos_input_2_addr = p_read_j;
-
-
+                m_read_addr = p_read_i;
                 v_read_addr = v_read_j;
+                v_write_addr = v_write_j;
 
+                // The 0 values don't matter
+                write_x_data = 0;
+                write_y_data = 0;
+                write_m_data = 0;
+                write_vx_data = add_x_out;
+                write_vy_data = add_y_out;
+
+                wren_x = 0;
+                wren_y = 0;
+                wren_m = 0;
+                wren_vx = valid_dv;
+                wren_vy = valid_dv;
 
                 //TODO: We are assuming big indian, if not, deal with it
                 if (first_time) begin
@@ -274,36 +308,35 @@ module nbody #(
                     ay_shifted = ay;
                 end
 
-
                 add_x_input_1 = ax_shifted;
                 add_x_input_2 = out_vx;
                 add_y_input_1 = ay_shifted;
                 add_y_input_2 = out_vy;
 
-                v_write_addr = v_write_j;
-
-                write_vx_data = add_x_out;
-                write_vy_data = add_y_out;
-               
-                wren_vx = valid_dv;
-                wren_vy = valid_dv;
-
-
-
-                
 
             end
             UPDATE_POS: begin
-                v_read_addr = state_2_read; //also zero at the start, these should always hold the same value (v_read and pos)
-                pos_input_2_addr = state_2_read;
-
                 pos_input_1_addr = state_2_pos_write; 
-
-                wren_x = state_2_write_enable;
-                wren_y = state_2_write_enable;
+                pos_input_2_addr = state_2_read;
+                v_read_addr = state_2_read; //also zero at the start, these should always hold the same value (v_read and pos)
+                m_read_addr = 0;
+                v_write_addr = 0;
 
                 write_x_data = add_x_out; //Make sure this is zeroed out before hand
                 write_y_data = add_y_out;
+                write_m_data = 0;
+                write_vx_data = 0;
+                write_vy_data = 0;
+
+                
+                wren_x = state_2_write_enable;
+                wren_y = state_2_write_enable;
+                wren_m = 0;
+                wren_vx = 0;
+                wren_vy = 0;
+
+                ax_shifted = 0;
+                ay_shifted = 0;
 
                 add_x_input_1 = x_output_2;
                 add_x_input_2 = out_vx;
