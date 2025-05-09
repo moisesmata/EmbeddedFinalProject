@@ -203,8 +203,9 @@ module nbody #(
                     state_2_read <= state_2_read + 1;
 
                     if (go == 0) begin
-                        state <= SW_READ_WRITE;
-                    if (state_2_read == AddTime-1) begin
+                        state <= SW_READ_WRITE;i
+                    end
+                    if (state_2_read == (AddTime-1)) begin
                         // finished the startup time, now we can start writing things back
                         state_2_write_enable <= 1'b1;
                     end
