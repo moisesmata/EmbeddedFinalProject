@@ -44,10 +44,10 @@ static inline void set_pixel(unsigned short x, unsigned short y, int value)
 
     if (value) {
         // Set the bit to 1 (turn pixel on)
-        iowrite32((void *)current | (void *)bit_mask, addr);
+        iowrite32((U32)current | bit_mask, addr);
     } else {
         // Clear the bit to 0 (turn pixel off)
-        iowrite32((void *)current & (void *)~bit_mask, addr);
+        iowrite32((U32)current & ~bit_mask, addr);
     }
 }
 
