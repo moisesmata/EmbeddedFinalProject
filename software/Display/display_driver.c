@@ -13,7 +13,7 @@
 #include <linux/uaccess.h>
 #include "display_driver.h"
 
-#define DRIVER_NAME "vga_display"
+#define DRIVER_NAME "vga_ball"  // Changed from "vga_display"
 
 //how many words in the framebuffer
 #define FRAMEBUFFER_SIZE 0x8000  
@@ -21,10 +21,10 @@
 #define BYTE_PER_ROW (DISPLAY_WIDTH / 8)
 #define X_Y_TO_ADDR(base, x, y) ( base + ((y * BYTE_PER_ROW + (x / 8)) * 4))
 
-struct vga_display_dev {
+struct vga_ball_dev {  // Changed from vga_display_dev
     struct resource res;     
     void __iomem *virtbase;     
-    vga_display_arg_t vga_display_arg; 
+    vga_ball_arg_t vga_ball_arg;  // Changed from vga_display_arg_t vga_display_arg
 } dev;
 
 /*
@@ -96,7 +96,7 @@ static void draw_circle(unsigned short x0, unsigned short y0, unsigned short rad
 /*
  * Draw all bodies in the simulation
  */
-static void draw_all_bodies(vga_display_arg_t *arg)
+static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
 {
     clear_framebuffer();  // Clear screen before drawing new state
     
@@ -109,7 +109,7 @@ static void draw_all_bodies(vga_display_arg_t *arg)
     }
     
     // Save current state
-    dev.vga_display_arg = *arg;
+    dev.vga_ball_arg = *arg;  // Changed from dev.vga_display_arg
 }
 
 /*
@@ -117,18 +117,18 @@ static void draw_all_bodies(vga_display_arg_t *arg)
  */
 static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-    vga_display_arg_t vla;
+    vga_ball_arg_t vla;  // Changed from vga_display_arg_t
 
     switch (cmd) {
-    case VGA_DISPLAY_WRITE_PROPERTIES:
-        if (copy_from_user(&vla, (vga_display_arg_t *) arg, sizeof(vga_display_arg_t)))
+    case VGA_BALL_WRITE_PROPERTIES:  // Changed from VGA_DISPLAY_WRITE_PROPERTIES
+        if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t)))  // Changed cast and size
             return -EACCES;
         draw_all_bodies(&vla);
         break;
 
-    case VGA_DISPLAY_CLEAR_SCREEN:
+    case VGA_BALL_CLEAR_SCREEN:  // Changed from VGA_DISPLAY_CLEAR_SCREEN
         clear_framebuffer();
-        dev.vga_display_arg.num_bodies = 0;  // No bodies displayed
+        dev.vga_ball_arg.num_bodies = 0;  // Changed from dev.vga_display_arg
         break;
 
     default:
@@ -139,28 +139,28 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 }
 
 /* The operations our device knows how to do */
-static const struct file_operations vga_display_fops = {
+static const struct file_operations vga_ball_fops = {  // Changed from vga_display_fops
     .owner          = THIS_MODULE,
     .unlocked_ioctl = vga_ball_ioctl,
 };
 
 /* Information about our device for the "misc" framework -- like a char dev */
-static struct miscdevice vga_display_misc_device = {
+static struct miscdevice vga_ball_misc_device = {  // Changed from vga_display_misc_device
     .minor       = MISC_DYNAMIC_MINOR,
     .name        = DRIVER_NAME,
-    .fops        = &vga_display_fops,
+    .fops        = &vga_ball_fops,  // Changed from &vga_display_fops
 };
 
 /*
  * Initialization code: get resources (registers) and display
  * a welcome message
  */
-static int __init vga_display_probe(struct platform_device *pdev)
+static int __init vga_ball_probe(struct platform_device *pdev)  // Changed from vga_display_probe
 {
     int ret;
 
-    /* Register ourselves as a misc device: creates /dev/vga_display */
-    ret = misc_register(&vga_display_misc_device);
+    /* Register ourselves as a misc device: creates /dev/vga_ball */  // Changed comment
+    ret = misc_register(&vga_ball_misc_device);  // Changed from vga_display_misc_device
     if (ret) {
         pr_err("%s: failed to register misc device\n", DRIVER_NAME);
         return ret;
@@ -189,7 +189,7 @@ static int __init vga_display_probe(struct platform_device *pdev)
         
     /* Initialize the device with empty screen */
     clear_framebuffer();
-    dev.vga_display_arg.num_bodies = 0;
+    dev.vga_ball_arg.num_bodies = 0;  // Changed from dev.vga_display_arg
     
     pr_info("%s: initialized\n", DRIVER_NAME);
     return 0;
@@ -197,56 +197,56 @@ static int __init vga_display_probe(struct platform_device *pdev)
 out_release_mem_region:
     release_mem_region(dev.res.start, resource_size(&dev.res));
 out_deregister:
-    misc_deregister(&vga_display_misc_device);
+    misc_deregister(&vga_ball_misc_device);
     return ret;
 }
 
 /* Clean-up code: release resources */
-static int vga_display_remove(struct platform_device *pdev)
+static int vga_ball_remove(struct platform_device *pdev)  // Changed from vga_display_remove
 {
     iounmap(dev.virtbase);
     release_mem_region(dev.res.start, resource_size(&dev.res));
-    misc_deregister(&vga_display_misc_device);
+    misc_deregister(&vga_ball_misc_device);  // Changed from vga_display_misc_device
     return 0;
 }
 
 /* Which "compatible" string(s) to search for in the Device Tree */
 #ifdef CONFIG_OF
-static const struct of_device_id vga_display_of_match[] = {
-    { .compatible = "csee4840,vga_display-1.0" },
+static const struct of_device_id vga_ball_of_match[] = {  // Changed from vga_display_of_match
+    { .compatible = "csee4840,vga_ball-1.0" },  // Changed from vga_display-1.0
     {},
 };
-MODULE_DEVICE_TABLE(of, vga_display_of_match);
+MODULE_DEVICE_TABLE(of, vga_ball_of_match);  // Changed from vga_display_of_match
 #endif
 
 /* Information for registering ourselves as a "platform" driver */
-static struct platform_driver vga_display_driver = {
+static struct platform_driver vga_ball_driver = {  // Changed from vga_display_driver
     .driver = {
         .name   = DRIVER_NAME,
         .owner  = THIS_MODULE,
-        .of_match_table = of_match_ptr(vga_display_of_match),
+        .of_match_table = of_match_ptr(vga_ball_of_match),  // Changed from vga_display_of_match
     },
-    .remove = __exit_p(vga_display_remove),
-    .probe  = vga_display_probe,
+    .remove = __exit_p(vga_ball_remove),  // Changed from vga_display_remove
+    .probe  = vga_ball_probe,  // Changed from vga_display_probe
 };
 
 /* Called when the module is loaded: set things up */
-static int __init vga_display_init(void)
+static int __init vga_ball_init(void)  // Changed from vga_display_init
 {
     pr_info("%s: init\n", DRIVER_NAME);
-    return platform_driver_register(&vga_display_driver);
+    return platform_driver_register(&vga_ball_driver);  // Changed from vga_display_driver
 }
 
 /* Called when the module is unloaded: release resources */
-static void __exit vga_display_exit(void)
+static void __exit vga_ball_exit(void)  // Changed from vga_display_exit
 {
-    platform_driver_unregister(&vga_display_driver);
+    platform_driver_unregister(&vga_ball_driver);  // Changed from vga_display_driver
     pr_info("%s: exit\n", DRIVER_NAME);
 }
 
-module_init(vga_display_init);
-module_exit(vga_display_exit);
+module_init(vga_ball_init);  // Changed from vga_display_init
+module_exit(vga_ball_exit);  // Changed from vga_display_exit
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Based on work by Stephen A. Edwards, Columbia University");
-MODULE_DESCRIPTION("VGA framebuffer driver for N-body simulation");
+MODULE_DESCRIPTION("VGA ball driver for N-body simulation");  // Changed from framebuffer

@@ -1,5 +1,5 @@
-#ifndef _VGA_DISPLAY_H
-#define _VGA_DISPLAY_H
+#ifndef _VGA_BALL_H
+#define _VGA_BALL_H
 
 #include <linux/ioctl.h>
 
@@ -22,11 +22,11 @@ typedef struct {
 typedef struct {
   vga_ball_props_t bodies[MAX_BODIES];
   int num_bodies;
-} vga_display_arg_t;
+} vga_ball_arg_t;
 
-#define VGA_DISPLAY_MAGIC 'q'
+#define VGA_BALL_MAGIC 'q'
 
-#define VGA_DISPLAY_WRITE_PROPERTIES _IOW(VGA_DISPLAY_MAGIC, 1, vga_display_arg_t)
-#define VGA_DISPLAY_CLEAR_SCREEN     _IO(VGA_DISPLAY_MAGIC, 2)
+#define VGA_BALL_WRITE_PROPERTIES _IOW(VGA_BALL_MAGIC, 1, vga_ball_arg_t)
+#define VGA_BALL_CLEAR_SCREEN     _IO(VGA_BALL_MAGIC, 2)
 
-#endif /* _VGA_DISPLAY_H */
+#endif /* _VGA_BALL_H */

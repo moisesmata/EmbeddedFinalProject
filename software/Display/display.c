@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     fgets(line, MAXCHAR, csv_file);
     
     // Allocate memory for all timesteps at once (fixed allocation)
-    vga_display_arg_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(vga_display_arg_t));
+    vga_ball_arg_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(vga_ball_arg_t));
     
     if (!simulation_data) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -116,8 +116,8 @@ int main(int argc, char** argv) {
     printf("Loaded %d timesteps with %d bodies\n", actual_timesteps, max_body_id + 1);
     
     // Clear screen
-    if (ioctl(vga_fd, VGA_DISPLAY_CLEAR_SCREEN, 0) < 0) {
-        perror("ioctl(VGA_DISPLAY_CLEAR_SCREEN) failed");
+    if (ioctl(vga_fd, VGA_BALL_CLEAR_SCREEN, 0) < 0) {
+        perror("ioctl(VGA_BALL_CLEAR_SCREEN) failed");
         free(simulation_data);
         close(vga_fd);
         return -1;
@@ -126,8 +126,8 @@ int main(int argc, char** argv) {
     // Playback loop
     
     for (int t = 0; t < actual_timesteps; t++) {
-        if (ioctl(vga_fd, VGA_DISPLAY_WRITE_PROPERTIES, &simulation_data[t]) < 0) {
-            perror("ioctl(VGA_DISPLAY_WRITE_PROPERTIES) failed");
+        if (ioctl(vga_fd, VGA_BALL_WRITE_PROPERTIES, &simulation_data[t]) < 0) {
+            perror("ioctl(VGA_BALL_WRITE_PROPERTIES) failed");
             break;
         }
         
