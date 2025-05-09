@@ -208,7 +208,6 @@ module nbody #(
                     if (state_2_read == AddTime-1) begin
                         // finished the startup time, now we can start writing things back
                         state_2_write_enable <= 1'b1;
-                    end
                     end else if (state_2_write_enable) begin
                         if (state_2_pos_write != num_bodies - 1) begin
                             state_2_pos_write <= state_2_pos_write + 1; // must be zeroed out at the start
