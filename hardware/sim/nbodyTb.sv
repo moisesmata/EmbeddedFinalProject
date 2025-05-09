@@ -37,6 +37,7 @@ module nbodyTb;
     // Define select codes for the upper address bits (assuming ADDR_WIDTH=16, BODY_ADDR_WIDTH=9)
     // These values should match what your nbody.sv expects for addr[15:9]
     localparam GO     = 7'h00; // Example: 000_0000
+    localparam GAP     = 7'b0001000;
     localparam DONE   = 7'b1000000;
     localparam X_SEL  = 7'h03; // Example: 000_0000
     localparam Y_SEL  = 7'h04; // Example: 000_0001
@@ -128,6 +129,7 @@ module nbodyTb;
             #CLK_PERIOD;
         end
 
+        /* 
         // After writing all values, de-assert control signals
         @(posedge clk);
         chipselect = 0;
@@ -135,24 +137,23 @@ module nbodyTb;
         addr       = 0;
         writedata  = 0;
         $display("Time=%t: Finished writing body initial conditions.", $time);
+        */
 
-        // You would typically trigger the 'go' signal here if your nbody module has one
-        // For example:
-        // @(posedge clk);
-        // addr = GO_ADDR; // Define GO_ADDR appropriately
-        // writedata = 1; // Or whatever value triggers 'go'
-        // chipselect = 1;
-        // write = 1;
-        // #CLK_PERIOD;
-        // @(posedge clk);
-        // chipselect = 0;
-        // write = 0;
+        // Assign gap value
+        @(posedge clk);
+            chipselect = 1'b1;
+            write      = 1'b1;
+            addr       = (GAP << BODY_ADDR_WIDTH);
+            writedata  = 2'd2;
+
+        //  Turn go on
         @(posedge clk);
             chipselect = 1'b1;
             write      = 1'b1;
             addr       = (GO << BODY_ADDR_WIDTH);
             writedata  = 1'b1;
 
+        //  Deactivate
         @(posedge clk);
             write      = 1'b0;
             writedata  = 1'b0;

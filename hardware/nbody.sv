@@ -159,6 +159,13 @@ module nbody #(
                         state_2_read <= 0;
                         state_2_pos_write <= 0;
                         state_2_write_enable <= 1'b0;
+                        state_1_timer <= 0;
+                        v_write_i <= 0;
+                        v_write_j <= 0;
+                        v_read_i  <= 0;
+                        v_read_j  <= 0;
+                        p_read_i  <= 0;
+                        p_read_j  <= 0;
                     end
                     else begin
                         state_1_timer <= state_1_timer + 1;
