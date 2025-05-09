@@ -37,7 +37,7 @@ static inline void set_pixel(unsigned short x, unsigned short y, int value)
         return;  
         
 	//Find the byte the pixel is in, and the bit in that byte
-    unsigned int addr = X_Y_TO_ADDR(dev.virtbase, x, y);
+    void *addr = X_Y_TO_ADDR(dev.virtbase, x, y);
     unsigned int bit = x % 8; 
     u32 bit_mask = 1U << bit;
     u32 current = ioread32(addr);
