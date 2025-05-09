@@ -141,7 +141,7 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 /* The operations our device knows how to do */
 static const struct file_operations vga_display_fops = {
     .owner          = THIS_MODULE,
-    .unlocked_ioctl = vga_display_ioctl,
+    .unlocked_ioctl = vga_ball_ioctl,
 };
 
 /* Information about our device for the "misc" framework -- like a char dev */
