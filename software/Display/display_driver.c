@@ -13,7 +13,7 @@
 #include <linux/uaccess.h>
 #include "display_driver.h"
 
-#define DRIVER_NAME "vga_ball"  // Changed from "vga_display"
+#define DRIVER_NAME "vga_display"
 
 //how many words in the framebuffer
 #define FRAMEBUFFER_SIZE 0x8000  
@@ -115,7 +115,7 @@ static void draw_all_bodies(vga_display_arg_t *arg)
 /*
  * Handle ioctl() calls from userspace
  */
-static long vga_display_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
     vga_display_arg_t vla;
 
@@ -213,7 +213,7 @@ static int vga_display_remove(struct platform_device *pdev)
 /* Which "compatible" string(s) to search for in the Device Tree */
 #ifdef CONFIG_OF
 static const struct of_device_id vga_display_of_match[] = {
-    { .compatible = "csee4840,vga_ball-1.0" },  // Changed from vga_display-1.0
+    { .compatible = "csee4840,vga_display-1.0" },
     {},
 };
 MODULE_DEVICE_TABLE(of, vga_display_of_match);
