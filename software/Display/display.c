@@ -13,23 +13,20 @@
 
 #define MAXCHAR 1000
 #define CSV_FILENAME "nbody_results.csv"
-#define PLAYBACK_DELAY_MS 100  // Time between frames (ms)
-#define MAX_TIMESTEPS 1000     // Fixed allocation for up to 1000 timesteps
+#define PLAYBACK_DELAY_MS 100  
+#define MAX_TIMESTEPS 1000   //Fixed allocation (will fix later)
 
 // Function to convert nbody simulation coordinates to display coordinates
 static void convert_coordinates(float nbody_x, float nbody_y, 
                                unsigned short *display_x, unsigned short *display_y) {
-    //Do we want to scale the coordinates? My histograms from the python sims show most data is -500 - 500 in x and y
-//even 250 could be good
+    // Scale from -500,500 range to display coordinates
+    *display_x = (unsigned short)((nbody_x + 500.0) / 1000.0 * (DISPLAY_WIDTH - 100)) + 50;
+    *display_y = (unsigned short)((nbody_y + 500.0) / 1000.0 * (DISPLAY_HEIGHT - 100)) + 50;
+    
+    // Ensure within bounds
+    if (*display_x >= DISPLAY_WIDTH) *display_x = DISPLAY_WIDTH - 1;
+    if (*display_y >= DISPLAY_HEIGHT) *display_y = DISPLAY_HEIGHT - 1;
 }
-
-// Structure to hold data for one simulation step
-typedef struct {
-    int num_bodies;
-    float x[MAX_BODIES];
-    float y[MAX_BODIES];
-    int body_ids[MAX_BODIES];
-} simulation_step_t;
 
 int main(int argc, char** argv) {
     if (argc != 2) {
@@ -51,7 +48,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     
-        FILE* csv_file = fopen(CSV_FILENAME, "r");
+    FILE* csv_file = fopen(CSV_FILENAME, "r");
     if (!csv_file) {
         fprintf(stderr, "Could not open file %s\n", CSV_FILENAME);
         close(vga_fd);
@@ -65,7 +62,8 @@ int main(int argc, char** argv) {
     fgets(line, MAXCHAR, csv_file);
     
     // Allocate memory for all timesteps at once (fixed allocation)
-    simulation_step_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(simulation_step_t));
+    vga_display_arg_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(vga_display_arg_t));
+    
     if (!simulation_data) {
         fprintf(stderr, "Memory allocation failed\n");
         fclose(csv_file);
@@ -73,7 +71,8 @@ int main(int argc, char** argv) {
         return -1;
     }
         
-    // Read all simulation data into allocated memory
+    //Find the actual no of bodies
+    // and amt of timesteps
     int max_body_id = -1;
     int actual_timesteps = 0;
     
@@ -91,16 +90,24 @@ int main(int argc, char** argv) {
         if (timestep + 1 > actual_timesteps) {
             actual_timesteps = timestep + 1;
         }
+        
         //update max body seen
         if (body_id > max_body_id) {
             max_body_id = body_id;
         }
         
-        //store data in struct
+        //Get index
         int idx = simulation_data[timestep].num_bodies;
-        simulation_data[timestep].x[idx] = x;
-        simulation_data[timestep].y[idx] = y;
-        simulation_data[timestep].body_ids[idx] = body_id;
+        
+        //Convert to display coords
+        unsigned short display_x, display_y;
+        convert_coordinates(x, y, &display_x, &display_y);
+        
+        simulation_data[timestep].bodies[idx].x = display_x;
+        simulation_data[timestep].bodies[idx].y = display_y;
+        simulation_data[timestep].bodies[idx].radius = 5 + (body_id % 10);
+        simulation_data[timestep].bodies[idx].n = body_id;
+        
         simulation_data[timestep].num_bodies++;
     }
     
@@ -108,7 +115,7 @@ int main(int argc, char** argv) {
     
     printf("Loaded %d timesteps with %d bodies\n", actual_timesteps, max_body_id + 1);
     
-    //clear screen
+    // Clear screen
     if (ioctl(vga_fd, VGA_DISPLAY_CLEAR_SCREEN, 0) < 0) {
         perror("ioctl(VGA_DISPLAY_CLEAR_SCREEN) failed");
         free(simulation_data);
@@ -116,8 +123,20 @@ int main(int argc, char** argv) {
         return -1;
     }
     
-    //Insert Playback loop //
-
+    // Playback loop
+    
+    for (int t = 0; t < actual_timesteps; t++) {
+        if (ioctl(vga_fd, VGA_DISPLAY_WRITE_PROPERTIES, &simulation_data[t]) < 0) {
+            perror("ioctl(VGA_DISPLAY_WRITE_PROPERTIES) failed");
+            break;
+        }
+        
+        usleep((int)(PLAYBACK_DELAY_MS * 1000 / playback_speed));
+        
+    }
+    
+    printf("\nPlayback complete\n");
+    
     free(simulation_data);
     close(vga_fd);
     
