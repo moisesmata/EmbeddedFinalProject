@@ -98,12 +98,16 @@ run -a
 echo "Simulation finished successfully."
 #
 # TOP-LEVEL TEMPLATE - END
-add wave -position end  sim:/nbodyTb/x1
-add wave -position end  sim:/nbodyTb/y1
-add wave -position end  sim:/nbodyTb/x2
-add wave -position end  sim:/nbodyTb/x2
-add wave -position end  sim:/nbodyTb/y2
-add wave -position end  sim:/nbodyTb/m2
-add wave -position end  sim:/nbodyTb/ax
-add wave -position end  sim:/nbodyTb/ay
-add wave -position 0  sim:/nbodyTb/clk
+add wave -position insertpoint  \
+sim:/nbodyTb/dut/state \
+sim:/nbodyTb/dut/readdata \
+sim:/nbodyTb/dut/write_vy_data \
+sim:/nbodyTb/dut/write_vx_data \
+sim:/nbodyTb/dut/write_m_data \
+sim:/nbodyTb/dut/write_x_data \
+sim:/nbodyTb/dut/write_y_data \
+sim:/nbodyTb/dut/m_read_addr \
+sim:/nbodyTb/dut/v_read_addr \
+sim:/nbodyTb/dut/pos_input_1_addr \
+sim:/nbodyTb/dut/pos_input_2_addr \
+sim:/nbodyTb/dut/v_write_addr

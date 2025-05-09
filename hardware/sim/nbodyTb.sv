@@ -36,14 +36,18 @@ module nbodyTb;
 
     // Define select codes for the upper address bits (assuming ADDR_WIDTH=16, BODY_ADDR_WIDTH=9)
     // These values should match what your nbody.sv expects for addr[15:9]
-    localparam GO     = 7'h00; // Example: 000_0000
-    localparam GAP     = 7'b0001000;
-    localparam DONE   = 7'b1000000;
-    localparam X_SEL  = 7'h03; // Example: 000_0000
-    localparam Y_SEL  = 7'h04; // Example: 000_0001
-    localparam VX_SEL = 7'h06; // Example: 000_0010
-    localparam VY_SEL = 7'h07; // Example: 000_0011
-    localparam M_SEL  = 7'h05; // Example: 000_0100
+    localparam GO       = 7'h00;
+    localparam READ     = 7'h01;
+    localparam N_BODIES = 7'h02;
+    localparam X_SEL    = 7'h03;
+    localparam Y_SEL    = 7'h04;
+    localparam M_SEL    = 7'h05;
+    localparam VX_SEL   = 7'h06;
+    localparam VY_SEL   = 7'h07;
+    localparam GAP      = 7'h08;
+    localparam DONE     = 7'b1000000;
+    localparam READ_X   = 7'b1000001;
+    localparam READ_Y   = 7'b1000010;
     // Adjust BODY_ADDR_WIDTH if your nbody module supports a different number of bodies than 512
     localparam BODY_ADDR_WIDTH = 9;
 
@@ -65,7 +69,7 @@ module nbodyTb;
         chipselect = 1;
         write = 1;
         read = 0;
-        addr = 16'b0000010000000000;
+        addr = (N_BODIES << BODY_ADDR_WIDTH);
         writedata = 64'd21;
 
         # (CLK_PERIOD); // Wait a cycle before starting the new sequence
@@ -163,6 +167,32 @@ module nbodyTb;
 
         # (CLK_PERIOD * 2000); // Wait for simulation to run for a while
         $display("Time=%t: Testbench finishing.", $time);
+
+        @(posedge clk);
+            chipselect = 1'b1;
+            write      = 1'b1;
+            writedata  = 1'b1;
+            read       = 1'b0;
+            addr       = (READ << BODY_ADDR_WIDTH);
+
+        for (int i = 0; i < 3; i++) begin
+            $display("For body %i", i);
+            @(posedge clk);
+                chipselect = 1'b1;
+                write      = 1'b0;
+                writedata  = 1'b0;
+                read       = 1'b1;
+                addr       = (READ_X << BODY_ADDR_WIDTH);
+            $display("X = %f", $bitstoreal(readdata));
+            @(posedge clk);
+                chipselect = 1'b1;
+                write      = 1'b0;
+                writedata  = 1'b0;
+                read       = 1'b1;
+                addr       = (READ_Y << BODY_ADDR_WIDTH);
+            $display("X = %f", $bitstoreal(readdata));
+        end
+
         $finish;
     end
 

@@ -6,12 +6,12 @@
 // 0000000 = GO
 // 0000001 = READ
 // 0000010 = N_BODIES
-// 0001000 = GAP
 // 0000011 = write_x_data
 // 0000100 = write_y_data
 // 0000101 = write_m_data
 // 0000110 = write_vx_data 
 // 0000111 = write_vy_data
+// 0001000 = GAP
 
 // 1000000 = DONE
 // 1000001 = READ_X
