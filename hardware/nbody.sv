@@ -137,6 +137,7 @@ module nbody #(
                             v_read_j  <= 0;
                             p_read_i  <= 0;
                             p_read_j  <= 0;
+                            valid_dv  <= 0;
                         end
                     end
                     else begin
@@ -166,6 +167,7 @@ module nbody #(
                         v_read_j  <= 0;
                         p_read_i  <= 0;
                         p_read_j  <= 0;
+                        valid_dv  <= 0;
                     end
                     else begin
                         state_1_timer <= state_1_timer + 1;
