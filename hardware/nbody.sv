@@ -204,7 +204,7 @@ module nbody #(
 
                     if (go == 0) begin
                         state <= SW_READ_WRITE;
-                    if (v_read_addr == AddTime) begin
+                    if (state_2_read == AddTime-1) begin
                         // finished the startup time, now we can start writing things back
                         state_2_write_enable <= 1'b1;
                     end
