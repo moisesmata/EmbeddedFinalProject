@@ -296,8 +296,8 @@ module nbody #(
 
                 //TODO: We are assuming big indian, if not, deal with it
                 if (first_time) begin
-                    ax_shifted = {ax[63], ax[62:52] - 11'b1, ax[51:0]};
-                    ay_shifted = {ay[63], ay[62:52] - 11'b1, ay[51:0]};
+                    ax_shifted = {ax[63], ax[62:52] > 0? ax[62:52] - 11'b1 : 11'b0, ax[51:0]};
+                    ay_shifted = {ay[63], ay[62:52] > 0? ay[62:52] - 11'b1 : 11'b0, ay[51:0]};
                 end else begin
                     ax_shifted = ax;
                     ay_shifted = ay;
