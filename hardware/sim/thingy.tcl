@@ -70,7 +70,7 @@ echo "Elaborating design..."
 # Add libraries for your compiled IP and standard Altera libraries.
 # Check the IP core msim_setup.tcl scripts if these names are different.
 # *** FIX: Add +acc for waveform logging visibility ***
-set USER_DEFINED_ELAB_OPTIONS "-L altera_mf_ver -L lpm_ver +acc=npr"
+set USER_DEFINED_ELAB_OPTIONS "-L altera_mf_ver -L lpm_ver -voptargs=+acc=npr"
 
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
