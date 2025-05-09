@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     }
     
     int vga_fd;
-    static const char vga_device[] = "/dev/vga_ball";
+    static const char vga_device[] = "/dev/vga_ball-1.0";
     if ((vga_fd = open(vga_device, O_RDWR)) == -1) {
         fprintf(stderr, "Could not open %s\n", vga_device);
         return -1;
