@@ -44,7 +44,6 @@ module nbody #(
     localparam CALC_ACCEL = 2'b01;
     localparam UPDATE_POS = 2'b10;
     // Assuming sub == add
-    localparam totAccelTime = (AddTime * 2) + (MultTime * 5) + InvSqrtTime;
 
     logic go;
     logic done;
@@ -171,11 +170,11 @@ module nbody #(
                     end
                     else begin
                         state_1_timer <= state_1_timer + 1;
-                        p_read_i <= p_read_i + 1;
-                        if (state_1_timer == totAccelTime) begin
+                        p_read_j <= p_read_j + 1;
+                        if (state_1_timer == AcclLatency) begin
                             valid_accl <= 1'b1;
                         end
-                        if (state_1_timer == totAccelTime + AddTime) begin
+                        if (state_1_timer == AcclLatency + AddTime) begin
                             valid_dv <= 1'b1;
                         end
                         if (valid_accl) begin
@@ -185,9 +184,9 @@ module nbody #(
                             v_write_j <= v_write_j + 1;
                         end
 
-                        if (p_read_j == num_bodies - 1) begin
-                            p_read_j <= 0;
-                            p_read_i <= p_read_i + 1;
+                        if (p_read_i == num_bodies - 1) begin
+                            p_read_i <= 0;
+                            p_read_j <= p_read_j + 1;
                         end
 
                         if (v_read_j == num_bodies - 1) begin
