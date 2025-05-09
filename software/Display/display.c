@@ -1,228 +1,126 @@
 /*
- * Userspace program that communicates with the vga_ball device driver
- * through ioctls
- *
- * Stephen A. Edwards
- * Columbia University
+ * Userspace program that reads in the CSV and plays the simulation on the VGA display
  */
-
 #include <stdio.h>
-#include "nbody_driver.h"
+#include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include "display_driver.h"
 
 #define MAXCHAR 1000
+#define CSV_FILENAME "nbody_results.csv"
+#define PLAYBACK_DELAY_MS 100  // Time between frames (ms)
+#define MAX_TIMESTEPS 1000     // Fixed allocation for up to 1000 timesteps
 
-int nbody_fd;
-
-int high = 0xFFFFFFFF;
-int low = 0x00000000;
-
-// ----------------------------------------------------
-// Setting the Body parameters for the Sim
-// ----------------------------------------------------
-void set_body_parameters(double* input_parameters, int N){
-  n_body_initial_parameters_t vla;
-  for(int i = 0; i < N; i ++){
-    body_t body;
-    body.x = input_parameters[5*i];
-    body.y = input_parameters[5*i+1];
-    body.vx = input_parameters[5*i+2];
-    body.vy = input_parameters[5*i+3];
-    body.m = input_parameters[5*i+4];
-    body.n = i;
-
-    vla[i] = &body;
-  }
-  
-  if(ioctl(nbody_fd, NBODY_SET_BODY_PARAMETERS, &vla)){
-    perror("ioctl(NBODY_SET_BODY_PARAMETERS) failed");
-    return;
-  }
+// Function to convert nbody simulation coordinates to display coordinates
+static void convert_coordinates(float nbody_x, float nbody_y, 
+                               unsigned short *display_x, unsigned short *display_y) {
+    //Do we want to scale the coordinates? My histograms from the python sims show most data is -500 - 500 in x and y
+//even 250 could be good
 }
 
-// ----------------------------------------------------
-// Set the Simulation Paraameters - Called Once
-// ----------------------------------------------------
-void set_simulation_parameters(int N, int output_step){ //dt is always 2
-  nbody_sim_config_t vla; 
-  vla.N = N;
-  vla.gap = output_step; 
-  if(ioctl(nbody_fd, NBODY_SET_SIM_PARAMETERS, &vla)){
-    perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
-    return;
-  } 
-}
+// Structure to hold data for one simulation step
+typedef struct {
+    int num_bodies;
+    float x[MAX_BODIES];
+    float y[MAX_BODIES];
+    int body_ids[MAX_BODIES];
+} simulation_step_t;
 
-// ----------------------------------------------------
-// Set the go signal high to start thes sim
-// ----------------------------------------------------
-void set_go(int go){
-  if(ioctl(nbody_fd, WRITE_GO, go)){
-    perror("ioctl(WRITE_GO) failed");
-    return;
-  } 
-}
-
-// ----------------------------------------------------
-// Continuously poll the read signal
-// ----------------------------------------------------
-int poll_done(){
-  int done; 
-  if (ioctl(nbody_fd, READ_DONE, &done)) {
-      perror("ioctl(READ_DONE) failed");
-      return;
-  }
-  if(done > 0){
-    return 1;
-  }
-  return 0; 
-}
-
-// ----------------------------------------------------
-// Read all the positions into the struct
-// ----------------------------------------------------
-all_positions_t read_positions(int N){
-  //ioctl goes here
-  all_positions_t vla;
-  if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
-    perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
-    return;
-  } 
-  return vla;
-}
-
-// ----------------------------------------------------
-// Set the read signal
-// ----------------------------------------------------
-void set_read(int read){
-  if(ioctl(nbody_fd, NBODY_SET_READ, read)){
-    perror("ioctl(NBODY_SET_READ) failed");
-    return;
-  } ; 
-}
-
-// ----------------------------------------------------
-// Function to read the input CSV
-// ----------------------------------------------------
-double* get_initial_state(char* filename, int N){
-  //Allocate Space for a the Body Paremeters
-  double* initial_state = (double*)malloc(N * 5 * sizeof(double));
-
-  //Open the file and read it
-  FILE* file = fopen(filename, 'r');
-  if(!file){
-    fprintf(stderr, "Could not open file %s\n", filename);
-    return NULL; 
-  }
-  char row[MAXCHAR];
-  int i = 0;
-
-  //Go through file and save all the data
-  while(fgets(row, MAXCHAR, file)){
-    char* token = strtok(row,",");
-    while(token != NULL){
-      initial_state[i] = atof(token);
-      token = strtok(NULL,",");
-      i++;
+int main(int argc, char** argv) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <playback_speed>\n", argv[0]);
+        fprintf(stderr, "  playback_speed: speed multiplier (1.0 = normal speed)\n");
+        return -1;
     }
-  }
 
-  //Close final and return pointer to the initial parameters
-  fclose(file);
-  return initial_state;
-}
-
-// ----------------------------------------------------
-// Main function - Runs Everything
-// ----------------------------------------------------
-int main(int argc, char** argv){  
-  //Check to make sure that the 
-  if(argc > 3){
-    perror("Too many arguments!\n");
-    return -1; 
-  } else if (argc < 3){
-    perror("Usage: ./nbody <# of bodies> <# of outputs> \n");
-    return -1; 
-  } else{
-    perror("Idk how this would happen but there's an error\n");
-    return -1; 
-  }
-
-  //Parse User Input
-  int N = atoi(argv[1]); 
-  int time_steps = atoi(argv[2]); 
-  int dt = 2; //Set timestep to 2 because it makes our lives easier!
-
-  //Make sure that N wasn't set to something weird
-  if(N <= 0){
-    perror("N must be a positive integer!\n");
-    return -1; 
-  } else if(N > 512){
-    perror("N must be less than 512!\n");
-    return -1; 
-  }
-
-  //Begin the userspace program
-  int i;
-  static const char filename[] = "/dev/nbody";
-
-  printf("N-Body Userspace program started\n");
-
-  if ( (nbody_fd = open(filename, O_RDWR)) == -1) {
-    fprintf(stderr, "could not open %s\n", filename);
-    return -1;
-  }
-
-  // Read in Initial N-Body State FROM CSV File
-  double* initial_state = get_initial_state("input.csv", N);
-  printf("Initial Bodies Parameters Read In\n");
-
-  //Create an array that saves all the timesteps
-  
-
-  // The initial parameters are read in - Send them to the driver
-  set_body_parameters(initial_state, N);
-
-  //Then set the initial parameters for the simulation
-  int output_step = 5;
-  set_simulation_parameters(N,output_step);
-  
-  //Send the go signal
-  set_go(high);
-  
-  //Do the looping - implemented as some sort of silly state machine
-  int t = 0;
-  while(t < time_steps){
-    //Do Polling
-    int read = 0;
-    while(!read){
-      //Wait for the poll signal
-      if(poll_done()){
-        read = 1;
-        set_read(high);
-      }
+    double playback_speed = atof(argv[1]);
+    if (playback_speed <= 0) {
+        fprintf(stderr, "Playback speed must be positive\n");
+        return -1;
     }
-    //The polling is over, now we gotta go N times over the data and update the positions
-    read_positions(N);
+    
+    int vga_fd;
+    static const char vga_device[] = "/dev/vga_display";
+    if ((vga_fd = open(vga_device, O_RDWR)) == -1) {
+        fprintf(stderr, "Could not open %s\n", vga_device);
+        return -1;
+    }
+    
+        FILE* csv_file = fopen(CSV_FILENAME, "r");
+    if (!csv_file) {
+        fprintf(stderr, "Could not open file %s\n", CSV_FILENAME);
+        close(vga_fd);
+        return -1;
+    }
+    
+    printf("Reading simulation data from %s\n", CSV_FILENAME);
+    
+    // Skip header line
+    char line[MAXCHAR];
+    fgets(line, MAXCHAR, csv_file);
+    
+    // Allocate memory for all timesteps at once (fixed allocation)
+    simulation_step_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(simulation_step_t));
+    if (!simulation_data) {
+        fprintf(stderr, "Memory allocation failed\n");
+        fclose(csv_file);
+        close(vga_fd);
+        return -1;
+    }
+        
+    // Read all simulation data into allocated memory
+    int max_body_id = -1;
+    int actual_timesteps = 0;
+    
+    while (fgets(line, MAXCHAR, csv_file)) {
+        int timestep, body_id;
+        float x, y;
+        
+        // Parse CSV line: timestep,body_id,x,y
+        if (sscanf(line, "%d,%d,%f,%f", &timestep, &body_id, &x, &y) != 4) {
+            fprintf(stderr, "Error parsing line: %s", line);
+            continue;
+        }
+        
+        //update the max timestep
+        if (timestep + 1 > actual_timesteps) {
+            actual_timesteps = timestep + 1;
+        }
+        //update max body seen
+        if (body_id > max_body_id) {
+            max_body_id = body_id;
+        }
+        
+        //store data in struct
+        int idx = simulation_data[timestep].num_bodies;
+        simulation_data[timestep].x[idx] = x;
+        simulation_data[timestep].y[idx] = y;
+        simulation_data[timestep].body_ids[idx] = body_id;
+        simulation_data[timestep].num_bodies++;
+    }
+    
+    fclose(csv_file);
+    
+    printf("Loaded %d timesteps with %d bodies\n", actual_timesteps, max_body_id + 1);
+    
+    //clear screen
+    if (ioctl(vga_fd, VGA_DISPLAY_CLEAR_SCREEN, 0) < 0) {
+        perror("ioctl(VGA_DISPLAY_CLEAR_SCREEN) failed");
+        free(simulation_data);
+        close(vga_fd);
+        return -1;
+    }
+    
+    //Insert Playback loop //
 
-    //Reading is finished, set read to low!
-    set_read(low);
-
-    //Increment Time Thing
-    t += 1;
-  }
-  set_go(low);
-
-  printf("Simulation Complete! Activating Display...");
-
-  //TODO: Add the display? What if we just did this in software with a graphics library
-  
-  printf("N-Body Userspace program terminating\n");
-  return 0;
+    free(simulation_data);
+    close(vga_fd);
+    
+    return 0;
 }
 
