@@ -65,18 +65,23 @@ module getAcclTb;
         x1 = $realtobits(10.0); y1 = $realtobits(20.0); z1 = $realtobits(0.0);
         x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(500.0); // Example values
         # (CLK_PERIOD * (1)); // Wait for output + margin
+	@(posedge clk);
         x1 = $realtobits(10.0); y1 = $realtobits(100.0); z1 = $realtobits(0.0);
         x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(400.0); // Example values
 	# (CLK_PERIOD * (1)); // Wait for output + margin
+	@(posedge clk);
         x1 = $realtobits(10.0); y1 = $realtobits(-10.0); z1 = $realtobits(0.0);
         x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(300.0); // Example values
 	# (CLK_PERIOD * (1)); // Wait for output + margin
+	@(posedge clk);
         x1 = $realtobits(-100.0); y1 = $realtobits(10.0); z1 = $realtobits(0.0);
         x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(200.0); // Example values
 	# (CLK_PERIOD * (1)); // Wait for output + margin
+	@(posedge clk);
         x1 = $realtobits(1000.0); y1 = $realtobits(1000.0); z1 = $realtobits(0.0);
         x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(100000000000.0); // Example values
 	# (CLK_PERIOD * (1)); // Wait for output + margin
+	@(posedge clk);
 
 
 
@@ -86,12 +91,14 @@ module getAcclTb;
         x1 = $realtobits(5.0); y1 = $realtobits(5.0); z1 = $realtobits(0.0);
         x2 = $realtobits(-5.0); y2 = $realtobits(-5.0); m2 = $realtobits(200.0); // Example values
         # (CLK_PERIOD * (LATENCY + 10)); // Wait for output + margin
+	@(posedge clk);
 
         // --- Test Case 3 ---
         $display("Time=%t: Applying Test Case 3", $time);
         x1 = $realtobits(1.0); y1 = $realtobits(2.0); z1 = $realtobits(3.0);
         x2 = $realtobits(4.0); y2 = $realtobits(5.0); m2 = $realtobits(50.0); // Example values
         # (CLK_PERIOD * (LATENCY + 10)); // Wait for output + margin
+	@(posedge clk);
 
         $display("Time=%t: Simulation finished.", $time);
         $finish;
