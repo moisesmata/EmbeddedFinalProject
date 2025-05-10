@@ -36,8 +36,8 @@ module getAccl #(
             y2_real <= y2;
             if (x1 == x2 && y1 == y2) begin
                 m2_real <= 0; // Set m2 to 0 if comparing a body to itself
-                x2_real = 64'h3f800000;
-                x1_real <= 64'h42c60000;
+                x2_real <= 64'h405c000000000000;
+                x1_real <= 64'heff0000000000000;
             end else begin
                 m2_real <= m2;
                 x2_real <= x2;
