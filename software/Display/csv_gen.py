@@ -124,32 +124,48 @@ def run_simulation():
     print("Initializing bodies...")
     bodies = initialize_bodies()
     
-    # Prepare CSV file
+    # Store simulation results
+    results = []
+    
+    # Store initial state
+    initial_state = {'timestep': 0}
+    for body in bodies:
+        initial_state[f'body{body.id}_x'] = body.x
+        initial_state[f'body{body.id}_y'] = body.y
+    results.append(initial_state)
+    
+    # Run simulation for specified number of timesteps
+    for timestep in range(1, num_timesteps):
+        if timestep % 10 == 0:
+            print(f"Computing timestep {timestep}/{num_timesteps-1}")
+        
+        # Compute forces
+        ax, ay = compute_forces(bodies)
+        
+        # Update velocities and positions
+        timestep_data = {'timestep': timestep}
+        for i, body in enumerate(bodies):
+            body.update_velocity(ax[i], ay[i], dt)
+            body.update_position(dt)
+            
+            # Store the body's position in this timestep's data
+            timestep_data[f'body{body.id}_x'] = body.x
+            timestep_data[f'body{body.id}_y'] = body.y
+        
+        # Add this timestep to results
+        results.append(timestep_data)
+    
+    # Write all data to CSV
     print(f"Writing simulation results to {csv_filename}")
     with open(csv_filename, 'w', newline='') as csvfile:
-        fieldnames = ['timestep', 'body_id', 'x', 'y']
+        # Get all field names from the first result
+        fieldnames = list(results[0].keys())
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         
-        # Write initial state
-        for body in bodies:
-            writer.writerow(body.as_dict(0))
-        
-        # Run simulation for specified number of timesteps
-        for timestep in range(1, num_timesteps):
-            if timestep % 10 == 0:
-                print(f"Computing timestep {timestep}/{num_timesteps-1}")
-            
-            # Compute forces
-            ax, ay = compute_forces(bodies)
-            
-            # Update velocities and positions
-            for i, body in enumerate(bodies):
-                body.update_velocity(ax[i], ay[i], dt)
-                body.update_position(dt)
-                
-                # Write current state to CSV
-                writer.writerow(body.as_dict(timestep))
+        # Write all rows
+        for row in results:
+            writer.writerow(row)
     
     print("Simulation complete!")
 
