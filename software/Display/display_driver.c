@@ -120,6 +120,7 @@ static void draw_circle(unsigned short x0, unsigned short y0, unsigned short rad
  */
 static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
 {
+    unsigned int i;
     clear_framebuffer();  // Clear screen before drawing new state
     
     // Validate input
@@ -138,7 +139,7 @@ static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
     
     printk(KERN_INFO "vga_ball: drawing %d bodies\n", num_bodies);
     
-    for (unsigned int i = 0; i < num_bodies; i++) {
+    for (i = 0; i < num_bodies; i++) {
         vga_ball_props_t *body = &arg->bodies[i];
         draw_circle(body->x, body->y, body->radius);
     }
