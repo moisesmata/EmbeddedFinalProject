@@ -227,14 +227,21 @@ int main(int argc, char** argv){
   // Write all data to a CSV file
   FILE* output = fopen("nbody_results.csv", "w");
   if (output) {
-      fprintf(output, "timestep,body_id,x,y\n");
+      //Header with timestep, body0_x, body0_y, body1_x, body1_y, ...
+      fprintf(output, "timestep");
+      for (int i = 0; i < N; i++) {
+          fprintf(output, ",body%d_x,body%d_y", i, i);
+      }
+      fprintf(output, "\n");
+      
       for (int t = 0; t < time_steps; t++) {
+          fprintf(output, "%d", t);
           for (int i = 0; i < N; i++) {
-              fprintf(output, "%d,%d,%f,%f\n", 
-                      t, i, 
-                      position_history[t].bodies[i].x, 
-                      position_history[t].bodies[i].y);
+              fprintf(output, ",%f,%f", 
+                  position_history[t].bodies[i].x, 
+                  position_history[t].bodies[i].y);
           }
+          fprintf(output, "\n");
       }
       fclose(output);
       printf("Results saved to nbody_results.csv\n");
