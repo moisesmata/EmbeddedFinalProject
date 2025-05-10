@@ -50,7 +50,7 @@ module nbody #(
     logic read_sw;
     logic [$clog2(BODIES)-1:0] num_bodies;
     logic [DATA_WIDTH-1:0] gap, gap_counter;
-    logic [DATA_WIDTH-1:0] write_vx, write_vy_data, write_vx_data, write_m_data, write_x_data, write_y_data;
+    logic [DATA_WIDTH-1:0] write_vy_data, write_vx_data, write_m_data, write_x_data, write_y_data;
     logic wren_x, wren_y, wren_m, wren_vx, wren_vy;
     logic [DATA_WIDTH-1:0] out_x, out_y, out_m, out_vx, out_vy;
     logic [1:0] state;
@@ -174,7 +174,7 @@ module nbody #(
                         if (state_1_timer == AcclLatency) begin
                             valid_accl <= 1'b1;
                         end
-                        if (state_1_timer == AcclLatency + AddTime) begin
+                        if (state_1_timer == AcclLatency + AddTime + 1) begin
                             valid_dv <= 1'b1;
                         end
                         if (valid_accl) begin
@@ -213,7 +213,7 @@ module nbody #(
                     if (go == 0) begin
                         state <= SW_READ_WRITE;
                     end
-                    if (state_2_read == AddTime-1) begin
+                    if (state_2_read == AddTime+1) begin
                         // finished the startup time, now we can start writing things back
                         state_2_write_enable <= 1'b1;
                     end else if (state_2_write_enable) begin
