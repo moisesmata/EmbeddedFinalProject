@@ -78,8 +78,8 @@ module getAcclTb;
         x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(200.0); // Example values
 	# (CLK_PERIOD * (1)); // Wait for output + margin
 	@(posedge clk);
-        x1 = $realtobits(1000.0); y1 = $realtobits(1000.0); z1 = $realtobits(0.0);
-        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(100000000000.0); // Example values
+        x1 = $realtobits(0.0); y1 = $realtobits(0.0); z1 = $realtobits(0.0);
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(0.0); // Example values
 	# (CLK_PERIOD * (1)); // Wait for output + margin
 	@(posedge clk);
 
