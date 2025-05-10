@@ -37,16 +37,24 @@ static inline void *safe_xy_to_addr(void __iomem *base, unsigned short x, unsign
         return base;  // Return a safe address
     }
     
-    unsigned long offset = (y * BYTE_PER_ROW + (x / 8)) * 4;
+    // Calculate position in bits from the top of framebuffer
+    // Each row has DISPLAY_WIDTH bits (1280)
+    unsigned long bit_position = (unsigned long)y * DISPLAY_WIDTH + (unsigned long)x;
     
-    // Check if this is a valid offset
-    if (offset >= FRAMEBUFFER_SIZE * 4) {
-        printk(KERN_WARNING "vga_ball: Invalid memory offset %lu for (%d,%d)\n", 
-               offset, x, y);
+    // Calculate which word this bit belongs to (32 bits per word)
+    unsigned long word_offset = bit_position / 32;
+    
+    // Check if word offset is within framebuffer bounds
+    if (word_offset >= FRAMEBUFFER_SIZE) {
+        printk(KERN_WARNING "vga_ball: Invalid word offset %lu for (%d,%d)\n", 
+               word_offset, x, y);
         return base;  // Return a safe address
     }
     
-    return base + offset;
+    // Calculate byte offset (4 bytes per word)
+    unsigned long byte_offset = word_offset * 4;
+    
+    return base + byte_offset;
 }
 
 /*
