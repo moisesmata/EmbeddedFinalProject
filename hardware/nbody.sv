@@ -184,9 +184,9 @@ module nbody #(
                             v_write_j <= v_write_j + 1;
                         end
 
-                        if (p_read_i == num_bodies - 1) begin
-                            p_read_i <= 0;
-                            p_read_j <= p_read_j + 1;
+                        if (p_read_j == num_bodies - 1) begin
+                            p_read_j <= 0;
+                            p_read_i <= p_read_i + 1;
                         end
 
                         if (v_read_j == num_bodies - 1) begin
