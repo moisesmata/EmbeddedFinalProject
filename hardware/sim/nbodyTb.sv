@@ -85,7 +85,7 @@ module nbodyTb;
         x_coords[2] = 20.0; y_coords[2] = 0.0; vx_coords[2] = -0.2; vy_coords[2] = 0.2; mass_values[2] = 2000.0;
 
         // --- Populate the rest with 0s ---
-        for (int i = DEFINED_BODIES; i < NUM_BODIES_TO_INIT; i++) begin
+        for (int i = DEFINED_BODIES-1; i < NUM_BODIES_TO_INIT; i++) begin
             x_coords[i] = 0.0;
             y_coords[i] = 0.0;
             vx_coords[i] = 0.0;
