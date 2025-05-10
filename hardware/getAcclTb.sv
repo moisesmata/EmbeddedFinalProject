@@ -63,15 +63,15 @@ module getAcclTb;
         // --- Test Case 1 ---
         $display("Time=%t: Applying Test Case 1", $time);
         x1 = $realtobits(10.0); y1 = $realtobits(20.0); z1 = $realtobits(0.0);
-        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(500.0); // Example values
+        x2 = $realtobits(10.0); y2 = $realtobits(20.0); m2 = $realtobits(500.0); // Example values
         # (CLK_PERIOD * (1)); // Wait for output + margin
 	@(posedge clk);
         x1 = $realtobits(10.0); y1 = $realtobits(100.0); z1 = $realtobits(0.0);
-        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(400.0); // Example values
+        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(0.0); // Example values
 	# (CLK_PERIOD * (1)); // Wait for output + margin
 	@(posedge clk);
         x1 = $realtobits(10.0); y1 = $realtobits(-10.0); z1 = $realtobits(0.0);
-        x2 = $realtobits(0.0); y2 = $realtobits(0.0); m2 = $realtobits(300.0); // Example values
+        x2 = $realtobits(10.0); y2 = $realtobits(-10.0); m2 = $realtobits(0.0); // Example values
 	# (CLK_PERIOD * (1)); // Wait for output + margin
 	@(posedge clk);
         x1 = $realtobits(-100.0); y1 = $realtobits(10.0); z1 = $realtobits(0.0);
