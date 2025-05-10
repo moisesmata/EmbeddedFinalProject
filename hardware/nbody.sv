@@ -171,7 +171,7 @@ module nbody #(
                     else begin
                         state_1_timer <= state_1_timer + 1;
                         p_read_j <= p_read_j + 1;
-                        if (state_1_timer == AcclLatency) begin
+                        if (state_1_timer == AcclLatency - 1) begin
                             valid_accl <= 1'b1;
                         end
                         if (state_1_timer == AcclLatency + AddTime + 1) begin
