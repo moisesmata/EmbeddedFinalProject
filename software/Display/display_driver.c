@@ -28,16 +28,38 @@ struct vga_ball_dev {  // Changed from vga_display_dev
 } dev;
 
 /*
+ * Define a safer address calculation function instead of a macro
+ */
+static inline void *safe_xy_to_addr(void __iomem *base, unsigned short x, unsigned short y)
+{
+    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT) {
+        printk(KERN_WARNING "vga_ball: Out of bounds coordinates (%d,%d)\n", x, y);
+        return base;  // Return a safe address
+    }
+    
+    unsigned long offset = (y * BYTE_PER_ROW + (x / 8)) * 4;
+    
+    // Check if this is a valid offset
+    if (offset >= FRAMEBUFFER_SIZE * 4) {
+        printk(KERN_WARNING "vga_ball: Invalid memory offset %lu for (%d,%d)\n", 
+               offset, x, y);
+        return base;  // Return a safe address
+    }
+    
+    return base + offset;
+}
+
+/*
  * Set a pixel in the framebuffer
  * x, y: coordinates (0-1279, 0-479)
  */
 static inline void set_pixel(unsigned short x, unsigned short y, int value)
 {
     if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT)
-        return;  
+        return;
         
-	//Find the byte the pixel is in, and the bit in that byte
-    void *addr = X_Y_TO_ADDR(dev.virtbase, x, y);
+    // Use the safer function instead of the macro
+    void *addr = safe_xy_to_addr(dev.virtbase, x, y);
     unsigned int bit = x % 8; 
     u32 bit_mask = 1U << bit;
     u32 cur = ioread32(addr);
@@ -100,16 +122,29 @@ static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
 {
     clear_framebuffer();  // Clear screen before drawing new state
     
-    unsigned int i;
-    unsigned int num_bodies = arg->num_bodies > MAX_BODIES ? MAX_BODIES : arg->num_bodies;
+    // Validate input
+    if (!arg) {
+        printk(KERN_ERR "vga_ball: NULL argument to draw_all_bodies\n");
+        return;
+    }
     
-    for (i = 0; i < num_bodies; i++) {
+    // Ensure num_bodies is reasonable
+    unsigned int num_bodies = arg->num_bodies;
+    if (num_bodies > MAX_BODIES) {
+        printk(KERN_WARNING "vga_ball: num_bodies %d exceeds maximum %d, limiting\n", 
+               num_bodies, MAX_BODIES);
+        num_bodies = MAX_BODIES;
+    }
+    
+    printk(KERN_INFO "vga_ball: drawing %d bodies\n", num_bodies);
+    
+    for (unsigned int i = 0; i < num_bodies; i++) {
         vga_ball_props_t *body = &arg->bodies[i];
         draw_circle(body->x, body->y, body->radius);
     }
     
-    // Save current state
-    dev.vga_ball_arg = *arg;  // Changed from dev.vga_display_arg
+    // Save current state - safer copy
+    memcpy(&dev.vga_ball_arg, arg, sizeof(vga_ball_arg_t));
 }
 
 /*
@@ -120,19 +155,19 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
     vga_ball_arg_t vla;  // Changed from vga_display_arg_t
 
     switch (cmd) {
-    case VGA_BALL_WRITE_PROPERTIES:  // Changed from VGA_DISPLAY_WRITE_PROPERTIES
+    case VGA_BALL_WRITE_PROPERTIES:  // Changed from VGA_DISPLAY_WRITE_PROPERTIES        
         if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t)))  // Changed cast and size
             return -EACCES;
-        draw_all_bodies(&vla);
+                draw_all_bodies(&vla);
         break;
 
     case VGA_BALL_CLEAR_SCREEN:  // Changed from VGA_DISPLAY_CLEAR_SCREEN
         clear_framebuffer();
-        dev.vga_ball_arg.num_bodies = 0;  // Changed from dev.vga_display_arg
+        dev.vga_ball_arg.num_bodies = 0;
         break;
 
     default:
-        return -EINVAL;
+                return -EINVAL;
     }
 
     return 0;
