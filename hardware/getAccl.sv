@@ -32,15 +32,16 @@ module getAccl #(
             y2_real <= 1;
             m2_real <= 0;
         end else begin
-            x1_real <= x1;
             y1_real <= y1;
             y2_real <= y2;
             if (x1 == x2 && y1 == y2) begin
                 m2_real <= 0; // Set m2 to 0 if comparing a body to itself
-                x2_real = {x2[63], x2[62:52]+1, x2[51:0]+1};
+                x2_real = 64'h3f800000;
+                x1_real <= 64'h42c60000;
             end else begin
                 m2_real <= m2;
                 x2_real <= x2;
+                x1_real <= x1;
             end
         end
     end
