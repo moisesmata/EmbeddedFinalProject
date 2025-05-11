@@ -85,6 +85,21 @@ static void clear_framebuffer(void)
 }
 
 /*
+ * Fill the entire framebuffer (turn all pixels on)
+ */
+static void fill_framebuffer(void)
+{
+    int i;
+    printk(KERN_INFO "vga_ball: Filling entire framebuffer (all pixels on)\n");
+    
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(0xFFFFFFFF, dev.virtbase + (i * 4));
+    }
+    
+    printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
+}
+
+/*
  * Draw a filled circle with correction for y aspect ratio
  * x0, y0: Center coordinates of the circle
  * radius: Radius of the circle in pixels
@@ -180,22 +195,31 @@ static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
  */
 static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-    vga_ball_arg_t vla;  // Changed from vga_display_arg_t
+    vga_ball_arg_t vla;
+
+    printk(KERN_INFO "vga_ball: ioctl command %u received\n", cmd);
 
     switch (cmd) {
-    case VGA_BALL_WRITE_PROPERTIES:  // Changed from VGA_DISPLAY_WRITE_PROPERTIES        
-        if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t)))  // Changed cast and size
+    case VGA_BALL_WRITE_PROPERTIES:
+        if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t)))
             return -EACCES;
-                draw_all_bodies(&vla);
+        draw_all_bodies(&vla);
         break;
 
-    case VGA_BALL_CLEAR_SCREEN:  // Changed from VGA_DISPLAY_CLEAR_SCREEN
+    case VGA_BALL_CLEAR_SCREEN:
+        printk(KERN_INFO "vga_ball: Clearing screen\n");
         clear_framebuffer();
         dev.vga_ball_arg.num_bodies = 0;
         break;
+        
+    case VGA_BALL_FILL_SCREEN:
+        printk(KERN_INFO "vga_ball: Filling screen (all pixels on)\n");
+        fill_framebuffer();
+        break;
 
     default:
-                return -EINVAL;
+        printk(KERN_WARNING "vga_ball: Unknown ioctl command: %u\n", cmd);
+        return -EINVAL;
     }
 
     return 0;

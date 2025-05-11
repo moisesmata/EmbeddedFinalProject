@@ -28,5 +28,6 @@ typedef struct {
 
 #define VGA_BALL_WRITE_PROPERTIES _IOW(VGA_BALL_MAGIC, 1, vga_ball_arg_t)
 #define VGA_BALL_CLEAR_SCREEN     _IO(VGA_BALL_MAGIC, 2)
+#define VGA_BALL_FILL_SCREEN      _IO(VGA_BALL_MAGIC, 3)  // New command to fill the screen
 
 #endif /* _VGA_BALL_H */
