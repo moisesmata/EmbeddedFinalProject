@@ -84,15 +84,10 @@ module nbody #(
         if (rst) begin
             state <= SW_READ_WRITE;
             gap_counter <= 0;
-            s1_body_num_i_read <= 0;
-            s1_body_num_j_read <= 0;
-            // TODO : EVERYTHING TO 0
+            gap <= 0;
+            num_bodies <= 0;
+            done <= 0;
         end else begin
-            state_1_vrwite_i <= 0;
-            state_1_vrwite_j <= 0;
-            state_1_read_j <= 0;
-            state_1_read_i <= 0;
-            
             if (write == 1 && chipselect == 1) begin
                 if (addr[15:9] == 7'b0000000) begin
                     go <= writedata[0];
