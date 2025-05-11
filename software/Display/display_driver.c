@@ -19,7 +19,7 @@
 #define FRAMEBUFFER_SIZE (DISPLAY_HEIGHT * DISPLAY_WIDTH/32)
 #define WORDS_PER_ROW (DISPLAY_WIDTH / 32)
 #define BYTE_PER_ROW (DISPLAY_WIDTH / 8)
-#define X_Y_TO_ADDR(base, x, y) ( base + ((y * WORDS_PER_ROW + (x / 32)) * 4))
+//#define X_Y_TO_ADDR(base, x, y) ( base + ((y * WORDS_PER_ROW + (x / 32)) * 4))
 
 struct vga_ball_dev {  // Changed from vga_display_dev
     struct resource res;     
@@ -116,6 +116,20 @@ static void draw_circle(unsigned short x0, unsigned short y0){
 
 }
 
+static void draw_checkerboard(void)
+{
+    int i, j;
+    for (i = 0; i < DISPLAY_HEIGHT; i++) {
+        for (j = 0; j < DISPLAY_WIDTH; j++) {
+            if ((i / 10) % 2 == (j / 10) % 2) {
+                set_pixel(j, i, 1);
+            } else {
+                set_pixel(j, i, 0);
+            }
+        }
+    }
+}
+
 /*
  * Handle ioctl() calls from userspace
  */
@@ -149,7 +163,9 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
         
     case VGA_BALL_FILL_SCREEN:
         printk(KERN_INFO "vga_ball: Filling screen (all pixels on)\n");
-        fill_framebuffer();
+        // fill_framebuffer();
+        draw_checkerboard();
+        draw_bodies();
         break;
 
     default:
