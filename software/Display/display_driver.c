@@ -96,7 +96,7 @@ static void fill_framebuffer(void)
 static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius)
 {
     // Validate parameters
-    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT || x0 < 0 || y0 < 0) {
+    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT) {
         printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
                x0, y0);
         return;
@@ -183,6 +183,26 @@ static void draw_all_bodies(vga_ball_arg_t *arg)
     memcpy(&dev.vga_ball_arg, arg, sizeof(vga_ball_arg_t));
 }
 
+static void update_display(void)
+{
+    int i;
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
+    }
+}
+
+static void draw_checkerboard(void)
+{
+    int i, j;
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        if (i % 2 == 0) {
+            dev.framebuffer[i] = 0xFFFFFFFF;  // All bits set to 1
+        } else {
+            dev.framebuffer[i] = 0x00000000;  // All bits set to 0
+        }
+    }
+}
+
 /*
  * Handle ioctl() calls from userspace
  */
@@ -207,7 +227,10 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
         
     case VGA_BALL_FILL_SCREEN:
         printk(KERN_INFO "vga_ball: Filling screen (all pixels on)\n");
-        fill_framebuffer();
+        //fill_framebuffer();
+        draw_checkerboard();
+        update_display();
+        dev.vga_ball_arg.num_bodies = 0;
         break;
 
     default:
@@ -330,11 +353,3 @@ module_exit(vga_ball_exit);  // Changed from vga_display_exit
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Based on work by Stephen A. Edwards, Columbia University");
 MODULE_DESCRIPTION("VGA ball driver for N-body simulation");  // Changed from framebuffer
-
-static void update_display(void)
-{
-    int i;
-    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
-    }
-}
