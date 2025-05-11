@@ -13,6 +13,7 @@
 #include <linux/io.h>
 #include "nbody_driver.h"
 
+
 #define DRIVER_NAME "nbody"
 
 /* Device registers */
@@ -36,20 +37,21 @@
 struct nbody_dev {
     struct resource res;
     void __iomem *virtbase;
-    n_body_parameters_t parameters;
-	n_body_sim_config_t sim_config;
+    nbody_parameters_t parameters;
+	nbody_sim_config_t sim_config;
 	int go;
 	int done;
 	int read;
 } dev;
 
 static void write_parameters(n_body_parameters_t *parameters){
-	for (int i = 0; i < ioread64(N_ADDR(dev.virtbase)); i++){
-		iowrite64(parameters->bodies[i].x , X_ADDR(dev.virtbase, i)); //Writing to memory
-		iowrite64(parameters->bodies[i].y , Y_ADDR(dev.virtbase, i));
-		iowrite64(parameters->bodies[i].m , M_ADDR(dev.virtbase, i));
-		iowrite64(parameters->bodies[i].vx, VX_ADDR(dev.virtbase, i));
-		iowrite64(parameters->bodies[i].vy, VY_ADDR(dev.virtbase, i));
+	int i = 0;
+	for (i = 0; i < ioread64be(N_ADDR(dev.virtbase)); i++){
+		iowrite64be(parameters->bodies[i].x , X_ADDR(dev.virtbase, i)); //Writing to memory
+		iowrite64be(parameters->bodies[i].y , Y_ADDR(dev.virtbase, i));
+		iowrite64be(parameters->bodies[i].m , M_ADDR(dev.virtbase, i));
+		iowrite64be(parameters->bodies[i].vx, VX_ADDR(dev.virtbase, i));
+		iowrite64be(parameters->bodies[i].vy, VY_ADDR(dev.virtbase, i));
 	}
 	dev.parameters = *parameters;
 	
@@ -57,31 +59,32 @@ static void write_parameters(n_body_parameters_t *parameters){
 
 /* Start the N-body simulation in hardware */
 static void write_simulation_parameters(n_body_sim_config_t *parameters){
-	iowrite64(parameters->N, N_ADDR(dev.virtbase));
-	iowrite64(parameters->gap, GAP_ADDR(dev.virtbase));
+	iowrite64be(parameters->N, N_ADDR(dev.virtbase));
+	iowrite64be(parameters->gap, GAP_ADDR(dev.virtbase));
 	dev.sim_config = *parameters;
 }
 
 
 static void read_positions(all_positions_t *positions){
-	for (int i = 0; i < ioread64(N_ADDR(dev.virtbase)) ; i++){
-		positions->bodies[i].x = ioread64(X_ADDR(dev.virtbase, i));
-		positions->bodies[i].y = ioread64(Y_ADDR(dev.virtbase, i));
+	int i = 0;
+	for (i = 0; i < ioread64be(N_ADDR(dev.virtbase)) ; i++){
+		positions->bodies[i].x = ioread64be(X_ADDR(dev.virtbase, i));
+		positions->bodies[i].y = ioread64be(Y_ADDR(dev.virtbase, i));
 	}
 }
 
 static void write_go(int go){
-	iowrite64(go,GO_ADDR(dev.virtbase));
+	iowrite64be(go,GO_ADDR(dev.virtbase));
 	dev.go = go;
 }
 
 static void write_read(int read){
-	iowrite64(read, READX_ADDR(dev.virtbase));
+	iowrite64be(read, READX_ADDR(dev.virtbase));
 	dev.read = read;
 }
 
 static void read_done(int *status){
-	*status = ioread64(DONE_ADDR(dev.virtbase));
+	*status = ioread64be(DONE_ADDR(dev.virtbase));
 }
 
 /* Handle ioctl calls from userspace */
