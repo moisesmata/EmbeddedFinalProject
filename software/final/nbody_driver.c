@@ -211,7 +211,7 @@ static int nbody_remove(struct platform_device *pdev)
 /* Which "compatible" string(s) to search for in the Device Tree */
 #ifdef CONFIG_OF
 static const struct of_device_id nbody_of_match[] = {
-	{ .compatible = "csee4840,nbody-1.0" },
+	{ .compatible = "csee4840,nbody_module-1.0" },
 	{},
 };
 MODULE_DEVICE_TABLE(of, nbody_of_match);
