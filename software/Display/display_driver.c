@@ -26,6 +26,15 @@ struct vga_ball_dev {  // Changed from vga_display_dev
     int framebuffer[FRAMEBUFFER_SIZE];
 } dev;
 
+
+static void update_display(void)
+{
+    int i;
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
+    }
+}
+
 /*
  * Set a pixel in the framebuffer
  * x, y: coordinates (0-639, 0-479)
@@ -183,13 +192,7 @@ static void draw_all_bodies(vga_ball_arg_t *arg)
     memcpy(&dev.vga_ball_arg, arg, sizeof(vga_ball_arg_t));
 }
 
-static void update_display(void)
-{
-    int i;
-    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
-    }
-}
+
 
 static void draw_checkerboard(void)
 {
