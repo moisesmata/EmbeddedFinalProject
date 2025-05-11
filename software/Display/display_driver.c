@@ -53,7 +53,7 @@ static void clear_framebuffer(void)
 {
     int i;
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        dev.framebuffer[i*4] = 0;  
+        dev.framebuffer[i] = 0;  
         iowrite32(0, dev.virtbase + (i * 4));
     }
 }
@@ -67,7 +67,7 @@ static void fill_framebuffer(void)
     printk(KERN_INFO "vga_ball: Filling entire framebuffer (all pixels on)\n");
     
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        dev.framebuffer[i*4] = 0xFFFFFFFF;  
+        dev.framebuffer[i] = 0xFFFFFFFF;  
         iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
     }
     
