@@ -76,6 +76,7 @@ static void fill_framebuffer(void)
 
 static void draw_bodies(void)
 {
+    clear_framebuffer();
     int i;
     printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
     
@@ -100,7 +101,7 @@ static void draw_circle(unsigned short x0, unsigned short y0){
     int x_max = x0 + radius;
     int y_max = y0 + radius;
 
-    for (int y = y_minl y <= y_max; y++){
+    for (int y = y_min; y <= y_max; y++){
         for (int x = x_min; x <= x_max; x++){
             int dx = x - x0;
             int dy = y - y0;
@@ -124,9 +125,17 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 
     switch (cmd) {
     case VGA_BALL_WRITE_PROPERTIES:
-        if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t)))
+        if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t))){
             return -EACCES;
-        draw_bodies(&vla);
+        }
+        for(int i = 0; i < vla.num_bodies; i++){
+            dev.vga_ball_arg.bodies[i].x = vla.bodies[i].x;
+            dev.vga_ball_arg.bodies[i].y = vla.bodies[i].y;
+            dev.vga_ball_arg.bodies[i].radius = vla.bodies[i].radius;
+            dev.vga_ball_arg.bodies[i].n = vla.bodies[i].n;
+            draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
+        }
+        draw_bodies();
         break;
 
     case VGA_BALL_CLEAR_SCREEN:
