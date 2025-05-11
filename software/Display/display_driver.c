@@ -37,24 +37,16 @@ static inline void *safe_xy_to_addr(void __iomem *base, unsigned short x, unsign
         return base;  // Return a safe address
     }
     
-    // Calculate position in bits from the top of framebuffer
-    // Each row has DISPLAY_WIDTH bits (1280)
-    unsigned long bit_position = (unsigned long)y * DISPLAY_WIDTH + (unsigned long)x;
+    unsigned long offset = (y * BYTE_PER_ROW + (x / 8)) * 4;
     
-    // Calculate which word this bit belongs to (32 bits per word)
-    unsigned long word_offset = bit_position / 32;
-    
-    // Check if word offset is within framebuffer bounds
-    if (word_offset >= FRAMEBUFFER_SIZE) {
-        printk(KERN_WARNING "vga_ball: Invalid word offset %lu for (%d,%d)\n", 
-               word_offset, x, y);
+    // Check if this is a valid offset
+    if (offset >= FRAMEBUFFER_SIZE * 4) {
+        printk(KERN_WARNING "vga_ball: Invalid memory offset %lu for (%d,%d)\n", 
+               offset, x, y);
         return base;  // Return a safe address
     }
     
-    // Calculate byte offset (4 bytes per word)
-    unsigned long byte_offset = word_offset * 4;
-    
-    return base + byte_offset;
+    return base + offset;
 }
 
 /*
@@ -93,6 +85,21 @@ static void clear_framebuffer(void)
 }
 
 /*
+ * Fill the entire framebuffer (turn all pixels on)
+ */
+static void fill_framebuffer(void)
+{
+    int i;
+    printk(KERN_INFO "vga_ball: Filling entire framebuffer (all pixels on)\n");
+    
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(0xFFFFFFFF, dev.virtbase + (i * 4));
+    }
+    
+    printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
+}
+
+/*
  * Draw a filled circle with correction for y aspect ratio
  * x0, y0: Center coordinates of the circle
  * radius: Radius of the circle in pixels
@@ -100,6 +107,23 @@ static void clear_framebuffer(void)
  */
 static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius)
 {
+    // Validate parameters
+    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT) {
+        printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
+               x0, y0);
+        return;
+    }
+    
+    if (radius == 0) {
+        printk(KERN_WARNING "vga_ball: Skipping circle with zero radius\n");
+        return;
+    }
+    
+    if (radius > 100) {
+        printk(KERN_WARNING "vga_ball: Limiting excessive radius %d to 100\n", radius);
+        radius = 100;  // Cap radius at a reasonable value
+    }
+    
     int radius_squared = radius * radius;
     
     int x_min = (x0 > radius) ? (x0 - radius) : 0;
@@ -107,10 +131,15 @@ static void draw_circle(unsigned short x0, unsigned short y0, unsigned short rad
     int x_max = (x0 + radius < DISPLAY_WIDTH) ? (x0 + radius) : (DISPLAY_WIDTH - 1);
     int y_max = (y0 + radius/2 < DISPLAY_HEIGHT) ? (y0 + radius/2) : (DISPLAY_HEIGHT - 1);
     
+    // Add debug message for drawing region
+    printk(KERN_DEBUG "vga_ball: Drawing region x=[%d,%d], y=[%d,%d]\n", 
+           x_min, x_max, y_min, y_max);
+    
     int x, y;
+    int pixel_count = 0;  // Track how many pixels are set
+    
     for (y = y_min; y <= y_max; y++) {
         for (x = x_min; x <= x_max; x++) {
-
             int dx = x - x0;
             int dy = y - y0;
             int distance_squared = dx*dx + 4*dy*dy;
@@ -118,9 +147,14 @@ static void draw_circle(unsigned short x0, unsigned short y0, unsigned short rad
             // If distance is less than or equal to radius, this pixel is in the circle
             if (distance_squared <= radius_squared) {
                 set_pixel(x, y, 1);
+                pixel_count++;
             }
         }
     }
+    
+    // Report how many pixels were actually set
+    printk(KERN_INFO "vga_ball: Circle at (%d,%d) with radius %d set %d pixels\n", 
+           x0, y0, radius, pixel_count);
 }
 
 /*
@@ -161,22 +195,31 @@ static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
  */
 static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-    vga_ball_arg_t vla;  // Changed from vga_display_arg_t
+    vga_ball_arg_t vla;
+
+    printk(KERN_INFO "vga_ball: ioctl command %u received\n", cmd);
 
     switch (cmd) {
-    case VGA_BALL_WRITE_PROPERTIES:  // Changed from VGA_DISPLAY_WRITE_PROPERTIES        
-        if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t)))  // Changed cast and size
+    case VGA_BALL_WRITE_PROPERTIES:
+        if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t)))
             return -EACCES;
-                draw_all_bodies(&vla);
+        draw_all_bodies(&vla);
         break;
 
-    case VGA_BALL_CLEAR_SCREEN:  // Changed from VGA_DISPLAY_CLEAR_SCREEN
+    case VGA_BALL_CLEAR_SCREEN:
+        printk(KERN_INFO "vga_ball: Clearing screen\n");
         clear_framebuffer();
         dev.vga_ball_arg.num_bodies = 0;
         break;
+        
+    case VGA_BALL_FILL_SCREEN:
+        printk(KERN_INFO "vga_ball: Filling screen (all pixels on)\n");
+        fill_framebuffer();
+        break;
 
     default:
-                return -EINVAL;
+        printk(KERN_WARNING "vga_ball: Unknown ioctl command: %u\n", cmd);
+        return -EINVAL;
     }
 
     return 0;
