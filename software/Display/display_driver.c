@@ -120,11 +120,7 @@ static void draw_checkerboard(void)
 {
     int i, j;
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        if (i % 2 == 0) {
-            dev.framebuffer[i] = 0xFFFFFFFF;  // All bits set to 1
-        } else {
-            dev.framebuffer[i] = 0x00000000;  // All bits set to 0
-        }
+        dev.framebuffer[i] = 0xFF000000; 
     }
 }
 
