@@ -17,21 +17,42 @@
 #define DRIVER_NAME "nbody"
 
 /* Device registers */
-#define IN_PORT(x) (x)
 
-#define X_ADDR(base, body) (base) + ((body<<3) + 3 << 12)
-#define Y_ADDR(base, body) (base) + ((body<<3) + 4 << 12)
-#define M_ADDR(base, body) (base) + ((body<<3) + 5 << 12)
-#define VX_ADDR(base, body) (base) + ((body<<3) + 6 << 12)
-#define VY_ADDR(base, body) (base) + ((body<<3) + 7 << 12)
-
+#define GO_ADDR(base) (base) + ( 0 << 12)
+#define READ_ADDR(base) (base) + (1 << 12)
 #define N_ADDR(base) (base) + ( 2 << 12)
-#define GAP_ADDR(base) (base) + ( 16 << 12)
-#define GO_ADDR(base) (base) + ( 64 << 12)
-#define DONE_ADDR(base) (base) + ( 65 << 12)
-#define READX_ADDR(base) (base) + ( 65 << 12)
-#define READY_ADDR(base) (base) + ( 66 << 12)
+#define GAP_ADDR(base) (base) + ( 3 << 12)
 
+/* Memory */
+
+#define X_ADDR_LOW(base, body) (base) + ((body<<2) + 4 << 11)
+#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + 5 << 11)
+
+#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + 6 << 11)
+#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + 7 << 11)
+
+#define M_ADDR_LOW(base, body) (base) + ((body<<2) + 8 << 11)
+#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + 9 << 11)
+
+#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + 10 << 11)
+#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + 11 << 11)
+
+#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + 12 << 11)
+#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + 13 << 11)
+
+/* More Memory */
+#define DONE_ADDR(base) (base) + ( 65 << 12)
+
+#define READX_ADDR_LOW(base) (base) + ( 65 << 12)
+#define READX_ADDR_HIGH(base) (base) + ( 66 << 12)
+
+#define READY_ADDR_LOW(base) (base) + ( 67 << 12)
+#define READY_ADDR_HIGH(base) (base) + ( 68 << 12)
+
+
+/* Macros to get the upper and lower 32 bits of a 64-bit number */
+#define GET_UPPER(x) ((x >> 32) & 0xFFFFFFFF)
+#define GET_LOWER(x) (x & 0xFFFFFFFF) 
 
 /* Information about our device */
 struct nbody_dev {
@@ -47,11 +68,20 @@ struct nbody_dev {
 static void write_parameters(n_body_parameters_t *parameters){
 	int i = 0;
 	for (i = 0; i < dev.sim_config.N; i++){
-		iowrite32(parameters->bodies[i].x , X_ADDR(dev.virtbase, i)); //Writing to memory
-		iowrite32(parameters->bodies[i].y , Y_ADDR(dev.virtbase, i));
-		iowrite32(parameters->bodies[i].m , M_ADDR(dev.virtbase, i));
-		iowrite32(parameters->bodies[i].vx, VX_ADDR(dev.virtbase, i));
-		iowrite32(parameters->bodies[i].vy, VY_ADDR(dev.virtbase, i));
+		iowrite32(GET_LOWER(parameters->bodies[i].x), X_ADDR_LOW(dev.virtbase, i)); //Writing to memory
+		iowrite32(GET_UPPER(parameters->bodies[i].x), X_ADDR_HIGH(dev.virtbase, i));
+
+		iowrite32(GET_LOWER(parameters->bodies[i].y), Y_ADDR_LOW(dev.virtbase, i));
+		iowrite32(GET_UPPER(parameters->bodies[i].y), Y_ADDR_HIGH(dev.virtbase, i));
+
+		iowrite32(GET_LOWER(parameters->bodies[i].m), M_ADDR_LOW(dev.virtbase, i));
+		iowrite32(GET_UPPER(parameters->bodies[i].m), M_ADDR_HIGH(dev.virtbase, i));
+
+		iowrite32(GET_LOWER(parameters->bodies[i].vx), VX_ADDR_LOW(dev.virtbase, i));
+		iowrite32(GET_UPPER(parameters->bodies[i].vx), VX_ADDR_HIGH(dev.virtbase, i));
+
+		iowrite32(GET_LOWER(parameters->bodies[i].vy), VY_ADDR_LOW(dev.virtbase, i));
+		iowrite32(GET_UPPER(parameters->bodies[i].vy), VY_ADDR_HIGH(dev.virtbase, i));
 	}
 	dev.parameters = *parameters;
 	
@@ -68,8 +98,8 @@ static void write_simulation_parameters(n_body_sim_config_t *parameters){
 static void read_positions(all_positions_t *positions){
 	int i = 0;
 	for (i = 0; i < dev.sim_config.N; i++){
-		positions->bodies[i].x = ioread32(X_ADDR(dev.virtbase, i));
-		positions->bodies[i].y = ioread32(Y_ADDR(dev.virtbase, i));
+		positions->bodies[i].x = ioread32(X_ADDR_LOW(dev.virtbase, i)) + ioread32(X_ADDR_HIGH(dev.virtbase, i)<<32);
+		positions->bodies[i].y = ioread32(Y_ADDR_LOW(dev.virtbase, i)) + ioread32(Y_ADDR_HIGH(dev.virtbase, i)<<32);
 	}
 }
 
@@ -79,7 +109,7 @@ static void write_go(int go){
 }
 
 static void write_read(int read){
-	iowrite32(read, READX_ADDR(dev.virtbase));
+	iowrite32(read, READ_ADDR(dev.virtbase));
 	dev.read = read;
 }
 
