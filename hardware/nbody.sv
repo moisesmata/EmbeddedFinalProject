@@ -3,47 +3,79 @@
 //
 // Lower 9 (log2 BODIES) bits are body number
 // Upper 7 (16 - log2 BODIES) bits other params
+// REGISTERS:
 // 0000000 = GO
 // 0000001 = READ
 // 0000010 = N_BODIES
-// 0000011 = write_x_data
-// 0000100 = write_y_data
-// 0000101 = write_m_data
-// 0000110 = write_vx_data 
-// 0000111 = write_vy_data
-// 0001000 = GAP
+// 0000011 = GAP
+// MEMORY:
+// 0000100 = write_x_data_LOWER
+// 0000101 = write_x_data_UPPER
+// 0000110 = write_y_data_LOWER
+// 0000111 = write_y_data_UPPER
+// 0001000 = write_m_data_LOWER
+// 0001001 = write_m_data_UPPER
+// 0001010 = write_vx_data_LOWER
+// 0001011 = write_vx_data_UPPER
+// 0001100 = write_vy_data_LOWER
+// 0001101 = write_vy_data_UPPER
 
 // 1000000 = DONE
-// 1000001 = READ_X
-// 1000010 = READ_Y
+// 1000001 = READ_X_LOWER
+// 1000010 = READ_X_UPPER
+// 1000011 = READ_Y_LOWER
+// 1000100 = READ_Y_UPPER
 
 
 `timescale 1 ps / 1 ps
 module nbody #(
     parameter BODIES = 512,
+    parameter EXT_DATA_WIDTH = 32, // for Reading and writing from the bus :)
     parameter DATA_WIDTH = 64,
     parameter ADDR_WIDTH = 16,
     parameter BODY_ADDR_WIDTH = $clog2(BODIES),
-    parameter MultTime = 11, // Number of cycles for mult
-    parameter AddTime = 20, // Number of cycles for add/sub 
-    parameter InvSqrtTime = 27, // Number of cycles for invsqert
+    parameter MultTime = 5, // Number of cycles for mult
+    parameter AddTime = 9, // Number of cycles for add/sub 
+    parameter InvSqrtTime = 17, // Number of cycles for invsqert
     parameter AcclLatency = AddTime + MultTime + AddTime + InvSqrtTime + MultTime * 4 + 1, // The one is for the startup thing we need to do to confirm we dont devide by 0
     parameter MinBodies = 21
 )(
     input logic clk,
     input logic rst,
-    input logic [DATA_WIDTH-1:0] writedata,
+    input logic [EXT_DATA_WIDTH-1:0] writedata,
     input logic read,
     input logic write,
     input logic [ADDR_WIDTH-1:0] addr,
     input logic chipselect,
-    output logic [DATA_WIDTH-1:0] readdata
+    output logic [EXT_DATA_WIDTH-1:0] readdata
 );
 
     localparam SW_READ_WRITE = 2'b00;
     localparam CALC_ACCEL = 2'b01;
     localparam UPDATE_POS = 2'b10;
-    // Assuming sub == add
+
+    // Registers:
+    localparam GO             = 7'h00;
+    localparam READ           = 7'h01;
+    localparam N_BODIES       = 7'h02;
+    localparam GAP            = 7'h03;
+    // Memory:
+    localparam X_SEL_LOWER    = 7'h04;
+    localparam X_SEL_UPPER    = 7'h05;
+    localparam Y_SEL_LOWER    = 7'h06;
+    localparam Y_SEL_UPPER    = 7'h07;
+    localparam M_SEL_LOWER    = 7'h08;
+    localparam M_SEL_UPPER    = 7'h09;
+    localparam VX_SEL_LOWER   = 7'h10;
+    localparam VX_SEL_UPPER   = 7'h11;
+    localparam VY_SEL_LOWER   = 7'h12;
+    localparam VY_SEL_UPPER   = 7'h13;
+    // Out:
+    localparam DONE           = 7'b1000000;
+    localparam READ_X_LOWER   = 7'b1000001;
+    localparam READ_X_UPPER   = 7'b1000001;
+    localparam READ_Y_LOWER   = 7'b1000010;
+    localparam READ_Y_UPPER   = 7'b1000010;
 
     logic go;
     logic done;
@@ -73,6 +105,7 @@ module nbody #(
     logic [BODY_ADDR_WIDTH-1:0] state_2_read, state_2_pos_write;
 
     logic [DATA_WIDTH-1:0] add_x_out, add_y_out, add_x_input_1, add_x_input_2, add_y_input_1, add_y_input_2;
+    logic [EXT_DATA_WIDTH-1:0] write_register;
     logic [31:0] state_1_timer;
     logic endstate;
 
@@ -89,15 +122,18 @@ module nbody #(
             done <= 0;
         end else begin
             if (write == 1 && chipselect == 1) begin
-                if (addr[15:9] == 7'b0000000) begin
+                if (addr[15:9] == GO) begin
                     go <= writedata[0];
-                end else if (addr[15:9] == 7'b0000001) begin
+                end else if (addr[15:9] == READ) begin
                     read_sw <= writedata[0];
-                end else if (addr[15:9] == 7'b0000010) begin
+                end else if (addr[15:9] == N_BODIES) begin
                     num_bodies <= writedata[BODY_ADDR_WIDTH-1:0];
-                end else if (addr[15:9] == 7'b0001000) begin
+                end else if (addr[15:9] == GAP) begin
                     gap <= writedata[BODY_ADDR_WIDTH-1:0];
-                end 
+                end
+                if (addr[9] == 0) begin
+                    write_register <= writedata[BODY_ADDR_WIDTH-1:0];
+                end
             end
 
             case (state)
@@ -226,12 +262,16 @@ module nbody #(
 
     always_comb begin : blockName
         if (read == 1 && chipselect == 1) begin
-            if (addr[15:9] == 7'b1000000) begin
+            if (addr[15:9] == DONE) begin
                 readdata = {{(DATA_WIDTH-1){1'b0}}, done};
-            end else if (addr[15:9] == 7'b1000001) begin
-                readdata =  x_output_1;
-            end else if (addr[15:9] == 7'b1000010) begin
-                readdata = y_output_1;
+            end else if (addr[15:9] == READ_X_LOWER) begin
+                readdata =  x_output_1[EXT_DATA_WIDTH-1:0];
+            end else if (addr[15:9] == READ_X_UPPER) begin
+                readdata =  x_output_1[DATA_WIDTH-1:EXT_DATA_WIDTH];
+            end else if (addr[15:9] == READ_Y_LOWER) begin
+                readdata =  y_output_1[EXT_DATA_WIDTH-1:0];
+            end else if (addr[15:9] == READ_Y_UPPER) begin
+                readdata =  y_output_1[DATA_WIDTH-1:EXT_DATA_WIDTH];
             end else begin 
                 readdata = {64{1'b1}};
             end
@@ -248,18 +288,18 @@ module nbody #(
                 v_read_addr = addr[BODY_ADDR_WIDTH-1:0];
                 v_write_addr = addr[BODY_ADDR_WIDTH-1:0];
 
-                write_x_data = writedata;
-                write_y_data = writedata;
-                write_m_data = writedata;
-                write_vx_data = writedata;
-                write_vy_data = writedata;
+                write_x_data = {writedata,write_register};
+                write_y_data = {writedata,write_register};
+                write_m_data = {writedata,write_register};
+                write_vx_data = {writedata,write_register};
+                write_vy_data = {writedata,write_register};
 
                 // Write enable for the different memories
-                wren_x = (addr[15:9] == 7'b0000011) ? write : 1'b0;
-                wren_y = (addr[15:9] == 7'b0000100) ? write : 1'b0;
-                wren_m = (addr[15:9] == 7'b0000101) ? write : 1'b0;
-                wren_vx = (addr[15:9] == 7'b0000110) ? write : 1'b0;
-                wren_vy = (addr[15:9] == 7'b0000111) ? write : 1'b0;
+                wren_x = (addr[15:9] == X_SEL_UPPER) ? (write & chipselect) : 1'b0;
+                wren_y = (addr[15:9] == Y_SEL_UPPER) ? (write & chipselect) : 1'b0;
+                wren_m = (addr[15:9] == M_SEL_UPPER) ? (write & chipselect) : 1'b0;
+                wren_vx = (addr[15:9] == VX_SEL_UPPER) ? (write & chipselect) : 1'b0;
+                wren_vy = (addr[15:9] == VY_SEL_UPPER) ? (write & chipselect) : 1'b0;
                     
                 ax_shifted = 0;
                 ay_shifted = 0;
