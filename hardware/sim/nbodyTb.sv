@@ -25,7 +25,7 @@ module nbodyTb;
         .chipselect(chipselect)
     );
     // --- Define arrays for body data (size 22) ---
-    localparam NUM_BODIES_TO_INIT = 22;
+    localparam NUM_BODIES_TO_INIT = 25;
     localparam DEFINED_BODIES = 3;
 
     real x_coords[NUM_BODIES_TO_INIT];
@@ -70,7 +70,7 @@ module nbodyTb;
         write = 1;
         read = 0;
         addr = (N_BODIES << BODY_ADDR_WIDTH);
-        writedata = 64'd21;
+        writedata = 64'd25;
 
         # (CLK_PERIOD); // Wait a cycle before starting the new sequence
 
