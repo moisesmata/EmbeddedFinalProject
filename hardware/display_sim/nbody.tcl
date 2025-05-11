@@ -74,6 +74,7 @@ set USER_DEFINED_ELAB_OPTIONS "-L altera_mf_ver -L lpm_ver -voptargs=+acc=npr -s
 # Call command to elaborate your design and testbench.
 # The -L options link libraries compiled earlier (Quartus libs, IP libs)
 # Add -svlog to elab if your top-level is SystemVerilog
+elab $USER_DEFINED_ELAB_OPTIONS displayTb 
 
 # --- Waveform Logging ---
 # Add signals to the wave window and log them to the WLF file
