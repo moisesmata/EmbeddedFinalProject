@@ -184,6 +184,7 @@ module nbodyTb;
                 read       = 1'b1;
                 addr       = (READ_X << BODY_ADDR_WIDTH) | i;
             # (CLK_PERIOD * 3); // Wait for simulation to run for a while
+            @(posedge clk);
             $display("X = %f", $bitstoreal(readdata));
             @(posedge clk);
                 chipselect = 1'b1;
@@ -192,6 +193,7 @@ module nbodyTb;
                 read       = 1'b1;
                 addr       = (READ_Y << BODY_ADDR_WIDTH) | i;
             # (CLK_PERIOD * 3); // Wait for simulation to run for a while
+            @(posedge clk);
             $display("Y = %f", $bitstoreal(readdata));
         end
 
