@@ -10,7 +10,7 @@ module nbodyTb;
     parameter LATENCY = 122;
 
     logic clk, rst;
-    logic [63:0] writedata, readdata;
+    logic [63:0] writedata, readdata, tmpdata;
     logic read, write;
     logic [15:0] addr;
     logic chipselect;
@@ -113,61 +113,66 @@ module nbodyTb;
             write      = 1;
             read       = 0;
             addr       = (X_SEL_LOWER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(x_coords[i])[31:0];
+            tmpdata = $realtobits(x_coords[i]);
+            writedata  = tmpdata[31:0];
             $display("Time=%t: Writing Body Lower %0d X: Addr=0x%h, Data=%f", $time, i, addr, x_coords[i]);
 
             // Write Upper X coordinate
             @(posedge clk);
             addr       = (X_SEL_UPPER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(x_coords[i])[63:32];
+            writedata  = tmpdata[63:32];
             $display("Time=%t: Writing Body Upper %0d X: Addr=0x%h, Data=%f", $time, i, addr, x_coords[i]);
 
             // Write Lower Y coordinate
             @(posedge clk);
             addr       = (Y_SEL_LOWER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(y_coords[i])[31:0];
+            tmpdata = $realtobits(y_coords[i]);
+            writedata  = tmpdata[31:0];
             $display("Time=%t: Writing Body Lower %0d Y: Addr=0x%h, Data=%f", $time, i, addr, y_coords[i]);
 
             // Write Upper Y coordinate
             @(posedge clk);
             addr       = (Y_SEL_UPPER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(y_coords[i])[63:32];
+            writedata  = tmpdata[63:32];
             $display("Time=%t: Writing Body Upper %0d Y: Addr=0x%h, Data=%f", $time, i, addr, y_coords[i]);
 
             // Write Lower VX coordinate
             @(posedge clk);
             addr       = (VX_SEL_LOWER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(vx_coords[i][31:0]);
+            tmpdata = $realtobits(vx_coords[i]);
+            writedata  = tmpdata[31:0];
             $display("Time=%t: Writing Body Lower %0d VX: Addr=0x%h, Data=%f", $time, i, addr, vx_coords[i]);
 
             // Write Upper VX coordinate
             @(posedge clk);
             addr       = (VX_SEL_UPPER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(vx_coords[i][63:32]);
+            writedata  = tmp_data[63:32];
             $display("Time=%t: Writing Body Upper %0d VX: Addr=0x%h, Data=%f", $time, i, addr, vx_coords[i]);
 
             // Write Lower VY coordinate
             @(posedge clk);
             addr       = (VY_SEL_LOWER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(vy_coords[i])[31:0];
+            tmpdata = $realtobits(vy_coords[i]);
+            writedata  = tmpdata[31:0];
             $display("Time=%t: Writing Body Lower %0d VY: Addr=0x%h, Data=%f", $time, i, addr, vy_coords[i]);
 
             // Write Upper VY coordinate
             @(posedge clk);
             addr       = (VY_SEL_UPPER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(vy_coords[i])[63:32];
+            writedata  = tmpdata[63:32];
             $display("Time=%t: Writing Body Upper %0d VY: Addr=0x%h, Data=%f", $time, i, addr, vy_coords[i]);
 
             // Write Lower Mass
             @(posedge clk);
             addr       = (M_SEL_LOWER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(mass_values[i])[31:0];
+            tmpdata = $realtobits(mass_values[i]);
+            writedata  = tmpdata[31:0];
             $display("Time=%t: Writing Body Lower %0d Mass: Addr=0x%h, Data=%f", $time, i, addr, mass_values[i]);
 
             // Write Upper Mass
             @(posedge clk);
             addr       = (M_SEL_UPPER << BODY_ADDR_WIDTH) | i;
-            writedata  = $realtobits(mass_values[i])[63:32];
+            writedata  = tmpdata[63:32];
             $display("Time=%t: Writing Body Upper %0d Mass: Addr=0x%h, Data=%f", $time, i, addr, mass_values[i]);
 
             // Hold last write for a cycle for the DUT to see it
@@ -221,7 +226,7 @@ module nbodyTb;
                 addr       = (READ_X_LOWER << BODY_ADDR_WIDTH) | i;
 
             @(posedge clk);
-                read_register <= readdata;
+                read_register = readdata;
 
             @(posedge clk);
                 addr       = (READ_X_UPPER << BODY_ADDR_WIDTH) | i;
@@ -233,7 +238,7 @@ module nbodyTb;
                 addr       = (READ_Y_LOWER << BODY_ADDR_WIDTH) | i;
 
             @(posedge clk);
-                read_register <= readdata;
+                read_register = readdata;
 
             @(posedge clk);
                 addr       = (READ_Y_UPPER << BODY_ADDR_WIDTH) | i;
@@ -266,7 +271,7 @@ module nbodyTb;
                 addr       = (READ_X_LOWER << BODY_ADDR_WIDTH) | i;
 
             @(posedge clk);
-                read_register <= readdata;
+                read_register = readdata;
 
             @(posedge clk);
                 addr       = (READ_X_UPPER << BODY_ADDR_WIDTH) | i;
@@ -278,7 +283,7 @@ module nbodyTb;
                 addr       = (READ_Y_LOWER << BODY_ADDR_WIDTH) | i;
 
             @(posedge clk);
-                read_register <= readdata;
+                read_register = readdata;
 
             @(posedge clk);
                 addr       = (READ_Y_UPPER << BODY_ADDR_WIDTH) | i;
