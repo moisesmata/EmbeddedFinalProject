@@ -45,11 +45,11 @@ struct nbody_dev {
 
 static void write_parameters(n_body_parameters_t *parameters){
 	for (int i = 0; i < ioread64(N_ADDR(dev.virtbase)); i++){
-		writeq(parameters->bodies[i].x , X_ADDR(dev.virtbase, i)); //Writing to memory
-		writeq(parameters->bodies[i].y , Y_ADDR(dev.virtbase, i));
-		writeq(parameters->bodies[i].m , M_ADDR(dev.virtbase, i));
-		writeq(parameters->bodies[i].vx, VX_ADDR(dev.virtbase, i));
-		writeq(parameters->bodies[i].vy, VY_ADDR(dev.virtbase, i));
+		iowrite64(parameters->bodies[i].x , X_ADDR(dev.virtbase, i)); //Writing to memory
+		iowrite64(parameters->bodies[i].y , Y_ADDR(dev.virtbase, i));
+		iowrite64(parameters->bodies[i].m , M_ADDR(dev.virtbase, i));
+		iowrite64(parameters->bodies[i].vx, VX_ADDR(dev.virtbase, i));
+		iowrite64(parameters->bodies[i].vy, VY_ADDR(dev.virtbase, i));
 	}
 	dev.parameters = *parameters;
 	
@@ -57,8 +57,8 @@ static void write_parameters(n_body_parameters_t *parameters){
 
 /* Start the N-body simulation in hardware */
 static void write_simulation_parameters(n_body_sim_config_t *parameters){
-	writeq(parameters->N, N_ADDR(dev.virtbase));
-	writeq(parameters->gap, GAP_ADDR(dev.virtbase));
+	iowrite64(parameters->N, N_ADDR(dev.virtbase));
+	iowrite64(parameters->gap, GAP_ADDR(dev.virtbase));
 	dev.sim_config = *parameters;
 }
 
@@ -71,17 +71,17 @@ static void read_positions(all_positions_t *positions){
 }
 
 static void write_go(int go){
-	writeq(go,GO_ADDR(dev.virtbase));
+	iowrite64(go,GO_ADDR(dev.virtbase));
 	dev.go = go;
 }
 
 static void write_read(int read){
-	writeq(read, READX_ADDR(dev.virtbase));
+	iowrite64(read, READX_ADDR(dev.virtbase));
 	dev.read = read;
 }
 
 static void read_done(int *status){
-	*status = writeq(DONE_ADDR(dev.virtbase));
+	*status = ioread64(DONE_ADDR(dev.virtbase));
 }
 
 /* Handle ioctl calls from userspace */
