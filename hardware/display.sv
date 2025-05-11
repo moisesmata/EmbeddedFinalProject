@@ -53,12 +53,12 @@ module vga_ball(input logic        clk,
     assign vcount_x_512 = vcount_32 << 7;
     assign vcount_x_128 = vcount_32 << 9;
       assign vcountx20 = vcount_x_128 + vcount_x_512;
-      assign placecounter = vcountx20 + hcount[10:1];
+      assign placecounter = vcountx20 + hcount[10:1] + 32'b1;
     assign rdaddress = placecounter[19:5];
     
 
    always_comb begin
-      if (readdata[placecounter[4:0]] == 1'b1) begin
+      if (readdata[placecounter[4:0]-5'b1] == 1'b1) begin
          VGA_R = 8'hff;
          VGA_G = 8'hff;
          VGA_B = 8'hff;
