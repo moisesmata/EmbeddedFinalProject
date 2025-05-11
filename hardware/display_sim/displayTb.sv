@@ -91,7 +91,7 @@ module displayTb;
         $display("Time=%t: Starting to clear framebuffer (all pixels off)", $time);
         
         // Loop through all addresses again
-        for (int i = 0; i < 32768; i++) begin
+        for (int i = 0; i < 9600; i++) begin
             @(posedge clk);
             chipselect = 1;
             write = 1;
@@ -114,7 +114,7 @@ module displayTb;
         $display("Time=%t: Finished clearing framebuffer", $time);
         
         // Wait for a few frames to observe the display
-        #(CLK_PERIOD * 2000000);
+        #(CLK_PERIOD * 20000);
         
         // Add a simple monitor for the VGA signals
         $display("Time=%t: Final VGA signals: VS=%b HS=%b BLANK=%b", 
