@@ -37,18 +37,13 @@ static inline void set_pixel(unsigned short x, unsigned short y, int value)
     if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT || x < 0 || y < 0){
         return;
     }
-    void *addr = X_Y_TO_ADDR(dev.virtbase, x, y);
-    unsigned int bit = x % 8;  //this could fix it?
-    u32 bit_mask = 1U << bit;
-    u32 cur = ioread32(addr);
 
+    int index = (y*WORDS_PER_ROW)*32 + x;
     if (value) {
-        // Set the bit to 1 (turn pixel on)
-        iowrite32((u32)cur | bit_mask, addr);
-    } else {
-        // Clear the bit to 0 (turn pixel off)
-        iowrite32((u32)cur & ~bit_mask, addr);
-    }
+        dev.framebuffer[index] = 0xFFFFFFFF;
+    } else{
+        dev.framebuffer[index] = 0x00000000;
+    }  
 }
 
 /*
@@ -58,6 +53,7 @@ static void clear_framebuffer(void)
 {
     int i;
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        dev.framebuffer[i*4] = 0;  
         iowrite32(0, dev.virtbase + (i * 4));
     }
 }
@@ -71,91 +67,50 @@ static void fill_framebuffer(void)
     printk(KERN_INFO "vga_ball: Filling entire framebuffer (all pixels on)\n");
     
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(0xFFFFFF, dev.virtbase + (i * 4));
+        dev.framebuffer[i*4] = 0xFFFFFFFF;  
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
     }
     
     printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
 }
 
-/*
- * Draw a filled circle with correction for y aspect ratio
- * x0, y0: Center coordinates of the circle
- * radius: Radius of the circle in pixels
- * This uses the circle drawing method from our lab 3.
- */
-static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius)
+static void draw_bodies(void)
 {
-    // Validate parameters
+    int i;
+    printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
+    
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
+    }
+    
+    printk(KERN_INFO "vga_ball: Bodies Drawn\n");
+}
+
+//Right now the default radius is 5
+static void draw_circle(unisgned short x0, unsigned short y0){ 
+    int radius = 5;
     if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT || x0 < 0 || y0 < 0) {
         printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
                x0, y0);
         return;
     }
-    
     int radius_squared = radius * radius;
-    
-    int x_min = (x0 > radius) ? (x0 - radius) : 0;
-    int y_min = (y0 > radius) ? (y0 - radius/2) : 0;  // Divide by 2 for y aspect ratio
-    int x_max = (x0 + radius < DISPLAY_WIDTH) ? (x0 + radius) : (DISPLAY_WIDTH - 1);
-    int y_max = (y0 + radius/2 < DISPLAY_HEIGHT) ? (y0 + radius/2) : (DISPLAY_HEIGHT - 1);
-    
-    // Add debug message for drawing region
-    printk(KERN_DEBUG "vga_ball: Drawing region x=[%d,%d], y=[%d,%d]\n", 
-           x_min, x_max, y_min, y_max);
-    
-    int x, y;
-    int pixel_count = 0;  // Track how many pixels are set
-    
-    for (y = y_min; y <= y_max; y++) {
-        for (x = x_min; x <= x_max; x++) {
+    int x_min = x0 - radius;
+    int y_min = y0 - radius;
+    int x_max = x0 + radius;
+    int y_max = y0 + radius;
+
+    for (int y = y_minl y <= y_max; y++){
+        for (int x = x_min; x <= x_max; x++){
             int dx = x - x0;
             int dy = y - y0;
-            int distance_squared = dx*dx + 4*dy*dy;
-            
-            // If distance is less than or equal to radius, this pixel is in the circle
-            if (distance_squared <= radius_squared) {
-                set_pixel(x, y, 1);
-                pixel_count++;
+            int d2 = dx*dx + dy*dy;
+            if (d2 <= radius_squared){
+                set_pixel(x,y,1)
             }
         }
     }
-    
-    // Report how many pixels were actually set
-    printk(KERN_INFO "vga_ball: Circle at (%d,%d) with radius %d set %d pixels\n", 
-           x0, y0, radius, pixel_count);
-}
 
-/*
- * Draw all bodies in the simulation
- */
-static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
-{
-    unsigned int i;
-    clear_framebuffer();  // Clear screen before drawing new state
-    
-    // Validate input
-    if (!arg) {
-        printk(KERN_ERR "vga_ball: NULL argument to draw_all_bodies\n");
-        return;
-    }
-    
-    // Ensure num_bodies is reasonable
-    unsigned int num_bodies = arg->num_bodies;
-    if (num_bodies > MAX_BODIES) {
-        printk(KERN_WARNING "vga_ball: num_bodies %d exceeds maximum %d, limiting\n", 
-               num_bodies, MAX_BODIES);
-        num_bodies = MAX_BODIES;
-    }
-    
-    printk(KERN_INFO "vga_ball: drawing %d bodies\n", num_bodies);
-    
-    for (i = 0; i < num_bodies; i++) {
-        vga_ball_props_t *body = &arg->bodies[i];
-        draw_circle(body->x, body->y, body->radius);
-    }
-    
-    // Save current state - safer copy
-    memcpy(&dev.vga_ball_arg, arg, sizeof(vga_ball_arg_t));
 }
 
 /*
