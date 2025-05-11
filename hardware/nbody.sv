@@ -121,6 +121,7 @@ module nbody #(
                             valid_dv  <= 0;
                             valid_dv  <= 0;
                             valid_accl <= 0;
+                            gap_counter <= 0;
                         end
                     end
                     else begin

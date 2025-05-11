@@ -196,15 +196,45 @@ module nbodyTb;
             write      = 1'b1;
             addr       = (READ << BODY_ADDR_WIDTH);
             writedata  = 64'b0;
-        # (CLK_PERIOD * 500); // Wait for simulation to run for a while
-        //  Turn go on
+        # (CLK_PERIOD * 6000); // Wait for simulation to run for a while
+        $display("Time=%t: Testbench finishing for Gap 2.", $time);
+
         @(posedge clk);
             chipselect = 1'b1;
             write      = 1'b1;
-            addr       = (GO << BODY_ADDR_WIDTH);
-            writedata  = 64'b0;
+            writedata  = 1'b1;
+            read       = 1'b0;
+            addr       = (READ << BODY_ADDR_WIDTH);
 
+        for (int i = 0; i < 3; i++) begin
+            $display("For body %i", i);
+            @(posedge clk);
+                chipselect = 1'b1;
+                write      = 1'b0;
+                writedata  = 1'b0;
+                read       = 1'b1;
+                addr       = (READ_X << BODY_ADDR_WIDTH) | i;
+            # (CLK_PERIOD * 3); // Wait for simulation to run for a while
+            @(posedge clk);
+            $display("X = %f", $bitstoreal(readdata));
+            @(posedge clk);
+                chipselect = 1'b1;
+                write      = 1'b0;
+                writedata  = 1'b0;
+                read       = 1'b1;
+                addr       = (READ_Y << BODY_ADDR_WIDTH) | i;
+            # (CLK_PERIOD * 3); // Wait for simulation to run for a while
+            @(posedge clk);
+            $display("Y = %f", $bitstoreal(readdata));
+        end
+        @(posedge clk);
+        @(posedge clk);
+            chipselect = 1'b1;
+            write      = 1'b1;
+            addr       = (READ << BODY_ADDR_WIDTH);
+            writedata  = 64'b0;
         $finish;
+
     end
 
 endmodule
