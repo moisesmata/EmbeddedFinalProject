@@ -137,7 +137,8 @@ module nbody #(
                             p_read_i  <= 0;
                             p_read_j  <= 0;
                             valid_dv  <= 0;
-                            valod_accl <= 0;
+                            valid_dv  <= 0;
+                            valid_accl <= 0;
                         end
                     end
                     else begin
