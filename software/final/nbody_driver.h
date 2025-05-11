@@ -16,7 +16,7 @@ typedef struct {
 
 typedef struct{
   body_t bodies[MAX_BODIES]; 
-} n_body_parameters_t;
+} nbody_parameters_t;
 
 
 // --------------------------------------
