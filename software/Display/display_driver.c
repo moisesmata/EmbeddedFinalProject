@@ -17,26 +17,28 @@
 
 //how many words in the framebuffer
 #define FRAMEBUFFER_SIZE (DISPLAY_HEIGHT * DISPLAY_WIDTH/32)
+#define WORDS_PER_ROW (DISPLAY_WIDTH / 32)
 #define BYTE_PER_ROW (DISPLAY_WIDTH / 8)
-#define X_Y_TO_ADDR(base, x, y) ( base + ((y * BYTE_PER_ROW + (x / 8)) * 4))
+#define X_Y_TO_ADDR(base, x, y) ( base + ((y * WORDS_PER_ROW + (x / 32)) * 4))
 
 struct vga_ball_dev {  // Changed from vga_display_dev
     struct resource res;     
     void __iomem *virtbase;     
+    char framebuffer[FRAMEBUFFER_SIZE * 4]; //Words * bytes per word
     vga_ball_arg_t vga_ball_arg;  // Changed from vga_display_arg_t vga_display_arg
 } dev;
 
 /*
  * Set a pixel in the framebuffer
- * x, y: coordinates (0-1279, 0-479)
+ * x, y: coordinates (0-639, 0-479)
  */
 static inline void set_pixel(unsigned short x, unsigned short y, int value)
 {
-    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT)
+    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT || X < 0 || Y < 0){
         return;
-        
+    }
     void *addr = X_Y_TO_ADDR(dev.virtbase, x, y);
-    unsigned int bit = x % 32;  //this could fix it?
+    unsigned int bit = x % 8;  //this could fix it?
     u32 bit_mask = 1U << bit;
     u32 cur = ioread32(addr);
 
@@ -69,7 +71,7 @@ static void fill_framebuffer(void)
     printk(KERN_INFO "vga_ball: Filling entire framebuffer (all pixels on)\n");
     
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(0xFFFFFFFF, dev.virtbase + (i * 4));
+        iowrite32(0xFFFFFF, dev.virtbase + (i * 4));
     }
     
     printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
@@ -84,7 +86,7 @@ static void fill_framebuffer(void)
 static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius)
 {
     // Validate parameters
-    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT) {
+    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT || x0 < 0 || y0 < 0) {
         printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
                x0, y0);
         return;
