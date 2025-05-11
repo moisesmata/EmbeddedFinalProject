@@ -13,11 +13,10 @@
 #include <linux/uaccess.h>
 #include "display_driver.h"
 
-#define DRIVER_NAME "vga_ball"  // Changed from "vga_display"
+#define DRIVER_NAME "vga_ball"  
 
 //how many words in the framebuffer
-#define FRAMEBUFFER_SIZE 0x8000  
-
+#define FRAMEBUFFER_SIZE (DISPLAY_HEIGHT * DISPLAY_WIDTH/32)
 #define BYTE_PER_ROW (DISPLAY_WIDTH / 8)
 #define X_Y_TO_ADDR(base, x, y) ( base + ((y * BYTE_PER_ROW + (x / 8)) * 4))
 
@@ -28,28 +27,6 @@ struct vga_ball_dev {  // Changed from vga_display_dev
 } dev;
 
 /*
- * Define a safer address calculation function instead of a macro
- */
-static inline void *safe_xy_to_addr(void __iomem *base, unsigned short x, unsigned short y)
-{
-    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT) {
-        printk(KERN_WARNING "vga_ball: Out of bounds coordinates (%d,%d)\n", x, y);
-        return base;  // Return a safe address
-    }
-    
-    unsigned long offset = (y * BYTE_PER_ROW + (x / 8)) * 4;
-    
-    // Check if this is a valid offset
-    if (offset >= FRAMEBUFFER_SIZE * 4) {
-        printk(KERN_WARNING "vga_ball: Invalid memory offset %lu for (%d,%d)\n", 
-               offset, x, y);
-        return base;  // Return a safe address
-    }
-    
-    return base + offset;
-}
-
-/*
  * Set a pixel in the framebuffer
  * x, y: coordinates (0-1279, 0-479)
  */
@@ -58,9 +35,8 @@ static inline void set_pixel(unsigned short x, unsigned short y, int value)
     if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT)
         return;
         
-    // Use the safer function instead of the macro
-    void *addr = safe_xy_to_addr(dev.virtbase, x, y);
-    unsigned int bit = x % 8; 
+    void *addr = X_Y_TO_ADDR(dev.virtbase, x, y);
+    unsigned int bit = x % 32;  //this could fix it?
     u32 bit_mask = 1U << bit;
     u32 cur = ioread32(addr);
 
@@ -112,16 +88,6 @@ static void draw_circle(unsigned short x0, unsigned short y0, unsigned short rad
         printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
                x0, y0);
         return;
-    }
-    
-    if (radius == 0) {
-        printk(KERN_WARNING "vga_ball: Skipping circle with zero radius\n");
-        return;
-    }
-    
-    if (radius > 100) {
-        printk(KERN_WARNING "vga_ball: Limiting excessive radius %d to 100\n", radius);
-        radius = 100;  // Cap radius at a reasonable value
     }
     
     int radius_squared = radius * radius;
