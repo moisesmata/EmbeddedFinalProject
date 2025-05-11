@@ -4,7 +4,7 @@
 #include <linux/ioctl.h>
 
 #define DISPLAY_WIDTH 640
-#define DISPLAY_HEIGHT 480 
+#define DISPLAY_HEIGHT 640 
 #define MAX_BODIES 512
 
 /**
