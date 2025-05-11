@@ -146,7 +146,7 @@ module nbodyTb;
             // Write Upper VX coordinate
             @(posedge clk);
             addr       = (VX_SEL_UPPER << BODY_ADDR_WIDTH) | i;
-            writedata  = tmp_data[63:32];
+            writedata  = tmpdata[63:32];
             $display("Time=%t: Writing Body Upper %0d VX: Addr=0x%h, Data=%f", $time, i, addr, vx_coords[i]);
 
             // Write Lower VY coordinate
