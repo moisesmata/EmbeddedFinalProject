@@ -152,6 +152,13 @@ int main(int argc, char** argv) {
         }
         
         usleep((int)(PLAYBACK_DELAY_MS * 1000 / playback_speed));
+
+        if (ioctl(vga_fd, VGA_BALL_CLEAR_SCREEN, 0) < 0) {
+            perror("ioctl(VGA_BALL_CLEAR_SCREEN) failed");
+            free(simulation_data);
+            close(vga_fd);
+            return -1;
+        }
         
     }
     
