@@ -16,14 +16,12 @@
 #define PLAYBACK_DELAY_MS 100  
 #define MAX_TIMESTEPS 1000   //Fixed allocation (will fix later)
 
-int vga_fd;
-
 // Function to convert nbody simulation coordinates to display coordinates
 static void convert_coordinates(float nbody_x, float nbody_y, 
                                unsigned short *display_x, unsigned short *display_y) {
     // Scale from -500,500 range to display coordinates
     *display_x = (unsigned short)((nbody_x + 500.0) / 1000.0 * (DISPLAY_WIDTH - 100)) + 50;
-    *display_y = (unsigned short)((nbody_y + 240.0) / 1000.0 * (DISPLAY_HEIGHT - 100)) + 50;
+    *display_y = (unsigned short)((nbody_y + 500.0) / 1000.0 * (DISPLAY_HEIGHT - 100)) + 50;
     
     // Ensure within bounds
     if (*display_x >= DISPLAY_WIDTH) *display_x = DISPLAY_WIDTH - 1;
@@ -43,6 +41,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     
+    int vga_fd;
     static const char vga_device[] = "/dev/vga_display";
     if ((vga_fd = open(vga_device, O_RDWR)) == -1) {
         fprintf(stderr, "Could not open %s\n", vga_device);
@@ -106,10 +105,10 @@ int main(int argc, char** argv) {
         
         simulation_data[timestep].bodies[idx].x = display_x;
         simulation_data[timestep].bodies[idx].y = display_y;
-
-        //simulation_data[timestep].bodies[idx].radius = 5 + (body_id % 10);
-        //simulation_data[timestep].bodies[idx].n = body_id;
-        //simulation_data[timestep].num_bodies++;
+        simulation_data[timestep].bodies[idx].radius = 5 + (body_id % 10);
+        simulation_data[timestep].bodies[idx].n = body_id;
+        
+        simulation_data[timestep].num_bodies++;
     }
     
     fclose(csv_file);
