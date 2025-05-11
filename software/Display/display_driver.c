@@ -14,62 +14,41 @@
 #include "display_driver.h"
 
 #define DRIVER_NAME "vga_ball"  // Changed from "vga_display"
-
+#define WORDS_PER_ROW (DISPLAY_WIDTH / 32)
 //how many words in the framebuffer
-#define FRAMEBUFFER_SIZE 0x8000  
-
+#define FRAMEBUFFER_SIZE WORDS_PER_ROW * DISPLAY_HEIGHT
 #define BYTE_PER_ROW (DISPLAY_WIDTH / 8)
-#define X_Y_TO_ADDR(base, x, y) ( base + ((y * BYTE_PER_ROW + (x / 8)) * 4))
 
 struct vga_ball_dev {  // Changed from vga_display_dev
     struct resource res;     
     void __iomem *virtbase;     
     vga_ball_arg_t vga_ball_arg;  // Changed from vga_display_arg_t vga_display_arg
+    int framebuffer[FRAMEBUFFER_SIZE];
 } dev;
 
 /*
- * Define a safer address calculation function instead of a macro
- */
-static inline void *safe_xy_to_addr(void __iomem *base, unsigned short x, unsigned short y)
-{
-    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT) {
-        printk(KERN_WARNING "vga_ball: Out of bounds coordinates (%d,%d)\n", x, y);
-        return base;  // Return a safe address
-    }
-    
-    unsigned long offset = (y * BYTE_PER_ROW + (x / 8)) * 4;
-    
-    // Check if this is a valid offset
-    if (offset >= FRAMEBUFFER_SIZE * 4) {
-        printk(KERN_WARNING "vga_ball: Invalid memory offset %lu for (%d,%d)\n", 
-               offset, x, y);
-        return base;  // Return a safe address
-    }
-    
-    return base + offset;
-}
-
-/*
  * Set a pixel in the framebuffer
- * x, y: coordinates (0-1279, 0-479)
+ * x, y: coordinates (0-639, 0-479)
  */
 static inline void set_pixel(unsigned short x, unsigned short y, int value)
 {
-    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT)
+    unsigned int word_index = (y * WORDS_PER_ROW) + x/32;
+
+    if (word_index >= FRAMEBUFFER_SIZE || word_index<0) {
+        printk(KERN_WARNING "vga_ball: set_pixel: word_index %d out of bounds\n", 
+               word_index);
         return;
-        
-    // Use the safer function instead of the macro
-    void *addr = safe_xy_to_addr(dev.virtbase, x, y);
-    unsigned int bit = x % 8; 
+    }
+
+    unsigned int bit = x % 32; 
     u32 bit_mask = 1U << bit;
-    u32 cur = ioread32(addr);
+    u32 value_at_index = dev.framebuffer[word_index];
 
     if (value) {
-        // Set the bit to 1 (turn pixel on)
-        iowrite32((u32)cur | bit_mask, addr);
+        dev.framebuffer[word_index] = (value_at_index | bit_mask);
     } else {
-        // Clear the bit to 0 (turn pixel off)
-        iowrite32((u32)cur & ~bit_mask, addr);
+        //change to make bit 0
+        dev.framebuffer[word_index] = (value_at_index & ~bit_mask);
     }
 }
 
@@ -79,6 +58,11 @@ static inline void set_pixel(unsigned short x, unsigned short y, int value)
 static void clear_framebuffer(void)
 {
     int i;
+    
+    // Clear local buffer
+    memset(dev.framebuffer, 0, sizeof(dev.framebuffer));
+    
+    // Clear hardware framebuffer
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         iowrite32(0, dev.virtbase + (i * 4));
     }
@@ -92,6 +76,10 @@ static void fill_framebuffer(void)
     int i;
     printk(KERN_INFO "vga_ball: Filling entire framebuffer (all pixels on)\n");
     
+    // Fill local buffer
+    memset(dev.framebuffer, 0xFF, sizeof(dev.framebuffer));
+    
+    // Fill hardware framebuffer
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         iowrite32(0xFFFFFFFF, dev.virtbase + (i * 4));
     }
@@ -108,7 +96,7 @@ static void fill_framebuffer(void)
 static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius)
 {
     // Validate parameters
-    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT) {
+    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT || x0 < 0 || y0 < 0) {
         printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
                x0, y0);
         return;
@@ -121,7 +109,7 @@ static void draw_circle(unsigned short x0, unsigned short y0, unsigned short rad
     
     if (radius > 100) {
         printk(KERN_WARNING "vga_ball: Limiting excessive radius %d to 100\n", radius);
-        radius = 100;  // Cap radius at a reasonable value
+        radius = 100; 
     }
     
     int radius_squared = radius * radius;
@@ -160,16 +148,18 @@ static void draw_circle(unsigned short x0, unsigned short y0, unsigned short rad
 /*
  * Draw all bodies in the simulation
  */
-static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
+static void draw_all_bodies(vga_ball_arg_t *arg)
 {
     unsigned int i;
-    clear_framebuffer();  // Clear screen before drawing new state
     
     // Validate input
     if (!arg) {
         printk(KERN_ERR "vga_ball: NULL argument to draw_all_bodies\n");
         return;
     }
+    
+    // Clear local framebuffer
+    memset(dev.framebuffer, 0, sizeof(dev.framebuffer));
     
     // Ensure num_bodies is reasonable
     unsigned int num_bodies = arg->num_bodies;
@@ -185,6 +175,9 @@ static void draw_all_bodies(vga_ball_arg_t *arg)  // Changed parameter type
         vga_ball_props_t *body = &arg->bodies[i];
         draw_circle(body->x, body->y, body->radius);
     }
+    
+    // Update the hardware display with our framebuffer
+    update_display();
     
     // Save current state - safer copy
     memcpy(&dev.vga_ball_arg, arg, sizeof(vga_ball_arg_t));
@@ -337,3 +330,11 @@ module_exit(vga_ball_exit);  // Changed from vga_display_exit
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Based on work by Stephen A. Edwards, Columbia University");
 MODULE_DESCRIPTION("VGA ball driver for N-body simulation");  // Changed from framebuffer
+
+static void update_display(void)
+{
+    int i;
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
+    }
+}
