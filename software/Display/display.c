@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include "display_driver.h"
 
-#define MAXCHAR 1000
+#define MAXCHAR 5000
 #define CSV_FILENAME "nbody_results.csv"
 #define PLAYBACK_DELAY_MS 100  
 #define MAX_TIMESTEPS 1000   //Fixed allocation (will fix later)
@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     }
     
     int vga_fd;
-    static const char vga_device[] = "/dev/vga_display";
+    static const char vga_device[] = "/dev/vga_ball";
     if ((vga_fd = open(vga_device, O_RDWR)) == -1) {
         fprintf(stderr, "Could not open %s\n", vga_device);
         return -1;
@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
         
         simulation_data[timestep].bodies[idx].x = display_x;
         simulation_data[timestep].bodies[idx].y = display_y;
-        simulation_data[timestep].bodies[idx].radius = 5 + (body_id % 10);
+        simulation_data[timestep].bodies[idx].radius = 25; 
         simulation_data[timestep].bodies[idx].n = body_id;
         
         simulation_data[timestep].num_bodies++;
