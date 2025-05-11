@@ -11,10 +11,12 @@
 #include <unistd.h>
 #include "display_driver.h"
 
-#define MAXCHAR 5000
+#define MAXCHAR 1000
 #define CSV_FILENAME "nbody_results.csv"
 #define PLAYBACK_DELAY_MS 100  
 #define MAX_TIMESTEPS 1000   //Fixed allocation (will fix later)
+
+int vga_fd;
 
 // Function to convert nbody simulation coordinates to display coordinates
 static void convert_coordinates(float nbody_x, float nbody_y, 
@@ -26,44 +28,6 @@ static void convert_coordinates(float nbody_x, float nbody_y,
     // Ensure within bounds
     if (*display_x >= DISPLAY_WIDTH) *display_x = DISPLAY_WIDTH - 1;
     if (*display_y >= DISPLAY_HEIGHT) *display_y = DISPLAY_HEIGHT - 1;
-}
-
-// Function to parse a CSV line into a vga_ball_arg_t structure -- This populates one timestep of data
-static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
-    char* token;
-    int timestep;
-    
-    //Ensure num_bodies starts at 0
-    arg->num_bodies = 0;
-    
-    // Get the timestep (first column)
-    token = strtok(line, ",");
-    if (!token) return -1;
-    timestep = atoi(token);
-    
-    // Process each body's x and y coordinates
-    for (int i = 0; i < max_bodies; i++) {
-        // Passing in Null to strtok will continue tokenizing the same string
-        token = strtok(NULL, ",");
-        if (!token) break;  //Exit the loop, we've accounted for all bodies
-        float x = atof(token);
-        
-        token = strtok(NULL, ",");
-        if (!token) break;  //Exit the loop, we've accounted for all bodies
-        float y = atof(token);
-        
-        unsigned short display_x, display_y;
-        convert_coordinates(x, y, &display_x, &display_y);
-        
-        arg->bodies[i].x = display_x;
-        arg->bodies[i].y = display_y;
-        arg->bodies[i].radius = 25; 
-        arg->bodies[i].n = i;
-        
-        arg->num_bodies++;
-    }
-    
-    return timestep;
 }
 
 int main(int argc, char** argv) {
@@ -79,8 +43,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     
-    int vga_fd;
-    static const char vga_device[] = "/dev/vga_ball";
+    static const char vga_device[] = "/dev/vga_display";
     if ((vga_fd = open(vga_device, O_RDWR)) == -1) {
         fprintf(stderr, "Could not open %s\n", vga_device);
         return -1;
@@ -100,7 +63,7 @@ int main(int argc, char** argv) {
     fgets(line, MAXCHAR, csv_file);
     
     // Allocate memory for all timesteps at once (fixed allocation)
-    vga_ball_arg_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(vga_ball_arg_t));
+    vga_display_arg_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(vga_display_arg_t));
     
     if (!simulation_data) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -109,45 +72,63 @@ int main(int argc, char** argv) {
         return -1;
     }
         
-    //Find the actual amt of timesteps
+    //Find the actual no of bodies
+    // and amt of timesteps
+    int max_body_id = -1;
     int actual_timesteps = 0;
     
-    //Read from CSV (one line per timestep)
     while (fgets(line, MAXCHAR, csv_file)) {
-        //Use above function to parse the line
-        int timestep = parse_csv_line(line, &simulation_data[actual_timesteps], MAX_BODIES);
-        if (timestep < 0) {
+        int timestep, body_id;
+        float x, y;
+        
+        // Parse CSV line: timestep,body_id,x,y
+        if (sscanf(line, "%d,%d,%f,%f", &timestep, &body_id, &x, &y) != 4) {
             fprintf(stderr, "Error parsing line: %s", line);
             continue;
         }
         
-        // When reading the first line, theres a special case to populate num_bodies
-        if (timestep == 0) {
-            printf("Detected %d bodies in the simulation\n", simulation_data[0].num_bodies);
-        } else {
-            //Bodies stay the same for each timestep
-            simulation_data[actual_timesteps].num_bodies = simulation_data[0].num_bodies;
+        //update the max timestep
+        if (timestep + 1 > actual_timesteps) {
+            actual_timesteps = timestep + 1;
         }
         
-        actual_timesteps++;
+        //update max body seen
+        if (body_id > max_body_id) {
+            max_body_id = body_id;
+        }
         
+        //Get index
+        int idx = simulation_data[timestep].num_bodies;
+        
+        //Convert to display coords
+        unsigned short display_x, display_y;
+        convert_coordinates(x, y, &display_x, &display_y);
+        
+        simulation_data[timestep].bodies[idx].x = display_x;
+        simulation_data[timestep].bodies[idx].y = display_y;
+        
+        //simulation_data[timestep].bodies[idx].radius = 5 + (body_id % 10);
+        //simulation_data[timestep].bodies[idx].n = body_id;
+        //simulation_data[timestep].num_bodies++;
     }
-
+    
     fclose(csv_file);
-    printf("Loaded %d timesteps with %d bodies\n", actual_timesteps, simulation_data[0].num_bodies);
+    
+    printf("Loaded %d timesteps with %d bodies\n", actual_timesteps, max_body_id + 1);
     
     // Clear screen
-    if (ioctl(vga_fd, VGA_BALL_CLEAR_SCREEN, 0) < 0) {
-        perror("ioctl(VGA_BALL_CLEAR_SCREEN) failed");
+    if (ioctl(vga_fd, VGA_DISPLAY_CLEAR_SCREEN, 0) < 0) {
+        perror("ioctl(VGA_DISPLAY_CLEAR_SCREEN) failed");
         free(simulation_data);
         close(vga_fd);
         return -1;
     }
     
     // Playback loop
+    
     for (int t = 0; t < actual_timesteps; t++) {
-        if (ioctl(vga_fd, VGA_BALL_WRITE_PROPERTIES, &simulation_data[t]) < 0) {
-            perror("ioctl(VGA_BALL_WRITE_PROPERTIES) failed");
+        if (ioctl(vga_fd, VGA_DISPLAY_WRITE_PROPERTIES, &simulation_data[t]) < 0) {
+            perror("ioctl(VGA_DISPLAY_WRITE_PROPERTIES) failed");
             break;
         }
         
