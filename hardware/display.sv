@@ -49,7 +49,7 @@ module vga_ball(input logic        clk,
     always_ff @(posedge clk or posedge reset) begin
       if (reset) begin
          placecounter <= 0;
-      end else if (VGA_VS) begin
+      end else if (!VGA_VS) begin
          placecounter <= 0;
       end else begin
             placecounter <= placecounter + 32'd1;
