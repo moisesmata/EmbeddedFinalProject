@@ -48,12 +48,9 @@ com
 # Add -L altera_mf_ver etc. if needed for Altera primitives not included by IP cores
 echo "Compiling design and testbench files..."
 vlog -sv  +incdir+./ \
-     ../shift_register.sv \
-     ../getAccl.sv \
-     ../nbody.sv \
-     ../RAM.v \
-     ../RAM2.v \
-     nbodyTb.sv
+       ../display.sv \
+       displayTb.sv \
+       RAM_DISP.v
 
 # Example:
 # vlog +incdir+../src \
