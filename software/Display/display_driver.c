@@ -34,7 +34,7 @@ struct vga_ball_dev {  // Changed from vga_display_dev
  */
 static inline void set_pixel(unsigned short x, unsigned short y, int value)
 {
-    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT || X < 0 || Y < 0){
+    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT || x < 0 || y < 0){
         return;
     }
     void *addr = X_Y_TO_ADDR(dev.virtbase, x, y);
