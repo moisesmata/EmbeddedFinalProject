@@ -28,8 +28,9 @@ module vga_ball(input logic        clk,
 
    logic [10:0]	   hcount;
    logic [9:0]     vcount;
-   logic [31:0]     vcountx16;
-   logic [31:0]     vcountx4;
+   logic [31:0]    vcount_32;
+   logic [31:0]     vcount_x_512;
+   logic [31:0]     vcount_x_128;
    logic [31:0]    vcountx20;
 
    logic [14:0]    rdaddress;
@@ -47,16 +48,17 @@ module vga_ball(input logic        clk,
       .rdaddress(rdaddress),
       .q(readdata)
     );
+    assign vcount_32 = {22'b0, vcount};
     assign next_pix = placecounter + 32'd1;
-    assign vcountx16 = vcount << 4;
-    assign vcountx4 = vcount << 2;
-      assign vcountx20 = vcountx4 + vcountx16;
-      assign placecounter = vcountx20 + hcount[10:1];
+    assign vcount_x_512 = vcount_32 << 7;
+    assign vcount_x_128 = vcount_32 << 9;
+      assign vcountx20 = vcount_x_128 + vcount_x_512;
+      assign placecounter = vcountx20 + hcount[10:1] + 32'b1;
     assign rdaddress = placecounter[19:5];
     
 
    always_comb begin
-      if (readdata[placecounter[5:1]] == 1'b1) begin
+      if (readdata[placecounter[4:0]-4'b1] == 1'b1) begin
          VGA_R = 8'hff;
          VGA_G = 8'hff;
          VGA_B = 8'hff;

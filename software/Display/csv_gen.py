@@ -10,7 +10,7 @@ import csv
 
 # Simulation parameters
 num_bodies = 100
-num_timesteps = 100
+num_timesteps = 1000
 dt = 0.1  # Time step size
 G = 6.67430e-11  # Gravitational constant
 softening = 5.0  # Softening parameter to avoid singularities
