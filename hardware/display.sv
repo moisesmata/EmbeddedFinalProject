@@ -53,15 +53,7 @@ module vga_ball(input logic        clk,
       assign vcountx20 = vcountx4 + vcountx16;
       assign placecounter = vcountx20 + hcount[10:1];
     assign rdaddress = placecounter[19:5];
-    always_ff @(posedge clk or posedge reset) begin
-      if (reset) begin
-         placecounter <= 0;
-      end else if (!VGA_VS) begin
-         placecounter <= 0;
-      end else begin
-            placecounter <= placecounter + 32'd1;
-      end
-    end
+    
 
    always_comb begin
       if (readdata[placecounter[5:1]] == 1'b1) begin
