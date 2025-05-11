@@ -28,10 +28,13 @@ module vga_ball(input logic        clk,
 
    logic [10:0]	   hcount;
    logic [9:0]     vcount;
+   logic [31:0]     vcountx16;
+   logic [31:0]     vcountx4;
+   logic [31:0]    vcountx20;
 
    logic [14:0]    rdaddress;
    logic [31:0]    placecounter;
-   logic [31:0]    placecounteradd;
+   logic [31:0]    next_pix;
    logic [31:0]   readdata;
    
    vga_counters counters(.clk50(clk), .*);
@@ -44,9 +47,12 @@ module vga_ball(input logic        clk,
       .rdaddress(rdaddress),
       .q(readdata)
     );
-    assign placecounteradd = placecounter + 32'd1;
-    assign rdaddress = placecounteradd[20:6];
-
+    assign next_pix = placecounter + 32'd1;
+    assign vcountx16 = vcount << 4;
+    assign vcountx4 = vcount << 2;
+      assign vcountx20 = vcountx4 + vcountx16;
+      assign placecounter = vcountx20 + hcount[10:1];
+    assign rdaddress = placecounter[19:5];
     always_ff @(posedge clk or posedge reset) begin
       if (reset) begin
          placecounter <= 0;
