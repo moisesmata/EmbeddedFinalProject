@@ -76,7 +76,6 @@ static void fill_framebuffer(void)
 
 static void draw_bodies(void)
 {
-    clear_framebuffer();
     int i;
     printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
     
