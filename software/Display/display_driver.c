@@ -87,7 +87,7 @@ static void draw_bodies(void)
 }
 
 //Right now the default radius is 5
-static void draw_circle(unisgned short x0, unsigned short y0){ 
+static void draw_circle(unsigned short x0, unsigned short y0){ 
     int radius = 5;
     if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT || x0 < 0 || y0 < 0) {
         printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
@@ -126,7 +126,7 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
     case VGA_BALL_WRITE_PROPERTIES:
         if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t)))
             return -EACCES;
-        draw_all_bodies(&vla);
+        draw_bodies(&vla);
         break;
 
     case VGA_BALL_CLEAR_SCREEN:
