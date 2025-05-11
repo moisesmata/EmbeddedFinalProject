@@ -94,18 +94,7 @@ module nbody #(
             state_1_vrwite_j <= 0;
             state_1_read_j <= 0;
             state_1_read_i <= 0;
-            if (read == 1 && chipselect == 1) begin
-                if (addr[15:9] == 7'b1000000) begin
-                    readdata <= {{(DATA_WIDTH-1){1'b0}}, done};
-                end else if (addr[15:9] == 7'b1000001) begin
-                    readdata <=  x_output_1;
-                end else if (addr[15:9] == 7'b1000010) begin
-                    readdata <= y_output_1;
-                end else begin 
-                    readdata <= {64{1'b1}};
-                end
-
-            end
+            
             if (write == 1 && chipselect == 1) begin
                 if (addr[15:9] == 7'b0000000) begin
                     go <= writedata[0];
@@ -245,9 +234,22 @@ module nbody #(
     end
 
     always_comb begin : blockName
+        if (read == 1 && chipselect == 1) begin
+            if (addr[15:9] == 7'b1000000) begin
+                readdata = {{(DATA_WIDTH-1){1'b0}}, done};
+            end else if (addr[15:9] == 7'b1000001) begin
+                readdata =  x_output_1;
+            end else if (addr[15:9] == 7'b1000010) begin
+                readdata = y_output_1;
+            end else begin 
+                readdata = {64{1'b1}};
+            end
+        end
+        else begin
+            readdata <= {64{1'b0}};
+        end
         case (state)
             SW_READ_WRITE: begin
-                //TODO: set addr things
                 // All the memories get the addr.
                 pos_input_1_addr = addr[BODY_ADDR_WIDTH-1:0];
                 pos_input_2_addr = addr[BODY_ADDR_WIDTH-1:0];
