@@ -24,7 +24,7 @@
 struct vga_ball_dev {  // Changed from vga_display_dev
     struct resource res;     
     void __iomem *virtbase;     
-    char framebuffer[FRAMEBUFFER_SIZE * 4]; //Words * bytes per word
+    unsigned int framebuffer[FRAMEBUFFER_SIZE]; //Words * bytes per word
     vga_ball_arg_t vga_ball_arg;  // Changed from vga_display_arg_t vga_display_arg
 } dev;
 
@@ -38,11 +38,11 @@ static inline void set_pixel(unsigned short x, unsigned short y, int value)
         return;
     }
 
-    int index = (y*WORDS_PER_ROW)*32 + x;
+    int index = (y*WORDS_PER_ROW) + x/32;
     if (value) {
-        dev.framebuffer[index] = 0xFFFFFFFF;
+        dev.framebuffer[index] |= 1 << (x % 32);
     } else{
-        dev.framebuffer[index] = 0x00000000;
+        dev.framebuffer[index] &= ~(1 << (x % 32));
     }  
 }
 
@@ -54,7 +54,7 @@ static void clear_framebuffer(void)
     int i;
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         dev.framebuffer[i] = 0;  
-        iowrite32(0, dev.virtbase + (i * 4));
+        iowrite32(0, dev.virtbase + (i << 2));
     }
 }
 
@@ -67,8 +67,8 @@ static void fill_framebuffer(void)
     printk(KERN_INFO "vga_ball: Filling entire framebuffer (all pixels on)\n");
     
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        dev.framebuffer[i] = 0xFFFFFFFF;  
-        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
+        dev.framebuffer[i] = 0xFFFFFFFF;  // All bits set to 1
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
     }
     
     printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
@@ -81,7 +81,7 @@ static void draw_bodies(void)
     printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
     
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(dev.framebuffer[i], dev.virtbase + (i * 4));
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
     }
     
     printk(KERN_INFO "vga_ball: Bodies Drawn\n");
