@@ -101,8 +101,11 @@ static void draw_circle(unsigned short x0, unsigned short y0){
     int x_max = x0 + radius;
     int y_max = y0 + radius;
 
-    for (int y = y_min; y <= y_max; y++){
-        for (int x = x_min; x <= x_max; x++){
+
+    int x; 
+    int y; 
+    for (y = y_min; y <= y_max; y++){
+        for (x = x_min; x <= x_max; x++){
             int dx = x - x0;
             int dy = y - y0;
             int d2 = dx*dx + dy*dy;
