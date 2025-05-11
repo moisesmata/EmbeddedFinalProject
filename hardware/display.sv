@@ -36,7 +36,7 @@ module vga_ball(input logic        clk,
    vga_counters counters(.clk50(clk), .*);
 
    RAM_DISP framebuffer(
-      .clk(clk),
+      .clock(clk),
       .data(writedata),
       .wren(write),
       .wraddress(address), 
