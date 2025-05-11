@@ -56,7 +56,6 @@ module nbody #(
     logic [1:0] state;
     logic [BODY_ADDR_WIDTH-1:0] m_read_addr, v_read_addr;
     logic [BODY_ADDR_WIDTH-1:0] pos_input_1_addr;
-    logic [BODY_ADDR_WIDTH-1:0] s1_body_num_i_read, s1_body_num_j_read;
     logic [BODY_ADDR_WIDTH-1:0] pos_input_2_addr;
     logic [BODY_ADDR_WIDTH-1:0] s1_counter;
     
@@ -79,7 +78,6 @@ module nbody #(
 
     logic first_time;
 
-    logic [BODY_ADDR_WIDTH-1:0] state_1_vrwite_j, state_1_vrwite_i, state_1_read_j, state_1_read_i;
 
     always_ff @(posedge clk or posedge rst) begin
         //TODO: logic for letting software read and write values goes here
@@ -162,7 +160,7 @@ module nbody #(
                     end
                     else begin
                         state_1_timer <= state_1_timer + 1;
-                        p_read_j <= p_read_j + 1;
+                        p_read_j <= p_read_j + 9'b1;
                         if (state_1_timer == AcclLatency - 1) begin
                             valid_accl <= 1'b1;
                         end
@@ -170,25 +168,25 @@ module nbody #(
                             valid_dv <= 1'b1;
                         end
                         if (valid_accl) begin
-                            v_read_j <= v_read_j + 1;
+                            v_read_j <= v_read_j + 9'b1;
                         end
                         if (valid_dv) begin
-                            v_write_j <= v_write_j + 1;
+                            v_write_j <= v_write_j + 9'b1;
                         end
 
                         if (p_read_j == num_bodies - 1) begin
-                            p_read_j <= 0;
-                            p_read_i <= p_read_i + 1;
+                            p_read_j <= 9'b0;
+                            p_read_i <= p_read_i + 9'b1;
                         end
 
                         if (v_read_j == num_bodies - 1) begin
                             v_read_j <= 0;
-                            v_read_i <= v_read_i + 1;
+                            v_read_i <= v_read_i + 9'b1;
                         end
 
                         if (v_write_j == num_bodies - 1) begin
                             v_write_j <= 0;
-                            v_write_i <= v_write_i + 1;
+                            v_write_i <= v_write_i + 9'b1;
                         end 
                         
 
@@ -200,7 +198,7 @@ module nbody #(
 
                     
 
-                    state_2_read <= state_2_read + 1;
+                    state_2_read <= state_2_read + 9'b1;
 
                     if (go == 0) begin
                         state <= SW_READ_WRITE;
@@ -210,7 +208,7 @@ module nbody #(
                         state_2_write_enable <= 1'b1;
                     end else if (state_2_write_enable) begin
                         if (state_2_pos_write != num_bodies - 1) begin
-                            state_2_pos_write <= state_2_pos_write + 1; // must be zeroed out at the start
+                            state_2_pos_write <= state_2_pos_write + 9'b1; // must be zeroed out at the start
                         end else begin
                             state_2_write_enable <= 1'b0;
                             state_2_pos_write <= 0;
@@ -221,12 +219,9 @@ module nbody #(
                             end else begin
                                 state <= CALC_ACCEL;
                                 gap_counter <= gap_counter + 1;
-                                // TODO: maybe reset some more values
                             end
                         end
                     end
-
-                    //TODO: zero out everything else that I need to
                 end
                 default: state <= SW_READ_WRITE; // Default to idle state
             endcase
@@ -264,11 +259,11 @@ module nbody #(
                 write_vy_data = writedata;
 
                 // Write enable for the different memories
-                wren_x = (addr[15:9] == 7'b0000011) ? write : 0;
-                wren_y = (addr[15:9] == 7'b0000100) ? write : 0;
-                wren_m = (addr[15:9] == 7'b0000101) ? write : 0;
-                wren_vx = (addr[15:9] == 7'b0000110) ? write : 0;
-                wren_vy = (addr[15:9] == 7'b0000111) ? write : 0;
+                wren_x = (addr[15:9] == 7'b0000011) ? write : 1'b0;
+                wren_y = (addr[15:9] == 7'b0000100) ? write : 1'b0;
+                wren_m = (addr[15:9] == 7'b0000101) ? write : 1'b0;
+                wren_vx = (addr[15:9] == 7'b0000110) ? write : 1'b0;
+                wren_vy = (addr[15:9] == 7'b0000111) ? write : 1'b0;
                     
                 ax_shifted = 0;
                 ay_shifted = 0;
