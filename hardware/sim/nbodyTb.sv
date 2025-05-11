@@ -148,24 +148,18 @@ module nbodyTb;
             chipselect = 1'b1;
             write      = 1'b1;
             addr       = (GAP << BODY_ADDR_WIDTH);
-            writedata  = 2'd6;
+            writedata  = 64'd6;
 
         //  Turn go on
         @(posedge clk);
             chipselect = 1'b1;
             write      = 1'b1;
             addr       = (GO << BODY_ADDR_WIDTH);
-            writedata  = 1'b1;
-
-        //  Deactivate
-        @(posedge clk);
-            write      = 1'b0;
-            writedata  = 1'b0;
-            read       = 1'b1;
-            addr       = (DONE << BODY_ADDR_WIDTH);
+            writedata  = 64'b1;
 
 
-        # (CLK_PERIOD * 2000); // Wait for simulation to run for a while
+
+        # (CLK_PERIOD * 6000); // Wait for simulation to run for a while
         $display("Time=%t: Testbench finishing.", $time);
 
         @(posedge clk);
@@ -201,14 +195,14 @@ module nbodyTb;
             chipselect = 1'b1;
             write      = 1'b1;
             addr       = (READ << BODY_ADDR_WIDTH);
-            writedata  = 1'b0;
+            writedata  = 64'b0;
         # (CLK_PERIOD * 500); // Wait for simulation to run for a while
         //  Turn go on
         @(posedge clk);
             chipselect = 1'b1;
             write      = 1'b1;
             addr       = (GO << BODY_ADDR_WIDTH);
-            writedata  = 1'b0;
+            writedata  = 64'b0;
 
         $finish;
     end
