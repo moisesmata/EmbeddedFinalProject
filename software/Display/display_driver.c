@@ -110,7 +110,7 @@ static void draw_circle(unsigned short x0, unsigned short y0){
             int dy = y - y0;
             int d2 = dx*dx + dy*dy;
             if (d2 <= radius_squared){
-                set_pixel(x,y,1)
+                set_pixel(x,y,1);
             }
         }
     }
@@ -131,7 +131,8 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
         if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t))){
             return -EACCES;
         }
-        for(int i = 0; i < vla.num_bodies; i++){
+        int i;
+        for(i = 0; i < vla.num_bodies; i++){
             dev.vga_ball_arg.bodies[i].x = vla.bodies[i].x;
             dev.vga_ball_arg.bodies[i].y = vla.bodies[i].y;
             dev.vga_ball_arg.bodies[i].radius = vla.bodies[i].radius;
