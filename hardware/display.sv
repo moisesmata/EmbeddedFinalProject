@@ -58,7 +58,7 @@ module vga_ball(input logic        clk,
     
 
    always_comb begin
-      if (readdata[placecounter[4:0]-5'b1] == 1'b1) begin
+      if (readdata[placecounter[4:0]] == 1'b1) begin
          VGA_R = 8'hff;
          VGA_G = 8'hff;
          VGA_B = 8'hff;
