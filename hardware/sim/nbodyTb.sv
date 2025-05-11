@@ -148,7 +148,7 @@ module nbodyTb;
             chipselect = 1'b1;
             write      = 1'b1;
             addr       = (GAP << BODY_ADDR_WIDTH);
-            writedata  = 2'd2;
+            writedata  = 2'd6;
 
         //  Turn go on
         @(posedge clk);
@@ -196,6 +196,11 @@ module nbodyTb;
             @(posedge clk);
             $display("Y = %f", $bitstoreal(readdata));
         end
+        @(posedge clk);
+            read      = 1'b0;
+        # (CLK_PERIOD * 500); // Wait for simulation to run for a while
+        go = 0;
+        
 
         $finish;
     end
