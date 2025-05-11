@@ -101,7 +101,11 @@ int main(int argc, char** argv) {
 
     // Allocate memory for all timesteps at once (fixed allocation)
     vga_ball_arg_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(vga_ball_arg_t));
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 62e5a77f29c2f2496e713d15636a4a433360fad8
     if (!simulation_data) {
         fprintf(stderr, "Memory allocation failed\n");
         fclose(csv_file);
