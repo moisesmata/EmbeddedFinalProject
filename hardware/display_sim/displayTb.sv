@@ -85,7 +85,7 @@ module displayTb;
         $display("Time=%t: Finished filling framebuffer", $time);
         
         // Wait for a few frames to observe the display
-        #(CLK_PERIOD * 2000000);
+        #(CLK_PERIOD * 20000);
         
         // Now test: Fill entire framebuffer with all 0's (all pixels off)
         $display("Time=%t: Starting to clear framebuffer (all pixels off)", $time);
