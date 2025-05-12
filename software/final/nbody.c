@@ -244,7 +244,7 @@ int main(int argc, char** argv){
     fprintf(stderr, "Read Set To High\n");
     //usleep(100000);
 
-    while(true){
+    while(1){
       if(poll_done() == 0){
         break;
       }
