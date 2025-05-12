@@ -67,12 +67,13 @@ void set_go(int go){
 // Continuously poll the read signal
 // ----------------------------------------------------
 int poll_done(){
-  fprintf(stderr, "Polling:\n");
+  
   int done; 
   if (ioctl(nbody_fd, READ_DONE, &done)) {
       perror("ioctl(READ_DONE) failed");
       return -1;
   }
+  fprintf(stderr, "Polling:\n");
   if(done > 0){
     return 1;
   }
