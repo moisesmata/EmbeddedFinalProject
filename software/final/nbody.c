@@ -67,6 +67,7 @@ void set_go(int go){
 // Continuously poll the read signal
 // ----------------------------------------------------
 int poll_done(){
+  fprintf(stderr, "Polling:\n");
   int done; 
   if (ioctl(nbody_fd, READ_DONE, &done)) {
       perror("ioctl(READ_DONE) failed");
@@ -224,7 +225,7 @@ int main(int argc, char** argv){
     int read = 0;
     while(!read){
       //Wait for the poll signal
-      fprintf(stderr, "Polling Done...\n");
+      fprintf(stderr, "Polling...\n");
       if(poll_done()){
         fprintf(stderr, "Received Done!\n");
         read = 1;
