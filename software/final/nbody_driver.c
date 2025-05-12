@@ -21,7 +21,7 @@
 
 /* Device registers */
 
-#define GO_ADDR(base) (base)  
+#define GO_ADDR(base) (base) + (3 << 12) 
 #define READ_ADDR(base) (base) + (1 << 12)
 #define N_ADDR(base) (base) + ( 2 << 12)
 #define GAP_ADDR(base) (base) + ( 3 << 12)
