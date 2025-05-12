@@ -74,6 +74,7 @@ struct nbody_dev {
 static void write_body(body_t * body_parameters){
 	int i = (int) body_parameters->n;
 
+	/*
 	iowrite32(GET_LOWER(body_parameters->x), X_ADDR_LOW(dev.virtbase, i)); 
 	iowrite32(GET_UPPER(body_parameters->x), X_ADDR_HIGH(dev.virtbase, i));
 
@@ -88,7 +89,10 @@ static void write_body(body_t * body_parameters){
 
 	iowrite32(GET_LOWER(body_parameters->vy), VY_ADDR_LOW(dev.virtbase, i));
 	iowrite32(GET_UPPER(body_parameters->vy), VY_ADDR_HIGH(dev.virtbase, i));
+
+	*/
 }
+
 
 /* Start the N-body simulation in hardware */
 static void write_simulation_parameters(nbody_sim_config_t *parameters){
@@ -98,7 +102,8 @@ static void write_simulation_parameters(nbody_sim_config_t *parameters){
 }
 
 static void read_positions(all_positions_t *positions){
-    int i = 0; /*
+
+    int i = 0; 
     for (i = 0; i < dev.sim_config.N; i++){
         uint64_t x_bits = ((uint64_t)ioread32(X_ADDR_LOW(dev.virtbase, i))) |
                           (((uint64_t)ioread32(X_ADDR_HIGH(dev.virtbase, i))) << 32);
@@ -109,7 +114,7 @@ static void read_positions(all_positions_t *positions){
         memcpy(&positions->bodies[i].y, &y_bits, sizeof(uint64_t));
 		
     }
-		*/
+		
 }
 
 static void write_go(int go){
