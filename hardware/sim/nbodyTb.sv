@@ -56,9 +56,9 @@ module nbodyTb;
     // Out:
     localparam DONE           = 7'b1000000;
     localparam READ_X_LOWER   = 7'b1000001;
-    localparam READ_X_UPPER   = 7'b1000001;
-    localparam READ_Y_LOWER   = 7'b1000010;
-    localparam READ_Y_UPPER   = 7'b1000010;
+    localparam READ_X_UPPER   = 7'b1000010;
+    localparam READ_Y_LOWER   = 7'b1000011;
+    localparam READ_Y_UPPER   = 7'b1000100;
     // Adjust BODY_ADDR_WIDTH if your nbody module supports a different number of bodies than 512
     localparam BODY_ADDR_WIDTH = 9;
 
@@ -225,25 +225,31 @@ module nbodyTb;
                 read       = 1'b1;
                 addr       = (READ_X_LOWER << BODY_ADDR_WIDTH) | i;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 read_register = readdata;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 addr       = (READ_X_UPPER << BODY_ADDR_WIDTH) | i;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
             $display("X = %f", $bitstoreal({readdata,read_register}));
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 addr       = (READ_Y_LOWER << BODY_ADDR_WIDTH) | i;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 read_register = readdata;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 addr       = (READ_Y_UPPER << BODY_ADDR_WIDTH) | i;
-
-            $display("Y = %f", $bitstoreal({readdata,read_register}));
+                $display("Y = %f", $bitstoreal({readdata,read_register}));
+            # (CLK_PERIOD * 2);
         end
         @(posedge clk);
         @(posedge clk);
@@ -270,25 +276,31 @@ module nbodyTb;
                 read       = 1'b1;
                 addr       = (READ_X_LOWER << BODY_ADDR_WIDTH) | i;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 read_register = readdata;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 addr       = (READ_X_UPPER << BODY_ADDR_WIDTH) | i;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
-            $display("X = %f", $bitstoreal({readdata,read_register}));
+                $display("X = %f", $bitstoreal({readdata,read_register}));
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 addr       = (READ_Y_LOWER << BODY_ADDR_WIDTH) | i;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 read_register = readdata;
 
+            # (CLK_PERIOD * 2);
             @(posedge clk);
                 addr       = (READ_Y_UPPER << BODY_ADDR_WIDTH) | i;
+                $display("Y = %f", $bitstoreal({readdata,read_register}));
 
-            $display("Y = %f", $bitstoreal({readdata,read_register}));
 
         end
         @(posedge clk);

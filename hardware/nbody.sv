@@ -73,9 +73,9 @@ module nbody #(
     // Out:
     localparam DONE           = 7'b1000000;
     localparam READ_X_LOWER   = 7'b1000001;
-    localparam READ_X_UPPER   = 7'b1000001;
-    localparam READ_Y_LOWER   = 7'b1000010;
-    localparam READ_Y_UPPER   = 7'b1000010;
+    localparam READ_X_UPPER   = 7'b1000010;
+    localparam READ_Y_LOWER   = 7'b1000011;
+    localparam READ_Y_UPPER   = 7'b1000100;
 
     logic go;
     logic done;
