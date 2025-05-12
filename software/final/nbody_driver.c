@@ -98,8 +98,8 @@ static void write_simulation_parameters(nbody_sim_config_t *parameters){
 static void read_positions(all_positions_t *positions){
 	int i = 0;
 	for (i = 0; i < dev.sim_config.N; i++){
-		positions->bodies[i].x = (double) ((unsigned long long)ioread32(X_ADDR_LOW(dev.virtbase, i)) + (unsigned long long)ioread32(X_ADDR_HIGH(dev.virtbase, i)<<32));
-		positions->bodies[i].y = (double) ((unsigned long long)ioread32(Y_ADDR_LOW(dev.virtbase, i)) + (unsigned long long)ioread32(Y_ADDR_HIGH(dev.virtbase, i)<<32));
+		positions->bodies[i].x = (double) (((unsigned long long)ioread32(X_ADDR_LOW(dev.virtbase, i))) + ((unsigned long long)ioread32(X_ADDR_HIGH(dev.virtbase, i)))<<32);
+		positions->bodies[i].y = (double) (((unsigned long long)ioread32(Y_ADDR_LOW(dev.virtbase, i))) + ((unsigned long long)ioread32(Y_ADDR_HIGH(dev.virtbase, i)))<<32);
 	}
 }
 
@@ -130,14 +130,14 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
     case NBODY_SET_BODY_PARAMETERS:
 	//shouldn't be needed?
 	//nbody_parameters = dev.parameters;
-        if (copy_from_user(&nbody_parameters, (n_body_parameters_t *)arg, sizeof(n_body_parameters_t)))
+        if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
             return -EFAULT;
         write_parameters(&nbody_parameters);
         break;
 
 	case NBODY_SET_SIM_PARAMETERS:
 	//sim_config = dev.sim_config;
-		if (copy_from_user(&sim_config, (n_body_sim_config_t *)arg, sizeof(n_body_sim_config_t)))
+		if (copy_from_user(&sim_config, (nbody_sim_config_t *)arg, sizeof(nbody_sim_config_t)))
 			return -EFAULT;
 		write_simulation_parameters(&sim_config);
 		break;
