@@ -239,7 +239,7 @@ int main(int argc, char** argv){
     //Read the positions from the driver
 
     fprintf(stderr, "Read Set To High\n");
-    usleep(100000);
+    //usleep(100000);
 
     position_history[t] = read_positions(N);
 
