@@ -179,7 +179,7 @@ int main(int argc, char** argv){
     return -1;
   }
 
-  printf"N-Body Userspace program started\n");
+  printf("N-Body Userspace program started\n");
 
   // Read in Initial N-Body State FROM CSV File
   double* initial_state = get_initial_state("input.csv", N);
@@ -208,7 +208,7 @@ int main(int argc, char** argv){
              i); //body number
   }
 
-  fprintf(stderr, "Simulation bodies and parameters read in");
+  fprintf(stderr, "Simulation bodies and parameters read in\n");
 
   //Send the go signal
   set_go(high);
