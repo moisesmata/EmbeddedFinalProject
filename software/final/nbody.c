@@ -73,7 +73,7 @@ int poll_done(){
       perror("ioctl(READ_DONE) failed");
       return -1;
   }
-  fprintf(stderr, "Polling:\n");
+  fprintf(stderr, "Polling: %d \n", done);
   if(done > 0){
     return 1;
   }
