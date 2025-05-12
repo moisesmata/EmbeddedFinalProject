@@ -34,6 +34,7 @@ void set_body(double x, double y, double xv, double yv, double m, int n){
   vla.vy = yv;
   vla.m = m;
   vla.n = n;
+  fprintf(stderr, "Setting Body %d: X: %d, Y: %d, XV: %d, YV: %d, M: %d\n",n,x,y,xv,yv,m)
   if(ioctl(nbody_fd, SET_BODY, &vla)){
     perror("ioctl(SET_BODY) failed");
     return;
@@ -95,7 +96,7 @@ all_positions_t read_positions(int N){
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
       perror("ioctl(READ_POSITION) failed\n");
     } 
-    fprintf(stderr, "Body %d positions read!\n", N);
+    fprintf(stderr, "Body %d Position Read: X:%d, Y:%d \n", N,vla.x,vla.y);
     positions.bodies[i] = vla;
   }
   return positions;
@@ -212,7 +213,7 @@ int main(int argc, char** argv){
   set_read(low);
   //Then set the initial parameters for the simulation
   int output_step = 6;
-  set_simulation_parameters(N-2,output_step);
+  set_simulation_parameters(N,output_step);
 
   // The initial parameters are read in - Send them to the driver
 
@@ -275,8 +276,6 @@ int main(int argc, char** argv){
     t += 1;
   }
   set_go(low);
-
-  printf("Simulation Complete! Activating Display...");
 
   // Write all data to a CSV file
   FILE* output = fopen("nbody_results.csv", "w");
