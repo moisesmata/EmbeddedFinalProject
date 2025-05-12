@@ -57,7 +57,7 @@ void set_simulation_parameters(int N, int output_step){ //dt is always 2
 // Set the go signal high to start thes sim
 // ----------------------------------------------------
 void set_go(int go){
-  if(ioctl(nbody_fd, WRITE_GO, go)){
+  if(ioctl(nbody_fd, WRITE_GO, &go)){
     perror("ioctl(WRITE_GO) failed");
     return;
   } 

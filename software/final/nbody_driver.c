@@ -21,7 +21,7 @@
 
 /* Device registers */
 
-#define GO_ADDR(base) (base) + (3 << 12) 
+#define GO_ADDR(base) (base)
 #define READ_ADDR(base) (base) + (1 << 12)
 #define N_ADDR(base) (base) + ( 2 << 12)
 #define GAP_ADDR(base) (base) + ( 3 << 12)
@@ -119,8 +119,8 @@ static void read_position(body_pos_t *body){
 	memcpy(&body->y, &y_bits, sizeof(uint64_t));	
 }
 
-static void write_go(int *go){
-	iowrite32(*go, GO_ADDR(dev.virtbase));
+static void write_go(int go){
+	iowrite32(go, GO_ADDR(dev.virtbase));
 	dev.go = go;
 }
 
@@ -140,7 +140,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	nbody_sim_config_t sim_config;
 	body_pos_t body_position;
 	body_t body_parameters;
-	int go;
+	int go = 0;
 	int status = 0;
 
     switch (cmd) {
@@ -150,7 +150,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			if (copy_from_user(&go, (int *)arg, sizeof(int)))
 				return -EFAULT;
 			
-			write_go(&go);
+			write_go(go);
 			break;
 
 		case NBODY_SET_SIM_PARAMETERS:
@@ -164,7 +164,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		//read = dev.read;
 			if (copy_from_user(&go, (int *)arg, sizeof(int)))
 				return -EFAULT;
-			write_read(&go);
+			write_read(go);
 			break;
 
 		case READ_DONE:

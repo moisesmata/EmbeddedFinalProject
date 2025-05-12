@@ -19,6 +19,10 @@ typedef struct{
   body_t bodies[MAX_BODIES]; 
 } nbody_parameters_t;
 
+typedef struct{
+  int go;
+} go_signal;
+
 
 // --------------------------------------
 // Structs that will be passed back to userspace (only positions are returned from simulation)
