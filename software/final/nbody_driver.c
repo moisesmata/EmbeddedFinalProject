@@ -45,13 +45,13 @@
 
 /* More Memory */
 
-#define DONE_ADDR(base) (base) + ( 65 << 12)
+#define DONE_ADDR(base) (base) + ( 64 << 11)
 
-#define READX_ADDR_LOW(base) (base) + ( 65 << 12)
-#define READX_ADDR_HIGH(base) (base) + ( 66 << 12)
+#define READX_ADDR_LOW(base) (base) + ( 65 << 11)
+#define READX_ADDR_HIGH(base) (base) + ( 66 << 11)
 
-#define READY_ADDR_LOW(base) (base) + ( 67 << 12)
-#define READY_ADDR_HIGH(base) (base) + ( 68 << 12)
+#define READY_ADDR_LOW(base) (base) + ( 67 << 11)
+#define READY_ADDR_HIGH(base) (base) + ( 68 << 11)
 
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */
