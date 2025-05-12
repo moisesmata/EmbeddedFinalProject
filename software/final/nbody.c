@@ -30,8 +30,8 @@ void set_body(double x, double y, double xv, double yv, double m, int n){
   body_t vla;
   vla.x = x;
   vla.y = y;
-  vla.xv = xv;
-  vla.yv = yv;
+  vla.vx = xv;
+  vla.vy = yv;
   vla.m = m;
   vla.n = (double) n;
   if(ioctl(nbody_fd, SET_BODY, &vla)){
@@ -86,7 +86,7 @@ all_positions_t read_positions(int N){
   all_positions_t vla;
   if (ioctl(nbody_fd, NBODY_READ_POSITIONS, &vla)){
     perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
-    return;
+    return -1;
   } 
   return vla;
 }
@@ -195,7 +195,7 @@ int main(int argc, char** argv){
              initial_state[5*i + 2], //vx
              initial_state[5*i + 3], //vy
              initial_state[5*i + 4], //m
-             i) //body number
+             i); //body number
   }
 
   //Send the go signal
