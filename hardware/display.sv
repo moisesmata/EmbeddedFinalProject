@@ -50,11 +50,11 @@ module vga_ball(input logic        clk,
     );
     assign vcount_32 = {22'b0, vcount};
     assign next_pix = placecounter + 32'd1;
-    assign vcount_x_512 = vcount_32 << 7;
-    assign vcount_x_128 = vcount_32 << 9;
+    assign vcount_x_512 = vcount_32 << 8;
+    assign vcount_x_128 = vcount_32 << 10;
       assign vcountx20 = vcount_x_128 + vcount_x_512;
-      assign placecounter = vcountx20 + hcount[10:1] + hcount[0] - 32'd1;
-    assign rdaddress = placecounter[19:5];
+      assign placecounter = vcountx20 + hcount + 32'd1;
+    assign rdaddress = placecounter[20:6];
     
 
    always_comb begin
