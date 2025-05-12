@@ -74,20 +74,20 @@ struct nbody_dev {
 static void write_body(body_t * body_parameters){
 	int i = (int) body_parameters.n;
 
-	iowrite32(GET_LOWER(body_parameters.x), X_ADDR_LOW(dev.virtbase, i)); 
-	iowrite32(GET_UPPER(body_parameters.x), X_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(body_parameters->x), X_ADDR_LOW(dev.virtbase, i)); 
+	iowrite32(GET_UPPER(body_parameters->x), X_ADDR_HIGH(dev.virtbase, i));
 
-	iowrite32(GET_LOWER(body_parameters.y), Y_ADDR_LOW(dev.virtbase, i));
-	iowrite32(GET_UPPER(body_parameters.y), Y_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(body_parameters->y), Y_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(body_parameters->y), Y_ADDR_HIGH(dev.virtbase, i));
 
-	iowrite32(GET_LOWER(body_parameters.m), M_ADDR_LOW(dev.virtbase, i));
-	iowrite32(GET_UPPER(body_parameters.m), M_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(body_parameters->m), M_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(body_parameters->m), M_ADDR_HIGH(dev.virtbase, i));
 
-	iowrite32(GET_LOWER(body_parameters.vx), VX_ADDR_LOW(dev.virtbase, i));
-	iowrite32(GET_UPPER(body_parameters.vx), VX_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(body_parameters->vx), VX_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(body_parameters->vx), VX_ADDR_HIGH(dev.virtbase, i));
 
-	iowrite32(GET_LOWER(body_parameters.vy), VY_ADDR_LOW(dev.virtbase, i));
-	iowrite32(GET_UPPER(body_parameters.vy), VY_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(body_parameters->vy), VY_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(body_parameters->vy), VY_ADDR_HIGH(dev.virtbase, i));
 }
 
 /* Start the N-body simulation in hardware */
