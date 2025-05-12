@@ -195,6 +195,7 @@ int main(int argc, char** argv){
       return -1;
   }
 
+  set_go(low);
   //Then set the initial parameters for the simulation
   int output_step = 5;
   set_simulation_parameters(N,output_step);
