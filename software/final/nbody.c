@@ -165,7 +165,7 @@ int main(int argc, char** argv){
 
   //Begin the userspace program
   int i;
-  static const char filename[] = "/dev/sim";
+  static const char filename[] = "/dev/nbody";
 
   printf("N-Body Userspace program started\n");
 
