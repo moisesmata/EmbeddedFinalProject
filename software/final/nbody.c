@@ -124,7 +124,7 @@ double* get_initial_state(char* filename, int N){
   }
   char row[MAXCHAR];
   int i = 0;
-
+  fprintf(stderr, "Reading file %s\n", filename);
   //Go through file and save all the data
   while(fgets(row, MAXCHAR, file)){
     char* token = strtok(row,",");
@@ -134,6 +134,8 @@ double* get_initial_state(char* filename, int N){
       i++;
     }
   }
+
+  fprintf(stderr, "Do we get here????");
 
   //Close final and return pointer to the initial parameters
   fclose(file);
