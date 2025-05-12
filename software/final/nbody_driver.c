@@ -120,7 +120,7 @@ static void read_position(body_pos_t *body){
 }
 
 static void write_go(int *go){
-	iowrite32(go,GO_ADDR(dev.virtbase));
+	iowrite32(go, GO_ADDR(dev.virtbase));
 	dev.go = go;
 }
 
