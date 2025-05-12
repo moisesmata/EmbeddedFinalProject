@@ -56,37 +56,18 @@ module vga_ball(input logic        clk,
       assign placecounter = vcountx20 + hcount[10:1] + 32'b1;
     assign rdaddress = placecounter[19:5];
     
-// Calculate memory address from screen position
-always_comb begin
-    // For 640-pixel wide display with 32 pixels per word
-    // Each row needs 20 words
-    logic [9:0] row = vcount;
-    logic [5:0] col_word = hcount[10:5];  // Divide by 32
-    
-    // Row × words_per_row + column_word
-    // For a 640-pixel width, each row has 20 words (640/32)
-    rdaddress = (row * 10'd20) + {9'b0, col_word};
-end
 
-// Determine pixel color based on the bit in the current word
-always_comb begin
-    if (VGA_BLANK_n) begin  // Only show pixels in active display area
-        if (readdata[hcount[4:1]] == 1'b1) begin  // Select bit within 32-bit word
-            VGA_R = 8'hff;
-            VGA_G = 8'hff;
-            VGA_B = 8'hff;
-        end else begin
-            VGA_R = 8'h00;
-            VGA_G = 8'h00;
-            VGA_B = 8'h00;
-        end
-    end else begin
-        // Black in blanking period
-        VGA_R = 8'h00;
-        VGA_G = 8'h00;
-        VGA_B = 8'h00;
-    end
-end
+   always_comb begin
+      if (readdata[placecounter[4:0]-4'b1] == 1'b1) begin
+         VGA_R = 8'hff;
+         VGA_G = 8'hff;
+         VGA_B = 8'hff;
+      end else begin
+         VGA_R = 8'h00;
+         VGA_G = 8'h00;
+         VGA_B = 8'h00;
+      end
+   end
 	       
 endmodule
 
