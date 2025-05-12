@@ -24,24 +24,18 @@ int high = 0xFFFF;
 int low = 0x0000;
 
 // ----------------------------------------------------
-// Setting the Body parameters for the Sim
+// Setting the Body for a Single Body
 // ----------------------------------------------------
-void set_body_parameters(double* input_parameters, int N){
-  nbody_parameters_t vla;
-  for(int i = 0; i < N; i ++){
-    body_t body;
-    body.x = input_parameters[5*i];
-    body.y = input_parameters[5*i+1];
-    body.vx = input_parameters[5*i+2];
-    body.vy = input_parameters[5*i+3];
-    body.m = input_parameters[5*i+4];
-    body.n = i;
-
-    vla.bodies[i] = body;
-  }
-  
-  if(ioctl(nbody_fd, SET_BODY_PARAMETERS, &vla)){
-    perror("ioctl(SET_BODY_PARAMETERS) failed");
+void set_body(double x, double y, double xv, double yv, double m, int n){
+  body_t vla;
+  vla.x = x;
+  vla.y = y;
+  vla.xv = xv;
+  vla.yv = yv;
+  vla.m = m;
+  vla.n = (double) n;
+  if(ioctl(nbody_fd, SET_BODY, &vla)){
+    perror("ioctl(SET_BODY) failed");
     return;
   }
 }
@@ -194,7 +188,15 @@ int main(int argc, char** argv){
   set_simulation_parameters(N,output_step);
 
   // The initial parameters are read in - Send them to the driver
-  set_body_parameters(initial_state, N);
+
+  for(int i = 0; i < N; i++){
+    set_body(initial_state[5*i + 0], //x
+             initial_state[5*i + 1], //y
+             initial_state[5*i + 2], //vx
+             initial_state[5*i + 3], //vy
+             initial_state[5*i + 4], //m
+             i) //body number
+  }
 
   //Send the go signal
   set_go(high);

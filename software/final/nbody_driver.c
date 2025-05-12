@@ -62,33 +62,32 @@
 struct nbody_dev {
     struct resource res;
     void __iomem *virtbase;
-    nbody_parameters_t parameters;
+    //nbody_parameters_t parameters;
+	body_t body_parameters;
 	nbody_sim_config_t sim_config;
 	int go;
 	int done;
 	int read;
 } dev;
 
-static void write_parameters(nbody_parameters_t *parameters){
-	int i = 0;
-	for (i = 0; i < dev.sim_config.N; i++){
-		iowrite32(GET_LOWER(parameters->bodies[i].x), X_ADDR_LOW(dev.virtbase, i)); 
-		iowrite32(GET_UPPER(parameters->bodies[i].x), X_ADDR_HIGH(dev.virtbase, i));
 
-		iowrite32(GET_LOWER(parameters->bodies[i].y), Y_ADDR_LOW(dev.virtbase, i));
-		iowrite32(GET_UPPER(parameters->bodies[i].y), Y_ADDR_HIGH(dev.virtbase, i));
+static void write_body(body_t * body_parameters){
+	int i = (int) body_parameters.n;
 
-		iowrite32(GET_LOWER(parameters->bodies[i].m), M_ADDR_LOW(dev.virtbase, i));
-		iowrite32(GET_UPPER(parameters->bodies[i].m), M_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(body_parameters.x), X_ADDR_LOW(dev.virtbase, i)); 
+	iowrite32(GET_UPPER(body_parameters.x), X_ADDR_HIGH(dev.virtbase, i));
 
-		iowrite32(GET_LOWER(parameters->bodies[i].vx), VX_ADDR_LOW(dev.virtbase, i));
-		iowrite32(GET_UPPER(parameters->bodies[i].vx), VX_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(body_parameters.y), Y_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(body_parameters.y), Y_ADDR_HIGH(dev.virtbase, i));
 
-		iowrite32(GET_LOWER(parameters->bodies[i].vy), VY_ADDR_LOW(dev.virtbase, i));
-		iowrite32(GET_UPPER(parameters->bodies[i].vy), VY_ADDR_HIGH(dev.virtbase, i));
-	}
-	dev.parameters = *parameters;
-	
+	iowrite32(GET_LOWER(body_parameters.m), M_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(body_parameters.m), M_ADDR_HIGH(dev.virtbase, i));
+
+	iowrite32(GET_LOWER(body_parameters.vx), VX_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(body_parameters.vx), VX_ADDR_HIGH(dev.virtbase, i));
+
+	iowrite32(GET_LOWER(body_parameters.vy), VY_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(body_parameters.vy), VY_ADDR_HIGH(dev.virtbase, i));
 }
 
 /* Start the N-body simulation in hardware */
@@ -101,7 +100,6 @@ static void write_simulation_parameters(nbody_sim_config_t *parameters){
 static void read_positions(all_positions_t *positions){
 	int i = 0;
 	for (i = 0; i < dev.sim_config.N; i++){
-		
 		positions->bodies[i].x = (double) (((unsigned long long)ioread32(X_ADDR_LOW(dev.virtbase, i))) + (((unsigned long long)ioread32(X_ADDR_HIGH(dev.virtbase, i)))<<32));
 		positions->bodies[i].y = (double) (((unsigned long long)ioread32(Y_ADDR_LOW(dev.virtbase, i))) + (((unsigned long long)ioread32(Y_ADDR_HIGH(dev.virtbase, i)))<<32));
 	}
@@ -146,12 +144,6 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			write_simulation_parameters(&sim_config);
 			break;
 
-		case SET_BODY_PARAMETERS:
-			if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
-				return -EFAULT;
-			write_parameters(&nbody_parameters);
-			break;
-
 		case WRITE_READ:
 		//read = dev.read;
 			if (copy_from_user(&go, (int *)arg, sizeof(int)))
@@ -169,6 +161,12 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			read_positions(&all_positions);
 			if (copy_to_user((all_positions_t *)arg, &all_positions, sizeof(all_positions_t)))
 				return -EFAULT;
+			break;
+
+		case SET_BODY:
+			if (copy_from_user(&body_parameters, (body_t *)arg, sizeof(body_t)))
+				return -EFAULT;
+			write_body(&nbody_parameters);
 			break;
 
 		default:

@@ -50,7 +50,7 @@ typedef struct {
 #define READ_DONE                       _IOR(NBODY_MAGIC, 3, int)
 #define NBODY_READ_POSITIONS            _IOR(NBODY_MAGIC, 4, all_positions_t)
 #define WRITE_READ                      _IOW(NBODY_MAGIC, 5, int)
-#define SET_BODY_PARAMETERS             _IOW(NBODY_MAGIC, 6, int)
+#define SET_BODY                        _IOW(NBODY_MAGIC, 6, body_t)
 
 //might need more ioctls?
 
