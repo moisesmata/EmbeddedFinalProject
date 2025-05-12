@@ -91,6 +91,7 @@ all_positions_t read_positions(int N){
   for(int i = 0; i < N; i++){
     fprintf(stderr, "Reading Body Number %d\n", i);
     body_pos_t vla;
+    vla.n = i;
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
       perror("ioctl(READ_POSITION) failed\n");
     } 
