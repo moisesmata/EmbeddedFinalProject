@@ -53,10 +53,10 @@
 #define READY_ADDR_LOW(base) (base) + ( 67 << 12)
 #define READY_ADDR_HIGH(base) (base) + ( 68 << 12)
 
+#define GET_LOWER(x) ((x) & 0xFFFFFFFF)
+#define GET_UPPER(x) (((x) >> 32) & 0xFFFFFFFF)
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */
-#define GET_UPPER(x) ((((unsigned long long) x) >> 32) & 0xFFFFFFFF)
-#define GET_LOWER(x) (((unsigned long long)x) & 0xFFFFFFFF) 
 
 /* Information about our device */
 struct nbody_dev {
@@ -73,24 +73,34 @@ struct nbody_dev {
 
 static void write_body(body_t * body_parameters){
 	int i = (int) body_parameters->n;
+	uint64_t x_bits;
+	memcpy(&x_bits, &body_parameters->x, sizeof(uint64_t));
 
-	/*
-	iowrite32(GET_LOWER(body_parameters->x), X_ADDR_LOW(dev.virtbase, i)); 
-	iowrite32(GET_UPPER(body_parameters->x), X_ADDR_HIGH(dev.virtbase, i));
+	uint64_t y_bits;
+	memcpy(&y_bits, &body_parameters->y, sizeof(uint64_t));
+	uint64_t m_bits;
+	memcpy(&m_bits, &body_parameters->m, sizeof(uint64_t));
+	uint64_t vx_bits;
+	memcpy(&vx_bits, &body_parameters->vx, sizeof(uint64_t));
+	uint64_t vy_bits;
+	memcpy(&vy_bits, &body_parameters->vy, sizeof(uint64_t));
 
-	iowrite32(GET_LOWER(body_parameters->y), Y_ADDR_LOW(dev.virtbase, i));
-	iowrite32(GET_UPPER(body_parameters->y), Y_ADDR_HIGH(dev.virtbase, i));
 
-	iowrite32(GET_LOWER(body_parameters->m), M_ADDR_LOW(dev.virtbase, i));
-	iowrite32(GET_UPPER(body_parameters->m), M_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(x_bits), X_ADDR_LOW(dev.virtbase, i)); 
+	iowrite32(GET_UPPER(x_bits), X_ADDR_HIGH(dev.virtbase, i));
 
-	iowrite32(GET_LOWER(body_parameters->vx), VX_ADDR_LOW(dev.virtbase, i));
-	iowrite32(GET_UPPER(body_parameters->vx), VX_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(y_bits), Y_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(y_bits), Y_ADDR_HIGH(dev.virtbase, i));
 
-	iowrite32(GET_LOWER(body_parameters->vy), VY_ADDR_LOW(dev.virtbase, i));
-	iowrite32(GET_UPPER(body_parameters->vy), VY_ADDR_HIGH(dev.virtbase, i));
+	iowrite32(GET_LOWER(m_bits), M_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(m_bits), M_ADDR_HIGH(dev.virtbase, i));
 
-	*/
+	iowrite32(GET_LOWER(vx_bits), VX_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(vx_bits), VX_ADDR_HIGH(dev.virtbase, i));
+
+	iowrite32(GET_LOWER(vy_bits), VY_ADDR_LOW(dev.virtbase, i));
+	iowrite32(GET_UPPER(vy_bits), VY_ADDR_HIGH(dev.virtbase, i));
+
 }
 
 

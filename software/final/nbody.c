@@ -83,11 +83,15 @@ int poll_done(){
 // ----------------------------------------------------
 all_positions_t read_positions(int N){
   //ioctl goes here
-  all_positions_t vla;
-  if (ioctl(nbody_fd, NBODY_READ_POSITIONS, &vla)){
-    perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
-  } 
-  return vla;
+  all_positions_t positions;
+  for(int i = 0; i < N; i++){
+    body_pos_t vla;
+    if (ioctl(nbody_fd, NBODY_READ_POSITIONS, &vla)){
+      perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
+    } 
+    positions[i] = vla;
+  }
+  return positions;
 }
 
 // ----------------------------------------------------
