@@ -164,6 +164,8 @@ int main(int argc, char** argv){
 
   //Parse User Input
   int N = atoi(argv[1]); 
+  fprintf(stderr, "Number of bodies is %d\n",N);
+
   int time_steps = atoi(argv[2]); 
   int dt = 2; //Set timestep to 2 because it makes our lives easier!
 
@@ -200,6 +202,7 @@ int main(int argc, char** argv){
   }
 
   set_go(low);
+  set_read(low);
   //Then set the initial parameters for the simulation
   int output_step = 5;
   set_simulation_parameters(N,output_step);
