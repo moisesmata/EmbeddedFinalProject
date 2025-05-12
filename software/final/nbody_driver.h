@@ -42,7 +42,7 @@ typedef struct {
 } nbody_sim_config_t;
 
 
-#define NBODY_MAGIC 'n'
+#define NBODY_MAGIC 'q'
 
 /* ioctls and their arguments */
 #define NBODY_SET_SIM_PARAMETERS      _IOW(NBODY_MAGIC, 1, nbody_sim_config_t)
