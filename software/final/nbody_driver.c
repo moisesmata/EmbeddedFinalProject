@@ -131,14 +131,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	int status = 0;
 
     switch (cmd) {
-    case NBODY_SET_BODY_PARAMETERS:
-	//shouldn't be needed?
-	//nbody_parameters = dev.parameters;
-        if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
-            return -EFAULT;
-        write_parameters(&nbody_parameters);
-        break;
-
+	
 	case NBODY_SET_SIM_PARAMETERS:
 	//sim_config = dev.sim_config;
 		if (copy_from_user(&sim_config, (nbody_sim_config_t *)arg, sizeof(nbody_sim_config_t)))
@@ -152,7 +145,14 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
             return -EFAULT;
         write_go(go);
         break;
-	
+    case NBODY_SET_BODY_PARAMETERS:
+	//shouldn't be needed?
+	//nbody_parameters = dev.parameters;
+        if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
+            return -EFAULT;
+        write_parameters(&nbody_parameters);
+        break;
+
 	case WRITE_READ:
 	//read = dev.read;
 		if (copy_from_user(&go, (int *)arg, sizeof(int)))
