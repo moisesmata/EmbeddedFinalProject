@@ -182,7 +182,6 @@ int main(int argc, char** argv){
   all_positions_t* position_history = malloc(time_steps * sizeof(all_positions_t));
   if (!position_history) {
       fprintf(stderr, "Failed to allocate memory for position history\n");
-      free(initial_state);
       return -1;
   }
 
@@ -255,8 +254,6 @@ int main(int argc, char** argv){
   }
 
   // Free allocated memory
-  free(position_history);
-  free(initial_state);
 
   printf("N-Body Userspace program terminating\n");
   return 0;
