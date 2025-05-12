@@ -149,7 +149,8 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		//go = dev.go;
 			if (copy_from_user(&go, (int *)arg, sizeof(int)))
 				return -EFAULT;
-			write_go(go);
+			
+			write_go(&go);
 			break;
 
 		case NBODY_SET_SIM_PARAMETERS:
@@ -163,7 +164,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		//read = dev.read;
 			if (copy_from_user(&go, (int *)arg, sizeof(int)))
 				return -EFAULT;
-			write_read(go);
+			write_read(&go);
 			break;
 
 		case READ_DONE:
