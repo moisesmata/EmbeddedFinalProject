@@ -52,8 +52,8 @@
 
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */
-#define GET_UPPER(x) ((((unsigned long) x) >> 32) & 0xFFFFFFFF)
-#define GET_LOWER(x) (((unsigned long)x) & 0xFFFFFFFF) 
+#define GET_UPPER(x) ((((unsigned long long) x) >> 32) & 0xFFFFFFFF)
+#define GET_LOWER(x) (((unsigned long long)x) & 0xFFFFFFFF) 
 
 /* Information about our device */
 struct nbody_dev {
@@ -98,8 +98,8 @@ static void write_simulation_parameters(nbody_sim_config_t *parameters){
 static void read_positions(all_positions_t *positions){
 	int i = 0;
 	for (i = 0; i < dev.sim_config.N; i++){
-		positions->bodies[i].x = (double) ((unsigned long)ioread32(X_ADDR_LOW(dev.virtbase, i)) + (unsigned long)ioread32(X_ADDR_HIGH(dev.virtbase, i)<<32));
-		positions->bodies[i].y = (double) ((unsigned long)ioread32(Y_ADDR_LOW(dev.virtbase, i)) + (unsigned long)ioread32(Y_ADDR_HIGH(dev.virtbase, i)<<32));
+		positions->bodies[i].x = (double) ((unsigned long long)ioread32(X_ADDR_LOW(dev.virtbase, i)) + (unsigned long long)ioread32(X_ADDR_HIGH(dev.virtbase, i)<<32));
+		positions->bodies[i].y = (double) ((unsigned long long)ioread32(Y_ADDR_LOW(dev.virtbase, i)) + (unsigned long long)ioread32(Y_ADDR_HIGH(dev.virtbase, i)<<32));
 	}
 }
 
