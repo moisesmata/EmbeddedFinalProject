@@ -47,11 +47,11 @@
 
 #define DONE_ADDR(base) (base) + ( 64 << 11)
 
-#define READX_ADDR_LOW(base, body) (base) + (( 65 << 11) + (body<<2))
-#define READX_ADDR_HIGH(base, body) (base) + (( 66 << 11) + (body<<2))
+#define READX_ADDR_LOW(base, body) (base) + (( 65 << 11) + ((body)<<2))
+#define READX_ADDR_HIGH(base, body) (base) + (( 66 << 11) + ((body)<<2))
 
-#define READY_ADDR_LOW(base, body) (base) + (( 67 << 11) + (body<<2))
-#define READY_ADDR_HIGH(base, body) (base) + (( 68 << 11) + (body<<2))
+#define READY_ADDR_LOW(base, body) (base) + (( 67 << 11) + ((body)<<2))
+#define READY_ADDR_HIGH(base, body) (base) + (( 68 << 11) + ((body)<<2))
 
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */
@@ -108,8 +108,8 @@ static void write_simulation_parameters(nbody_sim_config_t *parameters){
 
 static void read_position(body_pos_t *body){
 	int i = body->n; 
-    uint64_t x_bits[2];
-	uint64_t y_bits[2];
+    int x_bits[2];
+	int y_bits[2];
 	x_bits[0] = ioread32(READX_ADDR_LOW(dev.virtbase, i));
 	x_bits[1] = ioread32(READX_ADDR_HIGH(dev.virtbase, i));
 
