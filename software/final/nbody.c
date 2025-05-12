@@ -100,7 +100,7 @@ all_positions_t read_positions(int N){
 // Set the read signal
 // ----------------------------------------------------
 void set_read(int read){
-  if(ioctl(nbody_fd, WRITE_READ, read)){
+  if(ioctl(nbody_fd, WRITE_READ, &read)){
     perror("ioctl(WRITE_READ) failed");
     return;
   }
@@ -224,6 +224,8 @@ int main(int argc, char** argv){
     fprintf(stderr, "Timestep %d Beginning:\n", t);
     //Do Polling
     int read = 0;
+
+    /**/
     while(!read){
       //Wait for the poll signal
       fprintf(stderr, "Polling...\n");
@@ -231,6 +233,7 @@ int main(int argc, char** argv){
         fprintf(stderr, "Received Done!\n");
         read = 1;
         set_read(high);
+        break;
       }
     }
     //Read the positions from the driver
