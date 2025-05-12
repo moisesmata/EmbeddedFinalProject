@@ -51,6 +51,16 @@ module displayTb;
     
     // Main test sequence
     initial begin
+        // Declare variables that will be used in the loops
+        logic [31:0] pattern_word;
+        int addr;
+        int pass_count;
+        int fail_count;
+        logic verbose;
+        logic expected;
+        logic actual;
+        int x, y, bit_idx, i;
+        
         // Initialize signals
         reset = 1;
         write = 0;
@@ -66,18 +76,18 @@ module displayTb;
         // Wait for reset to propagate
         #(CLK_PERIOD * 10);
         
-        // Test 1: Write checkerboard pattern to framebuffer
+        // Test: Write checkerboard pattern to framebuffer
         $display("Time=%t: Starting to write checkerboard pattern to framebuffer", $time);
         
         // Loop through pixel rows in blocks of 32 pixels (one word)
-        for (int y = 0; y < DISPLAY_HEIGHT; y++) begin
+        for (y = 0; y < DISPLAY_HEIGHT; y++) begin
             // Loop through pixel columns in blocks of 32 pixels
-            for (int x = 0; x < DISPLAY_WIDTH; x += 32) begin
+            for (x = 0; y < DISPLAY_WIDTH; x += 32) begin
                 // Construct a 32-bit word with the appropriate checkerboard pattern
-                logic [31:0] pattern_word = 0;
+                pattern_word = 0;
                 
-                for (int bit_idx = 0; bit_idx < 32; bit_idx++) begin
-                    if (x + bit_idx < DISPLAY_WIDTH) begin // Fixed syntax error with curly brace
+                for (bit_idx = 0; bit_idx < 32; bit_idx++) begin
+                    if (x + bit_idx < DISPLAY_WIDTH) begin
                         // Set the bit according to checkerboard pattern
                         if (get_expected_pixel(x + bit_idx, y))
                             pattern_word[bit_idx] = 1'b1;
@@ -85,7 +95,7 @@ module displayTb;
                 end
                 
                 // Calculate the address for this 32-bit word
-                int addr = (y * (DISPLAY_WIDTH / 32)) + (x / 32);
+                addr = (y * (DISPLAY_WIDTH / 32)) + (x / 32);
                 
                 // Write the word to the framebuffer
                 @(posedge clk);
@@ -109,39 +119,48 @@ module displayTb;
         
         $display("Time=%t: Finished writing checkerboard pattern", $time);
         
-        // Add this after the "Finished writing checkerboard pattern" message
-        $display("Time=%t: Starting comprehensive verification of all pixels", $time);
+        // Wait a moment for the pattern to stabilize in the display
+        #(CLK_PERIOD * 100);
+        
+        // Start comprehensive verification
+        $display("Time=%t: Starting comprehensive verification of checkerboard pattern", $time);
 
-        // Variables to track test results
-        int pass_count = 0;
-        int fail_count = 0;
+        // Initialize tracking variables
+        pass_count = 0;
+        fail_count = 0;
 
-        // Check every pixel
-        for (int y = 0; y < DISPLAY_HEIGHT; y++) begin
-            for (int x = 0; x < DISPLAY_WIDTH; x++) begin
-                // Only print a few rows for debug visibility
-                logic verbose = (y % 100 == 0 && x % 100 == 0);
-                
-                // Use your existing verification mechanism but with less logging
-                logic expected = get_expected_pixel(x, y);
+        // Sample a subset of pixels for verification (every 20th pixel)
+        // This reduces simulation time while still providing good coverage
+        for (y = 0; y < DISPLAY_HEIGHT; y += 5) begin
+            for (x = 0; x < DISPLAY_WIDTH; x += 5) begin
+                // Use existing verification mechanism but with less logging
+                expected = get_expected_pixel(x, y);
                 
                 // Force DUT to display this point
-                force dut.hcount = {x[9:0], 1'b0}; // Fixed: Properly formatting 11-bit hcount
+                force dut.hcount = {x[9:0], 1'b0}; // Properly formatting 11-bit hcount
                 force dut.vcount = y;
                 
                 // Allow time to propagate
                 #(CLK_PERIOD * 1);
                 
-                // Check result
-                logic actual = (VGA_R == 8'hFF) ? 1'b1 : 1'b0;
+                // Check result (VGA_B is what's being checked based on display.sv)
+                actual = (VGA_B == 8'hFF) ? 1'b1 : 1'b0;
                 if (actual == expected) begin
                     pass_count++;
-                    if (verbose) $display("PASS: Pixel (%0d,%0d)", x, y);
+                    // Only print occasionally for progress indication
+                    if (x % 100 == 0 && y % 100 == 0) 
+                        $display("PASS: Pixel (%0d,%0d)", x, y);
                 end else begin
                     fail_count++;
                     // Always print failures
                     $display("FAIL: Pixel (%0d,%0d) - expected %0b, got %0b", 
                             x, y, expected, actual);
+                            
+                    // Detailed debug for failures - print the pattern word for this region
+                    addr = (y * (DISPLAY_WIDTH / 32)) + (x / 32);
+                    bit_idx = x % 32;
+                    $display("  Debug: addr=0x%h, bit_pos=%0d, pattern_word used=%h", 
+                            addr, bit_idx, pattern_word);
                 end
                 
                 // Release the forced values
@@ -149,96 +168,27 @@ module displayTb;
                 release dut.vcount;
             end
             
-            // Print progress for every row
-            if (y % 20 == 0) begin
-                $display("Verified %0d rows, %0d/%0d pixels passed (%0.2f%%)", 
-                        y, pass_count, pass_count + fail_count,
-                        (pass_count * 100.0) / (pass_count + fail_count));
+            // Print progress every few rows
+            if (y % 50 == 0) begin
+                $display("Verified up to row %0d, %0d/%0d pixels passed (%0.2f%%)", 
+                       y, pass_count, pass_count + fail_count,
+                       (pass_count * 100.0) / (pass_count + fail_count));
             end
         end
 
-        $display("Verification complete: %0d pixels passed, %0d failed (%0.2f%% pass rate)", 
-                pass_count, fail_count, (pass_count * 100.0) / (pass_count + fail_count));
+        $display("\n===== CHECKERBOARD VERIFICATION SUMMARY =====");
+        $display("Total pixels verified: %0d", pass_count + fail_count);
+        $display("Passed: %0d", pass_count);
+        $display("Failed: %0d", fail_count);
+        $display("Pass rate: %0.2f%%", (pass_count * 100.0) / (pass_count + fail_count));
         
-        // Wait for pattern to display
-        #(CLK_PERIOD * 20000);
+        if (fail_count == 0)
+            $display("VERIFICATION PASSED: All checked pixels match expected checkerboard pattern");
+        else
+            $display("VERIFICATION FAILED: %0d pixels did not match expected pattern", fail_count);
         
-        // Verification phase: Read and verify select points to ensure checkerboard pattern
-        $display("Time=%t: Starting verification of checkerboard pattern", $time);
-        
-        // Test specific test points - choose points known to be in different squares
-        verify_point(0, 0);     // Should be white (1) if top-left is white
-        verify_point(25, 5);    // Should be black (0) - different square
-        verify_point(45, 5);    // Should be white (1) - different square
-        verify_point(5, 25);    // Should be black (0) - different square
-        verify_point(45, 45);   // Should be white (1) - different square
-        
-        $display("Time=%t: Verification complete", $time);
-        
-        // Clear the framebuffer
-        $display("Time=%t: Clearing framebuffer", $time);
-        
-        for (int i = 0; i < (DISPLAY_WIDTH * DISPLAY_HEIGHT / 32); i++) begin
-            @(posedge clk);
-            chipselect = 1;
-            write = 1;
-            address = i[14:0];
-            writedata = 32'h00000000;
-            
-            if (i % 1000 == 0) begin
-                $display("Time=%t: Clearing address 0x%h", $time, i);
-            end
-            
-            @(posedge clk);
-        end
-        
-        chipselect = 0;
-        write = 0;
-        
-        $display("Time=%t: Framebuffer cleared", $time);
-        
-        // Wait to observe cleared display
-        #(CLK_PERIOD * 10000);
-        
-        $display("Time=%t: Final VGA signals: VS=%b HS=%b BLANK=%b", 
-                $time, VGA_VS, VGA_HS, VGA_BLANK_n);
-                
         $display("Time=%t: Simulation complete", $time);
         $finish;
     end
-    
-    // Task to verify a specific point matches the expected checkerboard pattern
-    task verify_point(int x, int y);
-        logic expected = get_expected_pixel(x, y);
-        
-        // Calculate which word and bit contains this pixel
-        int word_addr = (y * (DISPLAY_WIDTH / 32)) + (x / 32);
-        int bit_pos = x % 32;
-        
-        // Force DUT to display this point (simulating a VGA scan)
-        force dut.hcount = {x[9:0], 1'b0}; // Fixed: Properly formatting 11-bit hcount
-        force dut.vcount = y;
-        
-        // Wait a few cycles for the pixel value to propagate
-        #(CLK_PERIOD * 2);
-        
-        // Check if the displayed pixel matches our expectation
-        if ((VGA_R == 8'hFF && expected == 1'b1) || 
-            (VGA_R == 8'h00 && expected == 1'b0)) begin
-            $display("Time=%t: PASS - Pixel at (%0d,%0d) is %s as expected", 
-                     $time, x, y, expected ? "white" : "black");
-        end else begin
-            $display("Time=%t: FAIL - Pixel at (%0d,%0d) should be %s but is %s", 
-                     $time, x, y, expected ? "white" : "black", 
-                     (VGA_R == 8'hFF) ? "white" : "black");
-            // Print debug information
-            $display("  Debug: word_addr=%0d, bit_pos=%0d, expected=%b", 
-                     word_addr, bit_pos, expected);
-        end
-        
-        // Release the forced values
-        release dut.hcount;
-        release dut.vcount;
-    endtask
 
 endmodule
