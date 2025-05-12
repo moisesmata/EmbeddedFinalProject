@@ -81,8 +81,9 @@ static void write_body(body_t * body_parameters){
 	memcpy(&m_bits, &body_parameters->m, sizeof(uint64_t));
 	memcpy(&vx_bits, &body_parameters->vx, sizeof(uint64_t));
 	memcpy(&vy_bits, &body_parameters->vy, sizeof(uint64_t));
+	
 	printk(KERN_INFO, "X[0]=%d", x_bits[0]);
-	printk(KERN_INFO, "X[0]=%d", x_bits[1]);
+	printk(KERN_INFO, "X[1]=%d", x_bits[1]);
 
 	iowrite32(x_bits[0], X_ADDR_LOW(dev.virtbase, i)); 
 	iowrite32(x_bits[1], X_ADDR_HIGH(dev.virtbase, i));
