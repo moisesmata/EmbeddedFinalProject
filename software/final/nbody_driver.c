@@ -25,20 +25,20 @@
 
 /* Memory */
 
-#define X_ADDR_LOW(base, body) (base) + ((body<<2) + 4 << 11)
-#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + 5 << 11)
+#define X_ADDR_LOW(base, body) (base) + ((body<<2) + (4 << 11))
+#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + (5 << 11))
 
-#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + 6 << 11)
-#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + 7 << 11)
+#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + (6 << 11))
+#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + (7 << 11))
 
-#define M_ADDR_LOW(base, body) (base) + ((body<<2) + 8 << 11)
-#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + 9 << 11)
+#define M_ADDR_LOW(base, body) (base) + ((body<<2) + (8 << 11))
+#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + (9 << 11))
 
-#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + 10 << 11)
-#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + 11 << 11)
+#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + (10 << 11))
+#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + (11 << 11))
 
-#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + 12 << 11)
-#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + 13 << 11)
+#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + (12 << 11))
+#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + (13 << 11))
 
 /* More Memory */
 
@@ -52,8 +52,8 @@
 
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */
-#define GET_UPPER(x) ((x >> 32) & 0xFFFFFFFF)
-#define GET_LOWER(x) (x & 0xFFFFFFFF) 
+#define GET_UPPER(x) (((unsigned long)x >> 32) & 0xFFFFFFFF)
+#define GET_LOWER(x) (((unsigned long)x) & 0xFFFFFFFF) 
 
 /* Information about our device */
 struct nbody_dev {
@@ -69,7 +69,7 @@ struct nbody_dev {
 static void write_parameters(nbody_parameters_t *parameters){
 	int i = 0;
 	for (i = 0; i < dev.sim_config.N; i++){
-		iowrite32(GET_LOWER(parameters->bodies[i].x), X_ADDR_LOW(dev.virtbase, i)); //Writing to memory
+		iowrite32(GET_LOWER(parameters->bodies[i].x), X_ADDR_LOW(dev.virtbase, i)); 
 		iowrite32(GET_UPPER(parameters->bodies[i].x), X_ADDR_HIGH(dev.virtbase, i));
 
 		iowrite32(GET_LOWER(parameters->bodies[i].y), Y_ADDR_LOW(dev.virtbase, i));
@@ -98,8 +98,8 @@ static void write_simulation_parameters(nbody_sim_config_t *parameters){
 static void read_positions(all_positions_t *positions){
 	int i = 0;
 	for (i = 0; i < dev.sim_config.N; i++){
-		positions->bodies[i].x = ioread32(X_ADDR_LOW(dev.virtbase, i)) + ioread32(X_ADDR_HIGH(dev.virtbase, i)<<32);
-		positions->bodies[i].y = ioread32(Y_ADDR_LOW(dev.virtbase, i)) + ioread32(Y_ADDR_HIGH(dev.virtbase, i)<<32);
+		positions->bodies[i].x = (double) ((unsigned long)ioread32(X_ADDR_LOW(dev.virtbase, i)) + (unsigned long)ioread32(X_ADDR_HIGH(dev.virtbase, i)<<32));
+		positions->bodies[i].y = (double) ((unsigned long)ioread32(Y_ADDR_LOW(dev.virtbase, i)) + (unsigned long)ioread32(Y_ADDR_HIGH(dev.virtbase, i)<<32));
 	}
 }
 
