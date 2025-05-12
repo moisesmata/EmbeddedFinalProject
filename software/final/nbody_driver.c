@@ -77,13 +77,11 @@ static void write_body(body_t * body_parameters){
 	int vx_bits[2];
 	int vy_bits[2];
 
-
 	memcpy(&x_bits, &body_parameters->x, sizeof(uint64_t));
 	memcpy(&y_bits, &body_parameters->y, sizeof(uint64_t));
 	memcpy(&m_bits, &body_parameters->m, sizeof(uint64_t));
 	memcpy(&vx_bits, &body_parameters->vx, sizeof(uint64_t));
 	memcpy(&vy_bits, &body_parameters->vy, sizeof(uint64_t));
-	
 
 	iowrite32(x_bits[0], X_ADDR_LOW(dev.virtbase, i)); 
 	iowrite32(x_bits[1], X_ADDR_HIGH(dev.virtbase, i));
@@ -99,7 +97,6 @@ static void write_body(body_t * body_parameters){
 
 	iowrite32(vy_bits[0], VY_ADDR_LOW(dev.virtbase, i));
 	iowrite32(vy_bits[1], VY_ADDR_HIGH(dev.virtbase, i));
-	
 }
 
 /* Start the N-body simulation in hardware */
@@ -109,19 +106,19 @@ static void write_simulation_parameters(nbody_sim_config_t *parameters){
 	dev.sim_config = *parameters;
 }
 
-static void read_positions(all_positions_t *positions){
+static void read_positions(body_pos_t *body){
     
-	int i = 0; 
-    for (i = 0; i < dev.sim_config.N; i++){
-        uint64_t x_bits = ((uint64_t)ioread32(X_ADDR_LOW(dev.virtbase, i))) |
-                          (((uint64_t)ioread32(X_ADDR_HIGH(dev.virtbase, i))) << 32);
-        uint64_t y_bits = ((uint64_t)ioread32(Y_ADDR_LOW(dev.virtbase, i))) |
-                          (((uint64_t)ioread32(Y_ADDR_HIGH(dev.virtbase, i))) << 32);
+	int i = body->n; 
+    
+	uint64_t x_bits = ((uint64_t)ioread32(X_ADDR_LOW(dev.virtbase, i))) |
+						(((uint64_t)ioread32(X_ADDR_HIGH(dev.virtbase, i))) << 32);
+	uint64_t y_bits = ((uint64_t)ioread32(Y_ADDR_LOW(dev.virtbase, i))) |
+						(((uint64_t)ioread32(Y_ADDR_HIGH(dev.virtbase, i))) << 32);
 
-        memcpy(&positions->bodies[i].x, &x_bits, sizeof(uint64_t));
-        memcpy(&positions->bodies[i].y, &y_bits, sizeof(uint64_t));
+	memcpy(&body->x, &x_bits, sizeof(uint64_t));
+	memcpy(&body->y, &y_bits, sizeof(uint64_t));
 		
-    }
+    
 		
 }
 
@@ -144,7 +141,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
     //nbody_parameters_t nbody_parameters;
 	nbody_sim_config_t sim_config;
-	all_positions_t all_positions;
+	body_pos_t body_position;
 	body_t body_parameters;
 	int go;
 	int status = 0;
@@ -178,9 +175,9 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 				return -EFAULT;
 			break;
 
-		case NBODY_READ_POSITIONS:
-			read_positions(&all_positions);
-			if (copy_to_user((all_positions_t *)arg, &all_positions, sizeof(all_positions_t)))
+		case READ_POSITIONS:
+			read_positions(&body_position);
+			if (copy_to_user((body_pos_t *)arg, &body_position, sizeof(body_position)))
 				return -EFAULT;
 			break;
 

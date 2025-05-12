@@ -26,6 +26,7 @@ typedef struct{
 
 typedef struct{
   double x, y;
+  int n;
 } body_pos_t;
 
 typedef struct{
@@ -49,7 +50,7 @@ typedef struct {
 #define NBODY_SET_SIM_PARAMETERS        _IOW(NBODY_MAGIC, 1, nbody_sim_config_t)
 #define WRITE_GO                        _IOW(NBODY_MAGIC, 2, int)
 #define READ_DONE                       _IOR(NBODY_MAGIC, 3, int)
-#define NBODY_READ_POSITIONS            _IOR(NBODY_MAGIC, 4, all_positions_t)
+#define READ_POSITIONS                  _IOR(NBODY_MAGIC, 4, body_pos_t)
 #define WRITE_READ                      _IOW(NBODY_MAGIC, 5, int)
 #define SET_BODY                        _IOW(NBODY_MAGIC, 6, body_t)
 
