@@ -98,11 +98,16 @@ static void write_simulation_parameters(nbody_sim_config_t *parameters){
 }
 
 static void read_positions(all_positions_t *positions){
-	int i = 0;
-	for (i = 0; i < dev.sim_config.N; i++){
-		positions->bodies[i].x = (double) (((unsigned long long)ioread32(X_ADDR_LOW(dev.virtbase, i))) + (((unsigned long long)ioread32(X_ADDR_HIGH(dev.virtbase, i)))<<32));
-		positions->bodies[i].y = (double) (((unsigned long long)ioread32(Y_ADDR_LOW(dev.virtbase, i))) + (((unsigned long long)ioread32(Y_ADDR_HIGH(dev.virtbase, i)))<<32));
-	}
+    int i = 0;
+    for (i = 0; i < dev.sim_config.N; i++){
+        uint64_t x_bits = ((uint64_t)ioread32(X_ADDR_LOW(dev.virtbase, i))) |
+                          (((uint64_t)ioread32(X_ADDR_HIGH(dev.virtbase, i))) << 32);
+        uint64_t y_bits = ((uint64_t)ioread32(Y_ADDR_LOW(dev.virtbase, i))) |
+                          (((uint64_t)ioread32(Y_ADDR_HIGH(dev.virtbase, i))) << 32);
+
+        memcpy(&positions->bodies[i].x, &x_bits, sizeof(uint64_t));
+        memcpy(&positions->bodies[i].y, &y_bits, sizeof(uint64_t));
+    }
 }
 
 static void write_go(int go){
