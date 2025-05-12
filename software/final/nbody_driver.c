@@ -41,6 +41,7 @@
 #define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + 13 << 11)
 
 /* More Memory */
+
 #define DONE_ADDR(base) (base) + ( 65 << 12)
 
 #define READX_ADDR_LOW(base) (base) + ( 65 << 12)
@@ -65,7 +66,7 @@ struct nbody_dev {
 	int read;
 } dev;
 
-static void write_parameters(n_body_parameters_t *parameters){
+static void write_parameters(nbody_parameters_t *parameters){
 	int i = 0;
 	for (i = 0; i < dev.sim_config.N; i++){
 		iowrite32(GET_LOWER(parameters->bodies[i].x), X_ADDR_LOW(dev.virtbase, i)); //Writing to memory
@@ -88,12 +89,11 @@ static void write_parameters(n_body_parameters_t *parameters){
 }
 
 /* Start the N-body simulation in hardware */
-static void write_simulation_parameters(n_body_sim_config_t *parameters){
+static void write_simulation_parameters(nbody_sim_config_t *parameters){
 	iowrite32(parameters->N, N_ADDR(dev.virtbase));
 	iowrite32(parameters->gap, GAP_ADDR(dev.virtbase));
 	dev.sim_config = *parameters;
 }
-
 
 static void read_positions(all_positions_t *positions){
 	int i = 0;
@@ -120,8 +120,8 @@ static void read_done(int *status){
 /* Handle ioctl calls from userspace */
 static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-    n_body_parameters_t nbody_parameters;
-	n_body_sim_config_t sim_config;
+    nbody_parameters_t nbody_parameters;
+	nbody_sim_config_t sim_config;
 	all_positions_t all_positions;
 	int go;
 	int status = 0;
