@@ -62,7 +62,7 @@
 struct nbody_dev {
     struct resource res;
     void __iomem *virtbase;
-    //nbody_parameters_t parameters;
+    nbody_parameters_t parameters;
 	nbody_sim_config_t sim_config;
 	int go;
 	int done;
