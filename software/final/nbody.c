@@ -34,7 +34,7 @@ void set_body(double x, double y, double xv, double yv, double m, int n){
   vla.vy = yv;
   vla.m = m;
   vla.n = n;
-  fprintf(stderr, "Setting Body %d: X: %f, Y: %f, XV: %f, YV: %f, M: %f\n",n,x,y,xv,yv,m)
+  fprintf(stderr, "Setting Body %d: X: %f, Y: %f, XV: %f, YV: %f, M: %f\n",n,x,y,xv,yv,m);
   if(ioctl(nbody_fd, SET_BODY, &vla)){
     perror("ioctl(SET_BODY) failed");
     return;
