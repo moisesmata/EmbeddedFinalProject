@@ -85,12 +85,12 @@ int poll_done(){
 // ----------------------------------------------------
 all_positions_t read_positions(int N){
   //ioctl goes here
-  fprintf(stderr, "%d", N);
+  fprintf(stderr, "%d\n", N);
   all_positions_t positions;
   for(int i = 0; i < N; i++){
     body_pos_t vla;
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
-      perror("ioctl(READ_POSITION) failed");
+      perror("ioctl(READ_POSITION) failed\n");
     } 
     fprintf(stderr, "Body %d positions read!\n", N);
     positions.bodies[i] = vla;
@@ -103,7 +103,7 @@ all_positions_t read_positions(int N){
 // ----------------------------------------------------
 void set_read(int read){
   if(ioctl(nbody_fd, WRITE_READ, &read)){
-    perror("ioctl(WRITE_READ) failed");
+    perror("ioctl(WRITE_READ) failed\n");
     return;
   }
 }
@@ -243,6 +243,14 @@ int main(int argc, char** argv){
 
     fprintf(stderr, "Read Set To High\n");
     //usleep(100000);
+
+    while(true){
+      if(poll_done() == 0){
+        break;
+      }
+    }
+    
+    fprintf(stderr, "Done is low again!");
 
     position_history[t] = read_positions(N);
 
