@@ -53,7 +53,7 @@ module vga_ball(input logic        clk,
     assign vcount_x_512 = vcount_32 << 7;
     assign vcount_x_128 = vcount_32 << 9;
       assign vcountx20 = vcount_x_128 + vcount_x_512;
-      assign placecounter = vcountx20 + hcount[10:1] + hcount[0];
+      assign placecounter = vcountx20 + hcount[10:1] + hcount[0] - 32'd1;
     assign rdaddress = placecounter[19:5];
     
 
