@@ -76,12 +76,12 @@ module displayTb;
                 // Construct a 32-bit word with the appropriate checkerboard pattern
                 logic [31:0] pattern_word = 0;
                 
-                for (int bit = 0; bit < 32; bit++) begin
-                    if (x + bit < DISPLAY_WIDTH) { // Check we're still within the display width
+                for (int bit_idx = 0; bit_idx < 32; bit_idx++) begin
+                    if (x + bit_idx < DISPLAY_WIDTH) begin // Fixed syntax error with curly brace
                         // Set the bit according to checkerboard pattern
-                        if (get_expected_pixel(x + bit, y))
-                            pattern_word[bit] = 1'b1;
-                    }
+                        if (get_expected_pixel(x + bit_idx, y))
+                            pattern_word[bit_idx] = 1'b1;
+                    end
                 end
                 
                 // Calculate the address for this 32-bit word
@@ -126,7 +126,7 @@ module displayTb;
                 logic expected = get_expected_pixel(x, y);
                 
                 // Force DUT to display this point
-                force dut.hcount = {x, 1'b0};
+                force dut.hcount = {x[9:0], 1'b0}; // Fixed: Properly formatting 11-bit hcount
                 force dut.vcount = y;
                 
                 // Allow time to propagate
@@ -216,7 +216,7 @@ module displayTb;
         int bit_pos = x % 32;
         
         // Force DUT to display this point (simulating a VGA scan)
-        force dut.hcount = {x, 1'b0}; // x coordinate is in the top 10 bits
+        force dut.hcount = {x[9:0], 1'b0}; // Fixed: Properly formatting 11-bit hcount
         force dut.vcount = y;
         
         // Wait a few cycles for the pixel value to propagate
