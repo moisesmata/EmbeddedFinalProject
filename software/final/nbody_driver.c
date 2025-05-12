@@ -132,6 +132,15 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 
     switch (cmd) {
 	
+	
+	case WRITE_GO:
+	//go = dev.go;
+        if (copy_from_user(&go, (int *)arg, sizeof(int)))
+            return -EFAULT;
+        write_go(go);
+        break;
+
+
 	case NBODY_SET_SIM_PARAMETERS:
 	//sim_config = dev.sim_config;
 		if (copy_from_user(&sim_config, (nbody_sim_config_t *)arg, sizeof(nbody_sim_config_t)))
@@ -139,12 +148,6 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		write_simulation_parameters(&sim_config);
 		break;
 
-    case WRITE_GO:
-	//go = dev.go;
-        if (copy_from_user(&go, (int *)arg, sizeof(int)))
-            return -EFAULT;
-        write_go(go);
-        break;
     case NBODY_SET_BODY_PARAMETERS:
 	//shouldn't be needed?
 	//nbody_parameters = dev.parameters;
