@@ -114,6 +114,7 @@ double* get_initial_state(char* filename, int N){
     fprintf(stderr, "Memory allocation failed\n");
     return NULL;
   }
+  fprintf(stderr, "Allocated %d bytes for initial state\n", N * 5 * sizeof(double));
 
   //Open the file and read it
   FILE* file = fopen(filename, "r");
@@ -167,12 +168,12 @@ int main(int argc, char** argv){
   int i;
   static const char filename[] = "/dev/nbody";
 
-  printf("N-Body Userspace program started\n");
-
   if ( (nbody_fd = open(filename, O_RDWR)) == -1) {
     fprintf(stderr, "could not open %s\n", filename);
     return -1;
   }
+
+  printf("N-Body Userspace program started\n");
 
   // Read in Initial N-Body State FROM CSV File
   double* initial_state = get_initial_state("input.csv", N);
@@ -253,7 +254,7 @@ int main(int argc, char** argv){
       fprintf(stderr, "Failed to open output file\n");
   }
 
-  // Free allocated memory
+  // Fall_positions_tall_positions_tree allocated memory
 
   printf("N-Body Userspace program terminating\n");
   return 0;
