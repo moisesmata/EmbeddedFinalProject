@@ -170,6 +170,9 @@ int main(int argc, char** argv){
     return -1;
   }
 
+  set_go(low);
+  set_read(low);
+
   //Parse User Input
   int N = atoi(argv[1]); 
   fprintf(stderr, "Number of bodies is %d\n",N);
@@ -220,8 +223,6 @@ int main(int argc, char** argv){
       return -1;
   }
 
-  set_go(low);
-  set_read(low);
   //Then set the initial parameters for the simulation
   int output_step = 6;
   set_simulation_parameters(N,output_step);
