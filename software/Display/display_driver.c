@@ -252,6 +252,8 @@ static int vga_ball_remove(struct platform_device *pdev)  // Changed from vga_di
 #ifdef CONFIG_OF
 static const struct of_device_id vga_ball_of_match[] = {  // Changed from vga_display_of_match
     { .compatible = "csee4840,vga_display-1.0" },  // Changed from vga_display-1.0
+    { .compatible = "csee4840,vga_ball-1.0" },
+    { .compatible = "unknown,unknown-1.0" },
     {},
 };
 MODULE_DEVICE_TABLE(of, vga_ball_of_match);  // Changed from vga_display_of_match
