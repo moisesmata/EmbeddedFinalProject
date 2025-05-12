@@ -86,10 +86,10 @@ all_positions_t read_positions(int N){
   all_positions_t positions;
   for(int i = 0; i < N; i++){
     body_pos_t vla;
-    if (ioctl(nbody_fd, NBODY_READ_POSITIONS, &vla)){
-      perror("ioctl(NBODY_SET_SIM_PARAMETERS) failed");
+    if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
+      perror("ioctl(READ_POSITION) failed");
     } 
-    positions[i] = &vla;
+    positions.bodies[i] = &vla;
   }
   return positions;
 }
