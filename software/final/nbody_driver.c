@@ -52,7 +52,7 @@
 
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */
-#define GET_UPPER(x) (((unsigned long)x >> 32) & 0xFFFFFFFF)
+#define GET_UPPER(x) ((((unsigned long) x) >> 32) & 0xFFFFFFFF)
 #define GET_LOWER(x) (((unsigned long)x) & 0xFFFFFFFF) 
 
 /* Information about our device */
