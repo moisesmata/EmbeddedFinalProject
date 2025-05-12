@@ -20,14 +20,14 @@
 
 int nbody_fd;
 
-int high = 0xFFFFFFFF;
-int low = 0x00000000;
+int high = 0xFFFF;
+int low = 0x0000;
 
 // ----------------------------------------------------
 // Setting the Body parameters for the Sim
 // ----------------------------------------------------
 void set_body_parameters(double* input_parameters, int N){
-  n_body_parameters_t vla;
+  nbody_parameters_t vla;
   for(int i = 0; i < N; i ++){
     body_t body;
     body.x = input_parameters[5*i];
@@ -40,8 +40,8 @@ void set_body_parameters(double* input_parameters, int N){
     vla.bodies[i] = body;
   }
   
-  if(ioctl(nbody_fd, NBODY_SET_BODY_PARAMETERS, &vla)){
-    perror("ioctl(NBODY_SET_BODY_PARAMETERS) failed");
+  if(ioctl(nbody_fd, SET_BODY_PARAMETERS, &vla)){
+    perror("ioctl(SET_BODY_PARAMETERS) failed");
     return;
   }
 }
@@ -168,7 +168,7 @@ int main(int argc, char** argv){
 
   //Begin the userspace program
   int i;
-  static const char filename[] = "/dev/nbody";
+  static const char filename[] = "/dev/sim";
 
   printf("N-Body Userspace program started\n");
 
@@ -189,13 +189,13 @@ int main(int argc, char** argv){
       return -1;
   }
 
-  // The initial parameters are read in - Send them to the driver
-  set_body_parameters(initial_state, N);
-
   //Then set the initial parameters for the simulation
   int output_step = 5;
   set_simulation_parameters(N,output_step);
-  
+
+  // The initial parameters are read in - Send them to the driver
+  set_body_parameters(initial_state, N);
+
   //Send the go signal
   set_go(high);
   
