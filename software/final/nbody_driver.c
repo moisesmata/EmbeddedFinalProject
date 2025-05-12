@@ -122,10 +122,10 @@ static void read_done(int *status){
 /* Handle ioctl calls from userspace */
 static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-    nbody_parameters_t nbody_parameters;
+    //nbody_parameters_t nbody_parameters;
 	nbody_sim_config_t sim_config;
 	all_positions_t all_positions;
-	body_t body_paramters;
+	body_t body_parameters;
 	int go;
 	int status = 0;
 
@@ -224,7 +224,17 @@ static int __init nbody_probe(struct platform_device *pdev)
 	}
 
 	//LOOK INTO THIS
-	memset(&dev.parameters, 0, sizeof(dev.parameters));
+	dev.go = 0;
+	dev.done = 0;
+	dev.read = 0;
+	dev.sim_config.N = 0;
+	dev.sim_config.gap = 0;
+	dev.body_parameters.n = 0;
+	dev.body_parameters.x = 0;
+	dev.body_parameters.y = 0;
+	dev.body_parameters.m = 0;
+	dev.body_parameters.vx = 0;
+	dev.body_parameters.vy = 0;
 	return 0;
 
 out_release_mem_region:
