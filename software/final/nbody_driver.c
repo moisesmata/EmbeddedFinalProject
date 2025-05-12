@@ -148,7 +148,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		write_simulation_parameters(&sim_config);
 		break;
 
-    case NBODY_SET_BODY_PARAMETERS:
+    case SET_BODY_PARAMETERS:
 	//shouldn't be needed?
 	//nbody_parameters = dev.parameters;
         if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
