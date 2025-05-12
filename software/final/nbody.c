@@ -89,7 +89,7 @@ all_positions_t read_positions(int N){
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
       perror("ioctl(READ_POSITION) failed");
     } 
-    positions.bodies[i] = &vla;
+    positions.bodies[i] = vla;
   }
   return positions;
 }
