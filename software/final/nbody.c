@@ -33,7 +33,7 @@ void set_body(double x, double y, double xv, double yv, double m, int n){
   vla.vx = xv;
   vla.vy = yv;
   vla.m = m;
-  vla.n = (double) n;
+  vla.n = n;
   if(ioctl(nbody_fd, SET_BODY, &vla)){
     perror("ioctl(SET_BODY) failed");
     return;
@@ -131,6 +131,7 @@ double* get_initial_state(char* filename, int N){
   }
   char row[MAXCHAR];
   int i = 0;
+  int flag = 0;
   fprintf(stderr, "Reading file %s\n", filename);
   //Go through file and save all the data
   while(fgets(row, MAXCHAR, file)){
@@ -141,9 +142,12 @@ double* get_initial_state(char* filename, int N){
       token = strtok(NULL,",");
       i++;
       if(i > N * 5){
+        flag = 1;
         break;
       }
-
+    }
+    if(flag){
+      break;
     }
   }
 
@@ -207,8 +211,8 @@ int main(int argc, char** argv){
   set_go(low);
   set_read(low);
   //Then set the initial parameters for the simulation
-  int output_step = 5;
-  set_simulation_parameters(N,output_step);
+  int output_step = 6;
+  set_simulation_parameters(N-2,output_step);
 
   // The initial parameters are read in - Send them to the driver
 
