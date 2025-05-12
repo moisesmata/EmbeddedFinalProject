@@ -20,8 +20,8 @@
 
 int nbody_fd;
 
-int high = 0xFFFF;
-int low = 0x0000;
+int high = 0xFFFFFFFF;
+int low = 0x00000000;
 
 // ----------------------------------------------------
 // Setting the Body for a Single Body
