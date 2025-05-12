@@ -124,8 +124,8 @@ static void write_go(int go){
 	dev.go = go;
 }
 
-static void write_read(int *read){
-	iowrite32(*read, READ_ADDR(dev.virtbase));
+static void write_read(int read){
+	iowrite32(read, READ_ADDR(dev.virtbase));
 	dev.read = read;
 }
 
