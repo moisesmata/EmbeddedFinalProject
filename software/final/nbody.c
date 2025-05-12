@@ -132,6 +132,9 @@ double* get_initial_state(char* filename, int N){
       initial_state[i] = atof(token);
       token = strtok(NULL,",");
       i++;
+      if(i >= N * 5){
+        break;
+      }
     }
   }
 
@@ -176,11 +179,12 @@ int main(int argc, char** argv){
     return -1;
   }
 
-  printf("N-Body Userspace program started\n");
+  printf"N-Body Userspace program started\n");
 
   // Read in Initial N-Body State FROM CSV File
   double* initial_state = get_initial_state("input.csv", N);
-  printf("Initial Bodies Parameters Read In\n");
+  
+  fprintf(stderr, "Initial Bodies Parameters Read In\n");
 
   //Create an array that saves all the timesteps
   all_positions_t* position_history = malloc(time_steps * sizeof(all_positions_t));
@@ -203,6 +207,8 @@ int main(int argc, char** argv){
              initial_state[5*i + 4], //m
              i); //body number
   }
+
+  fprintf(stderr, "Simulation bodies and parameters read in");
 
   //Send the go signal
   set_go(high);
