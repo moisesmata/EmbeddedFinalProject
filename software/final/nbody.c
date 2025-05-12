@@ -137,11 +137,13 @@ double* get_initial_state(char* filename, int N){
     char* token = strtok(row,",");
     while(token != NULL){
       initial_state[i] = atof(token);
+      fprintf(stderr, "Initial State %d: %lf\n", i, initial_state[i]);
       token = strtok(NULL,",");
       i++;
-      if(i >= N * 5){
+      if(i > N * 5){
         break;
       }
+
     }
   }
 
@@ -280,6 +282,7 @@ int main(int argc, char** argv){
       for (int i = 0; i < N; i++) {
           fprintf(output, ",body%d_x,body%d_y", i, i);
       }
+
       fprintf(output, "\n");
       
       for (int t = 0; t < time_steps; t++) {
@@ -292,7 +295,7 @@ int main(int argc, char** argv){
           fprintf(output, "\n");
       }
       fclose(output);
-      printf("Results saved to nbody_results.csv\n");
+      fprintf(stderr, "Results saved to nbody_results.csv\n");
   } else {
       fprintf(stderr, "Failed to open output file\n");
   }
