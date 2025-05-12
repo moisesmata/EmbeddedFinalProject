@@ -34,7 +34,7 @@ void set_body(double x, double y, double xv, double yv, double m, int n){
   vla.vy = yv;
   vla.m = m;
   vla.n = n;
-  fprintf(stderr, "Setting Body %d: X: %d, Y: %d, XV: %d, YV: %d, M: %d\n",n,x,y,xv,yv,m)
+  fprintf(stderr, "Setting Body %d: X: %f, Y: %f, XV: %f, YV: %f, M: %f\n",n,x,y,xv,yv,m)
   if(ioctl(nbody_fd, SET_BODY, &vla)){
     perror("ioctl(SET_BODY) failed");
     return;
@@ -96,7 +96,7 @@ all_positions_t read_positions(int N){
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
       perror("ioctl(READ_POSITION) failed\n");
     } 
-    fprintf(stderr, "Body %d Position Read: X:%d, Y:%d \n", N,vla.x,vla.y);
+    fprintf(stderr, "Body %d Position Read: X:%f, Y:%f \n", N,vla.x,vla.y);
     positions.bodies[i] = vla;
   }
   return positions;
