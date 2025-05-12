@@ -77,14 +77,14 @@ static void write_body(body_t * body_parameters){
 	int vx_bits[2];
 	int vy_bits[2];
 
-	/*
 
 	memcpy(&x_bits, &body_parameters->x, sizeof(uint64_t));
 	memcpy(&y_bits, &body_parameters->y, sizeof(uint64_t));
 	memcpy(&m_bits, &body_parameters->m, sizeof(uint64_t));
 	memcpy(&vx_bits, &body_parameters->vx, sizeof(uint64_t));
 	memcpy(&vy_bits, &body_parameters->vy, sizeof(uint64_t));
-	*/
+	
+
 	iowrite32(x_bits[0], X_ADDR_LOW(dev.virtbase, i)); 
 	iowrite32(x_bits[1], X_ADDR_HIGH(dev.virtbase, i));
 
@@ -100,9 +100,7 @@ static void write_body(body_t * body_parameters){
 	iowrite32(vy_bits[0], VY_ADDR_LOW(dev.virtbase, i));
 	iowrite32(vy_bits[1], VY_ADDR_HIGH(dev.virtbase, i));
 	
-
 }
-
 
 /* Start the N-body simulation in hardware */
 static void write_simulation_parameters(nbody_sim_config_t *parameters){

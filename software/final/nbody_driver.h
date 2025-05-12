@@ -11,7 +11,8 @@
 #define MAX_BODIES 512 //Max number of bodies
 
 typedef struct {
-  double x, y, vx, vy, m, n;
+  double x, y, vx, vy, m;
+  int n;
 } body_t;
 
 typedef struct{
