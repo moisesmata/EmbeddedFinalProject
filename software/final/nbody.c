@@ -85,9 +85,11 @@ int poll_done(){
 // ----------------------------------------------------
 all_positions_t read_positions(int N){
   //ioctl goes here
-  fprintf(stderr, "%d\n", N);
+  
   all_positions_t positions;
+  
   for(int i = 0; i < N; i++){
+    fprintf(stderr, "Reading Body Number %d\n", i);
     body_pos_t vla;
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
       perror("ioctl(READ_POSITION) failed\n");
@@ -250,7 +252,7 @@ int main(int argc, char** argv){
       }
     }
     
-    fprintf(stderr, "Done is low again!");
+    fprintf(stderr, "Done is low again!\n");
 
     position_history[t] = read_positions(N);
 
