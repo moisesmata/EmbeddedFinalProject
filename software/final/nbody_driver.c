@@ -72,7 +72,7 @@ struct nbody_dev {
 
 
 static void write_body(body_t * body_parameters){
-	int i = (int) body_parameters.n;
+	int i = (int) body_parameters->n;
 
 	iowrite32(GET_LOWER(body_parameters->x), X_ADDR_LOW(dev.virtbase, i)); 
 	iowrite32(GET_UPPER(body_parameters->x), X_ADDR_HIGH(dev.virtbase, i));
@@ -125,6 +125,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
     nbody_parameters_t nbody_parameters;
 	nbody_sim_config_t sim_config;
 	all_positions_t all_positions;
+	body_t body_paramters;
 	int go;
 	int status = 0;
 
@@ -166,7 +167,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		case SET_BODY:
 			if (copy_from_user(&body_parameters, (body_t *)arg, sizeof(body_t)))
 				return -EFAULT;
-			write_body(&nbody_parameters);
+			write_body(&body_parameters);
 			break;
 
 		default:
