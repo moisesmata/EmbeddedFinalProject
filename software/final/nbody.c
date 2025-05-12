@@ -198,6 +198,17 @@ int main(int argc, char** argv){
   printf("N-Body Userspace program started\n");
 
   // Read in Initial N-Body State FROM CSV File
+
+  double* zeros = get_initial_state("zeros.csv", N);
+  for(int i = 0; i < N; i++){
+    set_body(zeros[5*i + 0], //x
+             zeros[5*i + 1], //y
+             zeros[5*i + 2], //vx
+             zeros[5*i + 3], //vy
+             zeros[5*i + 4], //m
+             i); //body number
+  }
+
   double* initial_state = get_initial_state("input.csv", N);
   
   fprintf(stderr, "Initial Bodies Parameters Read In\n");
