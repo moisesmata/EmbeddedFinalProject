@@ -135,7 +135,7 @@ double* get_initial_state(char* filename, int N){
     }
   }
 
-  fprintf(stderr, "Do we get here????");
+  fprintf(stderr, "Do we get here???? %lf %lf %lf\n", initial_state[0], initial_state[1], initial_state[2]);
 
   //Close final and return pointer to the initial parameters
   fclose(file);
