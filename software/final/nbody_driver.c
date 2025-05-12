@@ -72,6 +72,7 @@ struct nbody_dev {
 
 
 static void write_body(body_t * body_parameters){
+	int i = (int) body_parameters->n;
 	int x_bits[2];
 	int y_bits[2];
 	int m_bits[2];
