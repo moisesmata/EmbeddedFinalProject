@@ -149,7 +149,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		case SET_BODY_PARAMETERS:
 			//if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
 			//	return -EFAULT;
-			//write_parameters(&nbody_parameters);
+			write_parameters(&nbody_parameters);
 			break;
 
 		case WRITE_READ:
