@@ -199,7 +199,7 @@ int main(int argc, char** argv){
 
   // Read in Initial N-Body State FROM CSV File
 
-  double* zeros = (double*)calloc(N * 5 * sizeof(double));
+  double* zeros = (double*)calloc(N * 5, sizeof(double));
   for(int i = 0; i < N; i++){
     set_body(zeros[5*i + 0], //x
              zeros[5*i + 1], //y
