@@ -62,7 +62,7 @@
 struct nbody_dev {
     struct resource res;
     void __iomem *virtbase;
-    nbody_parameters_t parameters;
+    //nbody_parameters_t parameters;
 	nbody_sim_config_t sim_config;
 	int go;
 	int done;
@@ -147,8 +147,8 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			break;
 
 		case SET_BODY_PARAMETERS:
-			//if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
-			//	return -EFAULT;
+			if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
+				return -EFAULT;
 			write_parameters(&nbody_parameters);
 			break;
 
