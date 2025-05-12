@@ -4,13 +4,16 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/errno.h>
+#include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
 #include <linux/miscdevice.h>
-#include <linux/fs.h>
-#include <linux/types.h>
-#include <linux/uaccess.h>
+#include <linux/slab.h>
 #include <linux/io.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/fs.h>
+#include <linux/uaccess.h>
 #include "nbody_driver.h"
 
 
@@ -128,49 +131,48 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	int status = 0;
 
     switch (cmd) {
-    case NBODY_SET_BODY_PARAMETERS:
-	//shouldn't be needed?
-	//nbody_parameters = dev.parameters;
-        if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
-            return -EFAULT;
-        write_parameters(&nbody_parameters);
-        break;
-
-	case NBODY_SET_SIM_PARAMETERS:
-	//sim_config = dev.sim_config;
-		if (copy_from_user(&sim_config, (nbody_sim_config_t *)arg, sizeof(nbody_sim_config_t)))
-			return -EFAULT;
-		write_simulation_parameters(&sim_config);
-		break;
-
-    case WRITE_GO:
-	//go = dev.go;
-        if (copy_from_user(&go, (int *)arg, sizeof(int)))
-            return -EFAULT;
-        write_go(go);
-        break;
 	
-	case WRITE_READ:
-	//read = dev.read;
-		if (copy_from_user(&go, (int *)arg, sizeof(int)))
-			return -EFAULT;
-		write_read(go);
-		break;
+		case WRITE_GO:
+		//go = dev.go;
+			if (copy_from_user(&go, (int *)arg, sizeof(int)))
+				return -EFAULT;
+			write_go(go);
+			break;
 
-	case READ_DONE:
-		read_done(&status);
-		if (copy_to_user((int *)arg, &status, sizeof(int)))
-			return -EFAULT;
-		break;
+		case NBODY_SET_SIM_PARAMETERS:
+		//sim_config = dev.sim_config;
+			if (copy_from_user(&sim_config, (nbody_sim_config_t *)arg, sizeof(nbody_sim_config_t)))
+				return -EFAULT;
+			write_simulation_parameters(&sim_config);
+			break;
 
-	case NBODY_READ_POSITIONS:
-		read_positions(&all_positions);
-		if (copy_to_user((all_positions_t *)arg, &all_positions, sizeof(all_positions_t)))
-			return -EFAULT;
-		break;
+		case SET_BODY_PARAMETERS:
+			//if (copy_from_user(&nbody_parameters, (nbody_parameters_t *)arg, sizeof(nbody_parameters_t)))
+			//	return -EFAULT;
+			//write_parameters(&nbody_parameters);
+			break;
 
-    default:
-        return -EINVAL;
+		case WRITE_READ:
+		//read = dev.read;
+			if (copy_from_user(&go, (int *)arg, sizeof(int)))
+				return -EFAULT;
+			write_read(go);
+			break;
+
+		case READ_DONE:
+			read_done(&status);
+			if (copy_to_user((int *)arg, &status, sizeof(int)))
+				return -EFAULT;
+			break;
+
+		case NBODY_READ_POSITIONS:
+			read_positions(&all_positions);
+			if (copy_to_user((all_positions_t *)arg, &all_positions, sizeof(all_positions_t)))
+				return -EFAULT;
+			break;
+
+		default:
+			return -EINVAL;
     }
 
     return 0;

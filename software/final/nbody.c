@@ -27,7 +27,7 @@ int low = 0x0000;
 // Setting the Body parameters for the Sim
 // ----------------------------------------------------
 void set_body_parameters(double* input_parameters, int N){
-  n_body_parameters_t vla;
+  nbody_parameters_t vla;
   for(int i = 0; i < N; i ++){
     body_t body;
     body.x = input_parameters[5*i];
@@ -40,8 +40,8 @@ void set_body_parameters(double* input_parameters, int N){
     vla.bodies[i] = body;
   }
   
-  if(ioctl(nbody_fd, NBODY_SET_BODY_PARAMETERS, &vla)){
-    perror("ioctl(NBODY_SET_BODY_PARAMETERS) failed");
+  if(ioctl(nbody_fd, SET_BODY_PARAMETERS, &vla)){
+    perror("ioctl(SET_BODY_PARAMETERS) failed");
     return;
   }
 }
