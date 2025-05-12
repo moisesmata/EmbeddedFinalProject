@@ -219,7 +219,7 @@ int main(int argc, char** argv){
   int t = 0;
   while(t < time_steps){
 
-    fprintf(stderr, "Timestep %d Beginning:\n", i);
+    fprintf(stderr, "Timestep %d Beginning:\n", t);
     //Do Polling
     int read = 0;
     while(!read){
