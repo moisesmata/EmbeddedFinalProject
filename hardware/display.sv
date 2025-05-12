@@ -37,6 +37,7 @@ module vga_ball(input logic        clk,
    logic [31:0]    placecounter;
    logic [31:0]    next_pix;
    logic [31:0]   readdata;
+   logic [31:0]    hcount_32;
    
    vga_counters counters(.clk50(clk), .*);
 
@@ -52,8 +53,9 @@ module vga_ball(input logic        clk,
     assign next_pix = placecounter + 32'd1;
     assign vcount_x_512 = vcount_32 << 8;
     assign vcount_x_128 = vcount_32 << 10;
-      assign vcountx20 = vcount_x_128 + vcount_x_512;
-      assign placecounter = vcountx20 + hcount + 32'd1;
+    assign hcount_32 = (hcount > 11'd1300) ? 32'd1300 : {21'b0, hcount};
+    assign vcountx20 = vcount_x_128 + vcount_x_512;
+    assign placecounter = vcountx20 + hcount_32 + 32'd1;
     assign rdaddress = placecounter[20:6];
     
 
