@@ -139,6 +139,7 @@ double* get_initial_state(char* filename, int N){
 
   //Close final and return pointer to the initial parameters
   fclose(file);
+  print("we closed the file\n");
   return initial_state;
 }
 
