@@ -40,8 +40,8 @@ void set_body_parameters(double* input_parameters, int N){
     vla.bodies[i] = body;
   }
   
-  if(ioctl(nbody_fd, NBODY_SET_BODY_PARAMETERS, &vla)){
-    perror("ioctl(NBODY_SET_BODY_PARAMETERS) failed");
+  if(ioctl(nbody_fd, SET_BODY_PARAMETERS, &vla)){
+    perror("ioctl(SET_BODY_PARAMETERS) failed");
     return;
   }
 }

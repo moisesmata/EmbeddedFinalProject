@@ -45,7 +45,7 @@ typedef struct {
 #define NBODY_MAGIC 'n'
 
 /* ioctls and their arguments */
-#define SET_BODY_PARAMETERS      _IOW(NBODY_MAGIC, 1, nbody_parameters_t)
+#define SET_BODY_PARAMETERS      _IOW(NBODY_MAGIC, 7, nbody_parameters_t)
 #define NBODY_SET_SIM_PARAMETERS      _IOW(NBODY_MAGIC, 2, nbody_sim_config_t)
 #define WRITE_GO           _IOW(NBODY_MAGIC, 3, int)
 #define READ_DONE           _IOR(NBODY_MAGIC, 4, int)
