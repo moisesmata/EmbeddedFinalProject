@@ -175,7 +175,7 @@ static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 
 		case READ_POSITIONS:
 			read_position(&body_position);
-			if (copy_to_user((body_pos_t *)arg, &body_position, sizeof(body_position)))
+			if (copy_to_user((body_pos_t *)arg, &body_position, sizeof(body_pos_t)))
 				return -EFAULT;
 			break;
 
