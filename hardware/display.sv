@@ -14,7 +14,7 @@
  * - Pixels are read from framebuffer in sequence and displayed on screen
  */
 // This module is built to run on 50 mhz, to get it on 100 you need to do some things.
-module vga_ball(input logic        clk,
+module Display(input logic        clk,
 	        input logic 	   reset,
 		input logic [31:0]  writedata,
 		input logic 	   write,

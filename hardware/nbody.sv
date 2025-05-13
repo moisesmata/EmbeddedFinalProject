@@ -122,7 +122,7 @@ module nbody #(
         .clk(clk),
         .reset(rst),
         .writedata(writedata),
-        .write(write),
+        .write(write&(~address[15])), // Don't write to the display
         .chipselect(chipselect),
         .address(addr[14:0]),
         .VGA_R(VGA_R), 
@@ -134,7 +134,7 @@ module nbody #(
         .VGA_BLANK_n(VGA_BLANK_n),
         .VGA_SYNC_n(VGA_SYNC_n)
     ); 
-    
+
     // The main state machine
     always_ff @(posedge clk or posedge rst) begin
         //TODO: logic for letting software read and write values goes here
