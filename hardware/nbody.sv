@@ -117,6 +117,25 @@ module nbody #(
     logic first_time;
 
 
+    // Instantiating the display
+    Display display(
+        .clk(clk),
+        .reset(rst),
+        .writedata(writedata),
+        .write(write),
+        .chipselect(chipselect),
+        .address(addr[14:0]),
+        .VGA_R(VGA_R), 
+        .VGA_G(VGA_G), 
+        .VGA_B(VGA_B),
+        .VGA_CLK(VGA_CLK), 
+        .VGA_HS(VGA_HS), 
+        .VGA_VS(VGA_VS),
+        .VGA_BLANK_n(VGA_BLANK_n),
+        .VGA_SYNC_n(VGA_SYNC_n)
+    ); 
+    
+    // The main state machine
     always_ff @(posedge clk or posedge rst) begin
         //TODO: logic for letting software read and write values goes here
         if (rst) begin
