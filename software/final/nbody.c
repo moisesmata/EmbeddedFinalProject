@@ -243,7 +243,7 @@ int main(int argc, char** argv){
   // Print initial positions to stdout
   printf("Initial positions:\n");
   for (int i = 0; i < N; i++) {
-      printf("Body %d: X = %f, Y = %f\n",
+      printf("Body %d: X = %lf, Y = %lf\n",
              i,
              position_history[0].bodies[i].x,
              position_history[0].bodies[i].y);
