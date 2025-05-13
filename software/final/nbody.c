@@ -118,7 +118,7 @@ void set_read(int read){
 // ----------------------------------------------------
 double* get_initial_state(char* filename, int N){
 //Allocate Space for a the Body Paremeters a
-  double* initial_state = (double*)calloc(N * 5 * sizeof(double));
+  double* initial_state = (double*)calloc(N * 5 , sizeof(double));
   if (!initial_state) {
     fprintf(stderr, "Memory allocation failed\n");
     return NULL;
