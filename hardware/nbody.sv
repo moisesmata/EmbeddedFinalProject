@@ -47,7 +47,12 @@ module nbody #(
     input logic write,
     input logic [ADDR_WIDTH-1:0] addr,
     input logic chipselect,
-    output logic [EXT_DATA_WIDTH-1:0] readdata
+    output logic [EXT_DATA_WIDTH-1:0] readdata,
+    output logic [7:0] VGA_R, VGA_G, VGA_B,
+	output logic 	   VGA_CLK, VGA_HS, VGA_VS,
+		                   VGA_BLANK_n,
+	output logic 	   VGA_SYNC_n
+
 );
 
     localparam SW_READ_WRITE = 2'b00;
@@ -55,27 +60,27 @@ module nbody #(
     localparam UPDATE_POS = 2'b10;
 
     // Registers:
-    localparam GO             = 7'h00;
-    localparam READ           = 7'h01;
-    localparam N_BODIES       = 7'h02;
-    localparam GAP            = 7'h03;
+    localparam GO             = 7'h40;
+    localparam READ           = 7'h41;
+    localparam N_BODIES       = 7'h42;
+    localparam GAP            = 7'h43;
     // Memory:
-    localparam X_SEL_LOWER    = 7'h04;
-    localparam X_SEL_UPPER    = 7'h05;
-    localparam Y_SEL_LOWER    = 7'h06;
-    localparam Y_SEL_UPPER    = 7'h07;
-    localparam M_SEL_LOWER    = 7'h08;
-    localparam M_SEL_UPPER    = 7'h09;
-    localparam VX_SEL_LOWER   = 7'h10;
-    localparam VX_SEL_UPPER   = 7'h11;
-    localparam VY_SEL_LOWER   = 7'h12;
-    localparam VY_SEL_UPPER   = 7'h13;
+    localparam X_SEL_LOWER    = 7'h44;
+    localparam X_SEL_UPPER    = 7'h45;
+    localparam Y_SEL_LOWER    = 7'h46;
+    localparam Y_SEL_UPPER    = 7'h47;
+    localparam M_SEL_LOWER    = 7'h48;
+    localparam M_SEL_UPPER    = 7'h49;
+    localparam VX_SEL_LOWER   = 7'h4a;
+    localparam VX_SEL_UPPER   = 7'h4b;
+    localparam VY_SEL_LOWER   = 7'h4c;
+    localparam VY_SEL_UPPER   = 7'h4d;
     // Out:
-    localparam DONE           = 7'b1000000;
-    localparam READ_X_LOWER   = 7'b1000001;
-    localparam READ_X_UPPER   = 7'b1000010;
-    localparam READ_Y_LOWER   = 7'b1000011;
-    localparam READ_Y_UPPER   = 7'b1000100;
+    localparam DONE           = 7'h50;
+    localparam READ_X_LOWER   = 7'h51;
+    localparam READ_X_UPPER   = 7'h52;
+    localparam READ_Y_LOWER   = 7'h53;
+    localparam READ_Y_UPPER   = 7'h54;
 
     logic go;
     logic done;
