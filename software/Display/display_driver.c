@@ -79,6 +79,15 @@ static void draw_bodies(void)
     int i;
     printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
     
+    //clear virtual framebuffer
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        dev.framebuffer[i] = 0;
+    }
+
+    for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
+        draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
+    }
+
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
     }
@@ -131,6 +140,7 @@ static void draw_checkerboard(void)
 static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
     vga_ball_arg_t vla;
+    int i;
 
     printk(KERN_INFO "vga_ball: ioctl command %u received\n", cmd);
 
@@ -140,11 +150,13 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
             return -EACCES;
         }
         
-        // Update our internal state
+        
+        // Copy new body data
         memcpy(&dev.vga_ball_arg, &vla, sizeof(vga_ball_arg_t));
         
-        // Handle the entire frame update in one go
-        clear_and_draw_frame(&dev.vga_ball_arg);
+        
+        // Now write the complete framebuffer to hardware in one go
+        draw_bodies();
         break;
 
     case VGA_BALL_CLEAR_SCREEN:
