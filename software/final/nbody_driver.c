@@ -37,11 +37,11 @@
 #define M_ADDR_LOW(base, body) (base) + ((body<<2) + (8 << 11))
 #define M_ADDR_HIGH(base, body) (base) + ((body<<2) + (9 << 11))
 
-#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + (10 << 11))
-#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + (11 << 11))
+#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + (16 << 11))
+#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + (17 << 11))
 
-#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + (12 << 11))
-#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + (13 << 11))
+#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + (18 << 11))
+#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + (19 << 11))
 
 /* More Memory */
 
