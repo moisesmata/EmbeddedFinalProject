@@ -88,18 +88,13 @@ static void draw_bodies(void)
 
 //Right now the default radius is 5
 static void draw_circle(unsigned short x0, unsigned short y0){ 
-    int radius = 5;
-    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT || x0 < 0 || y0 < 0) {
-        printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
-               x0, y0);
-        return;
-    }
+    int radius = 3;
+    
     int radius_squared = radius * radius;
     int x_min = x0 - radius;
     int y_min = y0 - radius;
     int x_max = x0 + radius;
     int y_max = y0 + radius;
-
 
     int x; 
     int y; 
@@ -109,11 +104,11 @@ static void draw_circle(unsigned short x0, unsigned short y0){
             int dy = y - y0;
             int d2 = dx*dx + dy*dy;
             if (d2 <= radius_squared){
-                set_pixel(x,y,1);
+                // set_pixel already has boundary checking, so we can just call it
+                set_pixel(x, y, 1);
             }
         }
     }
-
 }
 
 static void draw_checkerboard(void)
@@ -144,15 +139,12 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
         if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t))){
             return -EACCES;
         }
-        int i;
-        for(i = 0; i < vla.num_bodies; i++){
-            dev.vga_ball_arg.bodies[i].x = vla.bodies[i].x;
-            dev.vga_ball_arg.bodies[i].y = vla.bodies[i].y;
-            dev.vga_ball_arg.bodies[i].radius = vla.bodies[i].radius;
-            dev.vga_ball_arg.bodies[i].n = vla.bodies[i].n;
-            draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
-        }
-        draw_bodies();
+        
+        // Update our internal state
+        memcpy(&dev.vga_ball_arg, &vla, sizeof(vga_ball_arg_t));
+        
+        // Handle the entire frame update in one go
+        clear_and_draw_frame(&dev.vga_ball_arg);
         break;
 
     case VGA_BALL_CLEAR_SCREEN:

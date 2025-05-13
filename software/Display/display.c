@@ -23,9 +23,6 @@ static void convert_coordinates(float nbody_x, float nbody_y,
     *display_x = (unsigned short)((nbody_x + 500.0) / 1000.0 * (DISPLAY_WIDTH - 100)) + 50;
     *display_y = (unsigned short)((nbody_y + 500.0) / 1000.0 * (DISPLAY_HEIGHT - 100)) + 50;
     
-    // Ensure within bounds
-    if (*display_x >= DISPLAY_WIDTH) *display_x = DISPLAY_WIDTH - 1;
-    if (*display_y >= DISPLAY_HEIGHT) *display_y = DISPLAY_HEIGHT - 1;
 }
 
 // Function to parse a CSV line into a vga_ball_arg_t structure -- This populates one timestep of data
