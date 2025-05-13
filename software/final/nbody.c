@@ -87,6 +87,7 @@ int poll_done(){
 all_positions_t read_positions(int N){
   //ioctl goes here
   
+
   all_positions_t positions;
   
   for(int i = 0; i < N; i++){
@@ -116,22 +117,18 @@ void set_read(int read){
 // Function to read the input CSV
 // ----------------------------------------------------
 double* get_initial_state(char* filename, int N){
-  
-  
-  //Allocate Space for a the Body Paremeters and zero-initialize it
-  double* initial_state = (double*)calloc(N * 5, sizeof(double)); // Use calloc
+//Allocate Space for a the Body Paremeters a
+  double* initial_state = (double*)calloc(N * 5 * sizeof(double));
   if (!initial_state) {
-    fprintf(stderr, "Memory allocation failed for initial_state\n");
+    fprintf(stderr, "Memory allocation failed\n");
     return NULL;
   }
-  // Use %lu and cast for wider compatibility with size_t
-  fprintf(stderr, "Allocated %lu bytes for initial state\n", (unsigned long)(N * 5 * sizeof(double)));
+  fprintf(stderr, "Allocated %d bytes for initial state\n", N * 5 * sizeof(double));
 
   //Open the file and read it
   FILE* file = fopen(filename, "r");
   if(!file){
     fprintf(stderr, "Could not open file %s\n", filename);
-    free(initial_state); // Free memory if fopen fails
     return NULL; 
   }
   char row[MAXCHAR];
@@ -174,6 +171,9 @@ int main(int argc, char** argv){
     return -1;
   }
 
+  set_go(low);
+  set_read(low);
+
   //Parse User Input
   int N = atoi(argv[1]); 
   fprintf(stderr, "Number of bodies is %d\n",N);
@@ -183,17 +183,15 @@ int main(int argc, char** argv){
 
   //Make sure that N wasn't set to something weird
   if(N <= 0){
-    // perror("N must be a positive integer!\n"); // perror is for system errors, use fprintf for app errors
-    fprintf(stderr, "Error: N must be a positive integer!\n");
+    perror("N must be a positive integer!\n");
     return -1; 
   } else if(N > 512){
-    // perror("N must be less than 512!\n");
-    fprintf(stderr, "Error: N must be less than 512!\n");
+    perror("N must be less than 512!\n");
     return -1; 
   }
 
   //Begin the userspace program
-  // int i; // i is declared later where needed
+  int i;
   static const char filename[] = "/dev/nbody";
 
   if ( (nbody_fd = open(filename, O_RDWR)) == -1) {
@@ -201,21 +199,12 @@ int main(int argc, char** argv){
     return -1;
   }
 
-  // Initialize go and read signals AFTER nbody_fd is valid
-  set_go(low);
-  set_read(low);
-
   printf("N-Body Userspace program started\n");
 
   // Read in Initial N-Body State FROM CSV File
 
   double* zeros = (double*)calloc(N * 5, sizeof(double));
-  if (!zeros) {
-      fprintf(stderr, "Failed to allocate memory for zeros array\n");
-      close(nbody_fd);
-      return -1;
-  }
-  for(int i = 0; i < N; i++){ // Declare i here
+  for(int i = 0; i < N; i++){
     set_body(zeros[5*i + 0], //x
              zeros[5*i + 1], //y
              zeros[5*i + 2], //vx
@@ -225,12 +214,6 @@ int main(int argc, char** argv){
   }
 
   double* initial_state = get_initial_state("input.csv", N);
-  if (initial_state == NULL) { // Check if get_initial_state failed
-    fprintf(stderr, "Failed to get initial state. Terminating.\n");
-    free(zeros);
-    close(nbody_fd);
-    return -1;
-  }
   
   fprintf(stderr, "Initial Bodies Parameters Read In\n");
 
@@ -238,9 +221,6 @@ int main(int argc, char** argv){
   all_positions_t* position_history = malloc(time_steps * sizeof(all_positions_t));
   if (!position_history) {
       fprintf(stderr, "Failed to allocate memory for position history\n");
-      free(initial_state);
-      free(zeros);
-      close(nbody_fd);
       return -1;
   }
 
@@ -336,11 +316,10 @@ int main(int argc, char** argv){
       fprintf(stderr, "Failed to open output file\n");
   }
 
-  // Fall_positions_tall_positions_tree allocated memory
-  free(zeros);            // Free the allocated memory for zeros
-  free(initial_state);    // Free the allocated memory for initial_state
-  free(position_history); // Free the allocated memory for position_history
-  close(nbody_fd);        // Close the file descriptor
+  // Free the allocated memory to prevent memory leaks
+  free(zeros);
+  free(initial_state);
+  free(position_history);
 
   printf("N-Body Userspace program terminating\n");
   return 0;
