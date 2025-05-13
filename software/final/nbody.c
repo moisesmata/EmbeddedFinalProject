@@ -171,8 +171,6 @@ int main(int argc, char** argv){
     return -1;
   }
 
-  set_go(low);
-  set_read(low);
 
   //Parse User Input
   int N = atoi(argv[1]); 
@@ -198,6 +196,9 @@ int main(int argc, char** argv){
     fprintf(stderr, "could not open %s\n", filename);
     return -1;
   }
+
+  set_go(low);
+  set_read(low);
 
   printf("N-Body Userspace program started\n");
 
