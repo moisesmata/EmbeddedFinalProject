@@ -77,28 +77,12 @@ static void write_body(body_t * body_parameters) {
     int vy_bits[2];
     static int write_count = 0;
     
-    // Increment and log write operation counter
-    write_count++;
-    
     memcpy(&x_bits, &body_parameters->x, sizeof(uint64_t));
     memcpy(&y_bits, &body_parameters->y, sizeof(uint64_t));
     memcpy(&m_bits, &body_parameters->m, sizeof(uint64_t));
     memcpy(&vx_bits, &body_parameters->vx, sizeof(uint64_t));
     memcpy(&vy_bits, &body_parameters->vy, sizeof(uint64_t));
     
-    // Detailed logging with formatted values
-    printk(KERN_INFO "NBODY WRITE [%d]: Body %d parameter values:", write_count, i);
-    printk(KERN_INFO "  X = %lld (0x%08x %08x)", 
-           (long long)body_parameters->x, x_bits[1], x_bits[0]);
-    printk(KERN_INFO "  Y = %lld (0x%08x %08x)", 
-           (long long)body_parameters->y, y_bits[1], y_bits[0]);
-    printk(KERN_INFO "  M = %lld (0x%08x %08x)", 
-           (long long)body_parameters->m, m_bits[1], m_bits[0]);
-    printk(KERN_INFO "  VX = %lld (0x%08x %08x)", 
-           (long long)body_parameters->vx, vx_bits[1], vx_bits[0]);
-    printk(KERN_INFO "  VY = %lld (0x%08x %08x)", 
-           (long long)body_parameters->vy, vy_bits[1], vy_bits[0]);
-
     // Perform actual writes
     iowrite32(x_bits[0], X_ADDR_LOW(dev.virtbase, i)); 
     iowrite32(x_bits[1], X_ADDR_HIGH(dev.virtbase, i));
