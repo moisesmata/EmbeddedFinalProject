@@ -239,7 +239,15 @@ int main(int argc, char** argv){
              initial_state[5*i + 4], //m
              i); //body number
   }
-
+  position_history[0] = read_positions(N);
+  // Print initial positions to stdout
+  printf("Initial positions:\n");
+  for (int i = 0; i < N; i++) {
+      printf("Body %d: X = %f, Y = %f\n",
+             i,
+             position_history[0].bodies[i].x,
+             position_history[0].bodies[i].y);
+  }
   fprintf(stderr, "Simulation bodies and parameters read in\n");
 
   //Send the go signal
