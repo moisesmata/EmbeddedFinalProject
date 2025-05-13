@@ -122,7 +122,7 @@ module nbody #(
         .clk(clk),
         .reset(rst),
         .writedata(writedata),
-        .write(write&(~address[15])), // Don't write to the display
+        .write(write&(~addr[15])), // Don't write to the display
         .chipselect(chipselect),
         .address(addr[14:0]),
         .VGA_R(VGA_R), 
