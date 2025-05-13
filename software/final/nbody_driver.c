@@ -80,15 +80,6 @@ static void write_body(body_t * body_parameters) {
     // Increment and log write operation counter
     write_count++;
     
-    printk(KERN_INFO "NBODY WRITE [%d]: Writing body %d to memory", write_count, i);
-    printk(KERN_INFO "NBODY WRITE [%d]: Memory addresses for body %d:", write_count, i);
-    printk(KERN_INFO "  X: low=0x%08x, high=0x%08x", 
-           (unsigned int)X_ADDR_LOW(dev.virtbase, i), 
-           (unsigned int)X_ADDR_HIGH(dev.virtbase, i));
-    printk(KERN_INFO "  Y: low=0x%08x, high=0x%08x", 
-           (unsigned int)Y_ADDR_LOW(dev.virtbase, i), 
-           (unsigned int)Y_ADDR_HIGH(dev.virtbase, i));
-
     memcpy(&x_bits, &body_parameters->x, sizeof(uint64_t));
     memcpy(&y_bits, &body_parameters->y, sizeof(uint64_t));
     memcpy(&m_bits, &body_parameters->m, sizeof(uint64_t));
@@ -123,15 +114,6 @@ static void write_body(body_t * body_parameters) {
 
     iowrite32(vy_bits[0], VY_ADDR_LOW(dev.virtbase, i));
     iowrite32(vy_bits[1], VY_ADDR_HIGH(dev.virtbase, i));
-    
-    // Verification - read back values for confirmation
-    printk(KERN_INFO "NBODY WRITE [%d]: Verification - Reading back body %d:", write_count, i);
-    printk(KERN_INFO "  X: low=0x%08x, high=0x%08x", 
-           ioread32(X_ADDR_LOW(dev.virtbase, i)), 
-           ioread32(X_ADDR_HIGH(dev.virtbase, i)));
-    printk(KERN_INFO "  Y: low=0x%08x, high=0x%08x", 
-           ioread32(Y_ADDR_LOW(dev.virtbase, i)), 
-           ioread32(Y_ADDR_HIGH(dev.virtbase, i)));
     
 }
 
