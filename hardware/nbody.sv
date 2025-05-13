@@ -117,23 +117,32 @@ module nbody #(
     logic first_time;
 
 
-    // Instantiating the display
-    Display display(
-        .clk(clk),
-        .reset(rst),
-        .writedata(writedata),
-        .write(write&(~addr[15])), // Don't write to the display
-        .chipselect(chipselect),
-        .address(addr[14:0]),
-        .VGA_R(VGA_R), 
-        .VGA_G(VGA_G), 
-        .VGA_B(VGA_B),
-        .VGA_CLK(VGA_CLK), 
-        .VGA_HS(VGA_HS), 
-        .VGA_VS(VGA_VS),
-        .VGA_BLANK_n(VGA_BLANK_n),
-        .VGA_SYNC_n(VGA_SYNC_n)
-    ); 
+    // // Instantiating the display
+    // Display display(
+    //     .clk(clk),
+    //     .reset(rst),
+    //     .writedata(writedata),
+    //     .write(write&(~addr[15])), // Don't write to the display
+    //     .chipselect(chipselect),
+    //     .address(addr[14:0]),
+    //     .VGA_R(VGA_R), 
+    //     .VGA_G(VGA_G), 
+    //     .VGA_B(VGA_B),
+    //     .VGA_CLK(VGA_CLK), 
+    //     .VGA_HS(VGA_HS), 
+    //     .VGA_VS(VGA_VS),
+    //     .VGA_BLANK_n(VGA_BLANK_n),
+    //     .VGA_SYNC_n(VGA_SYNC_n)
+    // ); 
+    // For testing: force all VGA outputs low
+    assign VGA_R = 8'b0;
+    assign VGA_G = 8'b0;
+    assign VGA_B = 8'b0;
+    assign VGA_CLK = 1'b0;
+    assign VGA_HS = 1'b0;
+    assign VGA_VS = 1'b0;
+    assign VGA_BLANK_n = 1'b0;
+    assign VGA_SYNC_n = 1'b0;
 
     // The main state machine
     always_ff @(posedge clk or posedge rst) begin
@@ -287,7 +296,7 @@ module nbody #(
     always_comb begin : blockName
         if (read == 1 && chipselect == 1) begin
             if (addr[15:9] == DONE) begin
-                readdata = {{(DATA_WIDTH-1){1'b0}}, done};
+                readdata = {{(EXT_DATA_WIDTH-1){1'b0}}, done};
             end else if (addr[15:9] == READ_X_LOWER) begin
                 readdata =  x_output_1[EXT_DATA_WIDTH-1:0];
             end else if (addr[15:9] == READ_X_UPPER) begin
@@ -297,11 +306,11 @@ module nbody #(
             end else if (addr[15:9] == READ_Y_UPPER) begin
                 readdata =  y_output_1[DATA_WIDTH-1:EXT_DATA_WIDTH];
             end else begin 
-                readdata = {64{1'b1}};
+                readdata = {EXT_DATA_WIDTH{1'b1}};
             end
         end
         else begin
-            readdata <= {64{1'b0}};
+            readdata <= {EXT_DATA_WIDTH{1'b0}};
         end
         case (state)
             SW_READ_WRITE: begin

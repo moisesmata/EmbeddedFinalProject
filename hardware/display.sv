@@ -50,7 +50,6 @@ module Display(input logic        clk,
       .q(readdata)
     );
     assign vcount_32 = {22'b0, vcount};
-    assign next_pix = placecounter + 32'd1;
     assign vcount_x_512 = vcount_32 << 8;
     assign vcount_x_128 = vcount_32 << 10;
     assign hcount_32 = (hcount > 11'd1300) ? 32'd1300 : {21'b0, hcount};
