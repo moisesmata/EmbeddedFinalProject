@@ -144,7 +144,7 @@ int main(int argc, char** argv) {
             yrange = row_data[0].y;
             mrange = row_data[0].m;
 
-            for (int i = 1; i < MAX_BODIES; i++) {
+            for (int i = 1; i < n_bodies; i++) {
                 if (row_data[i].x < xzero) xzero = row_data[i].x;
                 if (row_data[i].y < yzero) yzero = row_data[i].y;
                 if (row_data[i].m < mzero) mzero = row_data[i].m;
