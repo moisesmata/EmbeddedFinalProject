@@ -39,8 +39,7 @@ static int parse_csv_line(char* line, body_full* arg, int max_bodies) {
     int timestep;
     
     //Ensure num_bodies starts at 0
-    arg->num_bodies = 0;
-    
+    int num_bodies = 0;
     // Get the timestep (first column)
     token = strtok(line, ",");
     if (!token) return -1;
@@ -64,14 +63,14 @@ static int parse_csv_line(char* line, body_full* arg, int max_bodies) {
         short display_x, display_y;
         convert_coordinates(x, y, &display_x, &display_y);
         
-        arg[i].x = display_x;
-        arg[i].y = display_y;
+        arg[i].x = x;
+        arg[i].y = y;
         arg[i].n = i;
         arg[i].m = m;
-
+        num_bodies++;
     }
     
-    return timestep;
+    return num_bodies;
 }
 
 int main(int argc, char** argv) {
@@ -127,10 +126,14 @@ int main(int argc, char** argv) {
     //Read from CSV (one line per timestep)
     while (fgets(line, MAXCHAR, csv_file)) {
         //Use above function to parse the line
-        int timestep = parse_csv_line(line, row_data, MAX_BODIES);
-        if (timestep < 0) {
-            fprintf(stderr, "Error parsing line: %s", line);
-            continue;
+        int n_bodies = parse_csv_line(line, row_data, MAX_BODIES);
+        
+        if (first_line) {
+            simulation_data[0].num_bodies = n_bodies;
+            printf("Detected %d bodies in the simulation\n", n_bodies);
+        } else {
+            //Bodies stay the same for each timestep
+            simulation_data[actual_timesteps].num_bodies = simulation_data[0].num_bodies;
         }
         if(first_line) {
             first_line = 0;
@@ -174,12 +177,7 @@ int main(int argc, char** argv) {
         }
         
         // When reading the first line, theres a special case to populate num_bodies
-        if (timestep == 0) {
-            printf("Detected %d bodies in the simulation\n", simulation_data[0].num_bodies);
-        } else {
-            //Bodies stay the same for each timestep
-            simulation_data[actual_timesteps].num_bodies = simulation_data[0].num_bodies;
-        }
+        
         
         actual_timesteps++;
         
