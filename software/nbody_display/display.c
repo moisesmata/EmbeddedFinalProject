@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
             mrange -= mzero;
         }
 
-        for (int i = 0; i < MAX_BODIES; i++) {
+        for (int i = 0; i < n_bodies; i++) {
             if(row_data[i].x > xzero && row_data[i].x < xzero + xrange &&
                row_data[i].y > yzero && row_data[i].y < yzero + yrange) {
                 simulation_data[actual_timesteps].bodies[i].x = (row_data[i].x - xzero / xrange) * (float)DISPLAY_WIDTH;
