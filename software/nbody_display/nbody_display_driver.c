@@ -92,25 +92,25 @@ static void write_body(body_t * body_parameters) {
     memcpy(&vy_bits, &body_parameters->vy, sizeof(uint64_t));
     
     // Perform actual writes
-    iowrite32(x_bits[0], X_ADDR_LOW(dev.nbody_virtbase, i)); 
-    iowrite32(x_bits[1], X_ADDR_HIGH(dev.nbody_virtbase, i));
+    iowrite32(x_bits[0], X_ADDR_LOW(dev.virtbase, i)); 
+    iowrite32(x_bits[1], X_ADDR_HIGH(dev.virtbase, i));
     
-    iowrite32(y_bits[0], Y_ADDR_LOW(dev.nbody_virtbase, i));
-    iowrite32(y_bits[1], Y_ADDR_HIGH(dev.nbody_virtbase, i));
+    iowrite32(y_bits[0], Y_ADDR_LOW(dev.virtbase, i));
+    iowrite32(y_bits[1], Y_ADDR_HIGH(dev.virtbase, i));
     
-    iowrite32(m_bits[0], M_ADDR_LOW(dev.nbody_virtbase, i));
-    iowrite32(m_bits[1], M_ADDR_HIGH(dev.nbody_virtbase, i));
+    iowrite32(m_bits[0], M_ADDR_LOW(dev.virtbase, i));
+    iowrite32(m_bits[1], M_ADDR_HIGH(dev.virtbase, i));
     
-    iowrite32(vx_bits[0], VX_ADDR_LOW(dev.nbody_virtbase, i));
-    iowrite32(vx_bits[1], VX_ADDR_HIGH(dev.nbody_virtbase, i));
+    iowrite32(vx_bits[0], VX_ADDR_LOW(dev.virtbase, i));
+    iowrite32(vx_bits[1], VX_ADDR_HIGH(dev.virtbase, i));
     
-    iowrite32(vy_bits[0], VY_ADDR_LOW(dev.nbody_virtbase, i));
-    iowrite32(vy_bits[1], VY_ADDR_HIGH(dev.nbody_virtbase, i));
+    iowrite32(vy_bits[0], VY_ADDR_LOW(dev.virtbase, i));
+    iowrite32(vy_bits[1], VY_ADDR_HIGH(dev.virtbase, i));
 }
 
 static void write_simulation_parameters(nbody_sim_config_t *parameters) {
-    iowrite32(parameters->N, N_ADDR(dev.nbody_virtbase));
-    iowrite32(parameters->gap, GAP_ADDR(dev.nbody_virtbase));
+    iowrite32(parameters->N, N_ADDR(dev.virtbase));
+    iowrite32(parameters->gap, GAP_ADDR(dev.virtbase));
     dev.sim_config = *parameters;
 }
 
@@ -119,28 +119,28 @@ static void read_position(body_pos_t *body) {
     int x_bits[2];
     int y_bits[2];
     
-    x_bits[0] = ioread32(READX_ADDR_LOW(dev.nbody_virtbase, i));
-    x_bits[1] = ioread32(READX_ADDR_HIGH(dev.nbody_virtbase, i));
+    x_bits[0] = ioread32(READX_ADDR_LOW(dev.virtbase, i));
+    x_bits[1] = ioread32(READX_ADDR_HIGH(dev.virtbase, i));
     
-    y_bits[0] = ioread32(READY_ADDR_LOW(dev.nbody_virtbase, i));
-    y_bits[1] = ioread32(READY_ADDR_HIGH(dev.nbody_virtbase, i));
+    y_bits[0] = ioread32(READY_ADDR_LOW(dev.virtbase, i));
+    y_bits[1] = ioread32(READY_ADDR_HIGH(dev.virtbase, i));
     
     memcpy(&body->x, &x_bits, sizeof(uint64_t));
     memcpy(&body->y, &y_bits, sizeof(uint64_t));
 }
 
 static void write_go(int go) {
-    iowrite32(go, GO_ADDR(dev.nbody_virtbase));
+    iowrite32(go, GO_ADDR(dev.virtbase));
     dev.go = go;
 }
 
 static void write_read(int read) {
-    iowrite32(read, READ_ADDR(dev.nbody_virtbase));
+    iowrite32(read, READ_ADDR(dev.virtbase));
     dev.read = read;
 }
 
 static void read_done(int *status) {
-    *status = ioread32(DONE_ADDR(dev.nbody_virtbase));
+    *status = ioread32(DONE_ADDR(dev.virtbase));
 }
 
 /* ========== Display/VGA Functions ========== */
@@ -162,7 +162,7 @@ static void clear_framebuffer(void) {
     int i;
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         dev.framebuffer[i] = 0;  
-        iowrite32(0, dev.display_virtbase + (i << 2));
+        iowrite32(0, dev.virtbase + (i << 2));
     }
 }
 
@@ -179,7 +179,7 @@ static void fill_framebuffer(void) {
     
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         dev.framebuffer[i] = 0xFFFFFFFF;  // All bits set to 1
-        iowrite32(dev.framebuffer[i], dev.display_virtbase + (i << 2));
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
     }
     
     printk(KERN_INFO "nbody_display: Framebuffer filled with all pixels on\n");
@@ -226,7 +226,7 @@ static void draw_bodies(void) {
 
     // Write the completed framebuffer to hardware
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(dev.framebuffer[i], dev.display_virtbase + (i << 2));
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
     }
     
     printk(KERN_INFO "nbody_display: Bodies Drawn\n");
