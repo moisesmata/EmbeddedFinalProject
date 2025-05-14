@@ -86,7 +86,7 @@ module nbody #(
     logic done;
     logic read_sw;
     logic [$clog2(BODIES)-1:0] num_bodies;
-    logic [DATA_WIDTH-1:0] gap, gap_counter;
+    logic [EXT_DATA_WIDTH-1:0] gap, gap_counter;
     logic [DATA_WIDTH-1:0] write_vy_data, write_vx_data, write_m_data, write_x_data, write_y_data;
     logic wren_x, wren_y, wren_m, wren_vx, wren_vy;
     logic [DATA_WIDTH-1:0] out_x, out_y, out_m, out_vx, out_vy;
@@ -162,10 +162,10 @@ module nbody #(
                 end else if (addr[15:9] == N_BODIES) begin
                     num_bodies <= writedata[BODY_ADDR_WIDTH-1:0];
                 end else if (addr[15:9] == GAP) begin
-                    gap <= writedata[BODY_ADDR_WIDTH-1:0];
+                    gap <= writedata;
                 end
                 if (addr[9] == 0) begin
-                    write_register <= writedata[BODY_ADDR_WIDTH-1:0];
+                    write_register <= writedata;
                 end
             end
 
