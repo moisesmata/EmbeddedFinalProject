@@ -22,7 +22,7 @@ def updateV(R,M,N,V,first = False):
                 else:
                     f = r*M[i]
 
-                print(f"Intermediaries i: {i}, j: {j}, r2: {r2}, r: {r}, f: {f}, dvx: {dx*f}, dvy: {dy*f}")
+                #print(f"Intermediaries i: {i}, j: {j}, r2: {r2}, r: {r}, f: {f}, dvx: {dx*f}, dvy: {dy*f}")
 
                 vx = V[j,0] + dx*f
 
@@ -31,10 +31,10 @@ def updateV(R,M,N,V,first = False):
                 V[j,0] =  vx
                 V[j,1] =  vy
 
-                print(V[j])
+                #print(V[j])
     
 #N is the number of bodies, T is the total time, dt is the timestep
-def main(N,total_time, dt = 1, gap = 1):
+def main(N,total_time, dt = 1, gap = 500):
 
     gapstep = 0
     positions = np.zeros((int(total_time/dt)+1, N,2))
@@ -81,7 +81,7 @@ def main(N,total_time, dt = 1, gap = 1):
         R += V * dt #update positions
         updateV(R,M,N,V,False) #update velocities
 
-        print(f"Velocities: \n{V}")
+        #print(f"Velocities: \n{V}")
 
         t += dt
         if gapstep % gap == 0:
@@ -91,4 +91,4 @@ def main(N,total_time, dt = 1, gap = 1):
     #print(csv_output[0])
 
 
-main(3, 10)
+main(3, 600)
