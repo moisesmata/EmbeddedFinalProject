@@ -141,7 +141,7 @@ double* get_initial_state(char* filename, int N){
     char* token = strtok(row,",");
     while(token != NULL){
       initial_state[i] = atof(token);
-      //fprintf(stderr, "Initial State %d: %lf\n", i, initial_state[i]);
+      fprintf(stderr, "Initial State %d: %lf\n", i, initial_state[i]);
       token = strtok(NULL,",");
       i++;
       if(i >= (N * 5)){
