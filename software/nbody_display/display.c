@@ -160,11 +160,11 @@ int main(int argc, char** argv) {
             
             // Prevent division by zero if all masses are the same
             if (max_mass > min_mass) {
+                //the percentage of max mass
                 mass_normalized = (simulation_data[t].bodies[i].m - min_mass) / (max_mass - min_mass);
             }
             
-            // Scale radius based on normalized mass
-            simulation_data[t].bodies[i].radius = MIN_RADIUS + (int)(mass_normalized * (MAX_RADIUS - MIN_RADIUS));
+            simulation_data[t].bodies[i].radius = (unsigned short)(mass_normalized * MAX_RADIUS);
         }
     }
     
