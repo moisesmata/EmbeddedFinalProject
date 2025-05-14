@@ -235,7 +235,7 @@ int main(int argc, char** argv){
     case 4:
       printf("You selected 512 Bodies!\n");
       selected_sim = five_one_two;
-      N = 511;
+      N = 512;
       break;
 
     case 5:
@@ -324,6 +324,9 @@ int main(int argc, char** argv){
   //Do the looping - implemented as some sort of silly state machine
   int t = 0;
   while(t < time_steps){
+    if(t % 10 == 0){
+      printf("Iteration %d complete!\n", t);
+    }
 
     //fprintf(stderr, "Timestep %d Beginning:\n", t);
     //Do Polling
