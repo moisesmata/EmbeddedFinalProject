@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
             //Bodies stay the same for each timestep
             simulation_data[actual_timesteps].num_bodies = simulation_data[0].num_bodies;
         }
-        if(1) {
+        if(first_line) {
             first_line = 0;
             xzero = row_data[0].x;
             yzero = row_data[0].y;
@@ -155,10 +155,10 @@ int main(int argc, char** argv) {
 
             xrange -= xzero;
             yrange -= yzero;
-            xzero -= .5 * xrange;
-            yzero -= .5 * yrange;
-            xrange *= 2;
-            yrange *= 2; 
+            xzero -= .1 * xrange;
+            yzero -= .1 * yrange;
+            xrange *= 1.2;
+            yrange *= 1.2; 
             mrange -= mzero;
         }
 
