@@ -371,10 +371,10 @@ int main(int argc, char** argv){
   // Write all data to a CSV file
   FILE* output = fopen("nbody_results.csv", "w");
   if (output) {
-      //Header with timestep, body0_x, body0_y, body1_x, body1_y, ...
+      //Header with timestep, body0_x, body0_y, body0_m, body1_x, body1_y, ...
       fprintf(output, "timestep");
       for (int i = 0; i < N; i++) {
-          fprintf(output, ",body%d_x,body%d_y", i, i);
+          fprintf(output, ",body%d_x,body%d_y,body%d_m", i, i, i);
       }
 
       fprintf(output, "\n");
@@ -384,7 +384,8 @@ int main(int argc, char** argv){
           for (int i = 0; i < N; i++) {
               fprintf(output, ",%f,%f", 
                   position_history[t].bodies[i].x, 
-                  position_history[t].bodies[i].y);
+                  position_history[t].bodies[i].y,
+                initial_state[5*i + 4]); // mass
           }
           fprintf(output, "\n");
       }

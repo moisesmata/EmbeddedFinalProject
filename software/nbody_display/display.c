@@ -49,6 +49,10 @@ static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
         if (!token) break;  //Exit the loop, we've accounted for all bodies
         float y = atof(token);
         
+        token = strtok(NULL, ",");
+        if (!token) break;  //Exit the loop, we've accounted for all bodies
+        double m = atof(token);
+
         short display_x, display_y;
         convert_coordinates(x, y, &display_x, &display_y);
         
@@ -56,6 +60,9 @@ static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
         arg->bodies[i].y = display_y;
         arg->bodies[i].radius = 25; 
         arg->bodies[i].n = i;
+        arg->bodies[i].m = m;
+
+
         
         arg->num_bodies++;
     }
@@ -133,6 +140,35 @@ int main(int argc, char** argv) {
     fclose(csv_file);
     printf("Loaded %d timesteps with %d bodies\n", actual_timesteps, simulation_data[0].num_bodies);
     
+    double min_mass = 1e30;  // Start with a very large number
+    double max_mass = 0; //Start with 0
+    
+    for (int i = 0; i < simulation_data[0].num_bodies; i++) {
+        if (simulation_data[0].bodies[i].m < min_mass) {
+            min_mass = simulation_data[0].bodies[i].m;
+        }
+        if (simulation_data[0].bodies[i].m > max_mass) {
+            max_mass = simulation_data[0].bodies[i].m;
+        }
+    }
+
+    printf("Mass range: min=%.2f, max=%.2f\n", min_mass, max_mass);
+
+    for (int t = 0; t < actual_timesteps; t++) {
+        for (int i = 0; i < simulation_data[t].num_bodies; i++) {
+            double mass_normalized = 0.0;
+            
+            // Prevent division by zero if all masses are the same
+            if (max_mass > min_mass) {
+                mass_normalized = (simulation_data[t].bodies[i].m - min_mass) / (max_mass - min_mass);
+            }
+            
+            // Scale radius based on normalized mass
+            simulation_data[t].bodies[i].radius = MIN_RADIUS + (int)(mass_normalized * (MAX_RADIUS - MIN_RADIUS));
+        }
+    }
+    
+
     // Clear screen
     if (ioctl(vga_fd, VGA_BALL_CLEAR_SCREEN, 0) < 0) {
         perror("ioctl(VGA_BALL_CLEAR_SCREEN) failed");

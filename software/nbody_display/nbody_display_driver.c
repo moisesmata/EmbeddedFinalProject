@@ -192,8 +192,7 @@ static void fill_framebuffer(void)
 }
 
 //Right now the default radius is 5
-static void draw_circle(unsigned short x0, unsigned short y0){ 
-    int radius = 3;
+static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius){ 
     
     int radius_squared = radius * radius;
     int x_min = x0 - radius;
@@ -227,7 +226,10 @@ static void draw_bodies(void)
     }
 
     for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
-        draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
+        draw_circle(
+            dev.vga_ball_arg.bodies[i].x, 
+            dev.vga_ball_arg.bodies[i].y, 
+            dev.vga_ball_arg.bodies[i].radius);
     }
 
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {

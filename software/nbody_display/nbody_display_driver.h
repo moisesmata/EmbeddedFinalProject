@@ -7,6 +7,8 @@
 #define DISPLAY_WIDTH 640
 #define DISPLAY_HEIGHT 640
 #define MAX_BODIES 512
+#define MIN_RADIUS 1
+#define MAX_RADIUS 100
 
 // Framebuffer calculations
 #define FRAMEBUFFER_SIZE (DISPLAY_HEIGHT * DISPLAY_WIDTH/32)
@@ -46,7 +48,7 @@ typedef struct {
 
 // Structure for circle properties
 typedef struct {
-  unsigned short x, y, radius, n;
+  unsigned short x, y, radius, n, m;
 } vga_ball_props_t;
 
 // Structure for all circles
