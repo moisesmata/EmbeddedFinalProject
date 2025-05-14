@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include "nbody_display_driver.h"
 
-#define MAXCHAR 5000
+#define MAXCHAR 100000
 #define CSV_FILENAME "nbody_results.csv"
 #define PLAYBACK_DELAY_MS 100  
 #define MAX_TIMESTEPS 1000   //Fixed allocation (will fix later)
