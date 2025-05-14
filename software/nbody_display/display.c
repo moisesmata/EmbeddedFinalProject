@@ -58,9 +58,9 @@ static int parse_csv_line(char* line, body_full* arg, int max_bodies) {
         if (!token) break;  //Exit the loop, we've accounted for all bodies
         float m = atof(token);
 
-        short display_x, display_y;
-        convert_coordinates(x, y, &display_x, &display_y);
-        
+        if(m == 0) {
+            continue; // Skip bodies with mass 0
+        } 
         arg[i].x = x;
         arg[i].y = y;
         arg[i].n = i;
@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
             mrange = row_data[0].m;
 
             for (int i = 1; i < n_bodies; i++) {
-                printf("Body %d: x=%.2f, y=%.2f, m=%.2f\n", i, row_data[i].x, row_data[i].y, row_data[i].m);
+                // printf("Body %d: x=%.2f, y=%.2f, m=%.2f\n", i, row_data[i].x, row_data[i].y, row_data[i].m);
                 if (row_data[i].x < xzero) xzero = row_data[i].x;
                 if (row_data[i].y < yzero) yzero = row_data[i].y;
                 if (row_data[i].m < mzero) mzero = row_data[i].m;
@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
 
         for (int i = 0; i < n_bodies; i++) {
             if(row_data[i].x > xzero && row_data[i].x < xzero + xrange &&
-               row_data[i].y > yzero && row_data[i].y < yzero + yrange) {
+               row_data[i].y > yzero && row_data[i].y < yzero + yrange && row_data[i].m != 0) {
                 simulation_data[actual_timesteps].bodies[i].x = ((row_data[i].x - xzero) / xrange) * (float)DISPLAY_WIDTH;
                 simulation_data[actual_timesteps].bodies[i].y = ((row_data[i].y - yzero) / yrange) * (float)DISPLAY_HEIGHT;
                 simulation_data[actual_timesteps].bodies[i].m = ((row_data[i].m - mzero) / mrange) * (float) 255;
