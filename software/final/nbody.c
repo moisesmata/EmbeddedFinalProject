@@ -218,26 +218,31 @@ int main(int argc, char** argv){
       printf("You selected 32 Bodies!\n");
       selected_sim = thirty_two;
       N = 32;
+      break;
     
     case 2:
       printf("You selected 64 Bodies!\n");
       selected_sim = sixty_four;
       N = 64;
+      break;
     
     case 3:
       printf("You selected 128 Bodies!\n");
       selected_sim = one_two_eight;
       N = 128;
-
+      break;
+      
     case 4:
       printf("You selected 512 Bodies!\n");
       selected_sim = five_one_two;
       N = 512;
+      break;
 
     case 5:
       printf("You selected secret test!\n");
       selected_sim = initial_test;
       N = 28;
+      break;
     
     default:
       printf("Bad input! Please run the program again.\n");
