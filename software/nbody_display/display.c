@@ -167,17 +167,12 @@ int main(int argc, char** argv) {
         for (int i = 0; i < n_bodies; i++) {
             if(row_data[i].x > xzero && row_data[i].x < xzero + xrange &&
                row_data[i].y > yzero && row_data[i].y < yzero + yrange) {
-                simulation_data[actual_timesteps].bodies[i].x = (row_data[i].x - xzero / xrange) * (float)DISPLAY_WIDTH;
-                simulation_data[actual_timesteps].bodies[i].y = (row_data[i].y - yzero / yrange) * (float)DISPLAY_HEIGHT;
-                simulation_data[actual_timesteps].bodies[i].m = (row_data[i].m - mzero / mrange) * (float) 255;
+                simulation_data[actual_timesteps].bodies[i].x = ((row_data[i].x - xzero) / xrange) * (float)DISPLAY_WIDTH;
+                simulation_data[actual_timesteps].bodies[i].y = ((row_data[i].y - yzero) / yrange) * (float)DISPLAY_HEIGHT;
+                simulation_data[actual_timesteps].bodies[i].m = ((row_data[i].m - mzero) / mrange) * (float) 255;
                 simulation_data[actual_timesteps].bodies[i].n = i;
-                simulation_data[actual_timesteps].bodies[i].radius = (unsigned short)(((row_data[i].m - mzero) / mrange) * (MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS);
-                printf("Timestep %d, Body %d: x=%.2f, y=%d, m=%d, radius=%d\n", 
-                       actual_timesteps, i, 
-                       simulation_data[actual_timesteps].bodies[i].x, 
-                          simulation_data[actual_timesteps].bodies[i].y,
-                            simulation_data[actual_timesteps].bodies[i].m,
-                            simulation_data[actual_timesteps].bodies[i].radius);
+                simulation_data[actual_timesteps].bodies[i].radius = (unsigned short)(((row_data[i].m - mzero) / mrange) * (float)((MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS));
+                
 
             } else {
                 simulation_data[actual_timesteps].bodies[i].radius = 0;
