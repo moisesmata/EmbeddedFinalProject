@@ -21,37 +21,37 @@
 
 /* Device registers */
 
-#define GO_ADDR(base) (base) + (0x40 << 11)
-#define READ_ADDR(base) (base) + (0x41 << 11)
-#define N_ADDR(base) (base) + ( 0x42 << 11)
-#define GAP_ADDR(base) (base) + ( 0x43 << 11)
+#define GO_ADDR(base) (base) 
+#define READ_ADDR(base) (base) + (1 << 11)
+#define N_ADDR(base) (base) + ( 2 << 11)
+#define GAP_ADDR(base) (base) + ( 3 << 11)
 
 /* Memory */
 
-#define X_ADDR_LOW(base, body) (base) + ((body<<2) + (0x44 << 11))
-#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x45 << 11))
+#define X_ADDR_LOW(base, body) (base) + ((body<<2) + (4 << 11))
+#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + (5 << 11))
 
-#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + (0x46 << 11))
-#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x47 << 11))
+#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + (6 << 11))
+#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + (7 << 11))
 
-#define M_ADDR_LOW(base, body) (base) + ((body<<2) + (0x48 << 11))
-#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x49 << 11))
+#define M_ADDR_LOW(base, body) (base) + ((body<<2) + (8 << 11))
+#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + (9 << 11))
 
-#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + (0x4a << 11))
-#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x4b << 11))
+#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + (16 << 11))
+#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + (17 << 11))
 
-#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + (0x4c << 11))
-#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x4d << 11))
+#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + (18 << 11))
+#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + (19 << 11))
 
 /* More Memory */
 
-#define DONE_ADDR(base) (base) + ( 0x50 << 11)
+#define DONE_ADDR(base) (base) + (64 << 11)
 
-#define READX_ADDR_LOW(base, body) (base) + (( 0x51 << 11) + ((body)<<2))
-#define READX_ADDR_HIGH(base, body) (base) + (( 0x52 << 11) + ((body)<<2))
+#define READX_ADDR_LOW(base, body) (base) + ((65 << 11) + ((body)<<2))
+#define READX_ADDR_HIGH(base, body) (base) + ((66 << 11) + ((body)<<2))
 
-#define READY_ADDR_LOW(base, body) (base) + (( 0x53 << 11) + ((body)<<2))
-#define READY_ADDR_HIGH(base, body) (base) + (( 0x54 << 11) + ((body)<<2))
+#define READY_ADDR_LOW(base, body) (base) + ((67 << 11) + ((body)<<2))
+#define READY_ADDR_HIGH(base, body) (base) + ((68 << 11) + ((body)<<2))
 
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */
@@ -75,7 +75,6 @@ static void write_body(body_t * body_parameters) {
     int m_bits[2];
     int vx_bits[2];
     int vy_bits[2];
-    static int write_count = 0;
     
     memcpy(&x_bits, &body_parameters->x, sizeof(uint64_t));
     memcpy(&y_bits, &body_parameters->y, sizeof(uint64_t));
@@ -278,6 +277,7 @@ static int nbody_remove(struct platform_device *pdev)
 #ifdef CONFIG_OF
 static const struct of_device_id nbody_of_match[] = {
 	{ .compatible = "csee4840,nbody-1.0" },
+	{ .compatible = "unknown,unknown-1.0" },
 	{},
 };
 MODULE_DEVICE_TABLE(of, nbody_of_match);

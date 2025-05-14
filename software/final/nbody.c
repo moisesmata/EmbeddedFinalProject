@@ -34,7 +34,7 @@ void set_body(double x, double y, double xv, double yv, double m, int n){
   vla.vy = yv;
   vla.m = m;
   vla.n = n;
-  fprintf(stderr, "Setting Body %d: X: %f, Y: %f, M: %f\n",n,x,y,m);
+  //fprintf(stderr, "Setting Body %d: X: %f, Y: %f, M: %f\n",n,x,y,m);
   if(ioctl(nbody_fd, SET_BODY, &vla)){
     perror("ioctl(SET_BODY) failed");
     return;
@@ -74,7 +74,7 @@ int poll_done(){
       perror("ioctl(READ_DONE) failed");
       return -1;
   }
-  fprintf(stderr, "Polling: %d \n", done);
+  //fprintf(stderr, "Polling: %d \n", done);
   if(done > 0){
     return 1;
   }
@@ -91,13 +91,13 @@ all_positions_t read_positions(int N){
   all_positions_t positions;
   
   for(int i = 0; i < N; i++){
-    fprintf(stderr, "Reading Body Number %d\n", i);
+    //fprintf(stderr, "Reading Body Number %d\n", i);
     body_pos_t vla;
     vla.n = i;
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
       perror("ioctl(READ_POSITION) failed\n");
     } 
-    fprintf(stderr, "Body %d Position Read: X:%f, Y:%f \n", N,vla.x,vla.y);
+    //fprintf(stderr, "Body %d Position Read: X:%f, Y:%f \n", N,vla.x,vla.y);
     positions.bodies[i] = vla;
   }
   return positions;
@@ -140,7 +140,7 @@ double* get_initial_state(char* filename, int N){
     char* token = strtok(row,",");
     while(token != NULL){
       initial_state[i] = atof(token);
-      fprintf(stderr, "Initial State %d: %lf\n", i, initial_state[i]);
+      //fprintf(stderr, "Initial State %d: %lf\n", i, initial_state[i]);
       token = strtok(NULL,",");
       i++;
       if(i >= (N * 5)){
@@ -166,27 +166,12 @@ double* get_initial_state(char* filename, int N){
 // ----------------------------------------------------
 int main(int argc, char** argv){  
   //Check to make sure that the 
-  if (argc != 3) {
-    fprintf(stderr, "Usage: ./nbody <# of bodies> <# of outputs>\n");
+  if (argc > 1) {
+    fprintf(stderr, "Usage: ./nbody \n");
     return -1;
   }
 
-
-  //Parse User Input
-  int N = atoi(argv[1]); 
-  fprintf(stderr, "Number of bodies is %d\n",N);
-
-  int time_steps = atoi(argv[2]); 
   int dt = 2; //Set timestep to 2 because it makes our lives easier!
-
-  //Make sure that N wasn't set to something weird
-  if(N <= 0){
-    perror("N must be a positive integer!\n");
-    return -1; 
-  } else if(N > 512){
-    perror("N must be less than 512!\n");
-    return -1; 
-  }
 
   //Begin the userspace program
   int i;
@@ -199,6 +184,88 @@ int main(int argc, char** argv){
 
   set_go(low);
   set_read(low);
+
+  //Check to make sure that the
+  char one[] = " _   _       ____   ___  ______   __";
+  char two[] = "| \\ | |     | __ ) / _ \\|  _ \\ \\ / /";
+  char three[] = "|  \\| |_____|  _ \\| | | | | | \\ V /";
+  char four[] = "| |\\  |_____| |_) | |_| | |_| || | ";
+  char five[] = "|_| \\_|     |____/ \\___/|____/ |_|  ";
+  printf("%s\n",one);
+  printf("%s\n",two);
+  printf("%s\n",three);
+  printf("%s\n",four);
+  printf("%s\n",five);
+
+  char thirty_two[] = "32body_input.csv";
+  char sixty_four[] = "64body_input.csv";
+  char one_two_eight[] = "128body_input.csv";
+  char five_one_one[] = "511body_input.csv";
+  char initial_test[] = "input.csv";
+
+  printf("\nWelcome to the N-Body Simulation Final Project!\n\n");
+  printf("Please select a setting for how many bodies you would like to simulate:\n 1 - 32 Bodies \n 2 - 64 Bodies \n 3 - 128 Bodies \n 4 - 511 Bodies\n");
+
+  int num;
+  char* selected_sim;
+
+  scanf("%d",&num);
+
+  int N;
+
+  switch (num){
+    case 1:
+      printf("You selected 32 Bodies!\n");
+      selected_sim = thirty_two;
+      N = 32;
+      break;
+    
+    case 2:
+      printf("You selected 64 Bodies!\n");
+      selected_sim = sixty_four;
+      N = 64;
+      break;
+    
+    case 3:
+      printf("You selected 128 Bodies!\n");
+      selected_sim = one_two_eight;
+      N = 128;
+      break;
+      
+    case 4:
+      printf("You selected 511 Bodies!\n");
+      selected_sim = five_one_one;
+      N = 511;
+      break;
+
+    case 5:
+      printf("You selected secret test!\n");
+      selected_sim = initial_test;
+      N = 28;
+      break;
+    
+    default:
+      printf("Bad input! Please run the program again.\n");
+      return -1;
+  }
+  
+  printf("Set Gap Size:\n");
+
+  int output_step;
+  scanf("%d",&output_step);
+  if(output_step < 1){
+    perror("Gap Size Must Be >= 1!!\n"); //For testing set to 6
+    return -1;
+  }
+
+  printf("Number of Iterations\n"); //Set to 12
+
+  int time_steps;
+  scanf("%d",&time_steps);
+  if(time_steps < 1){
+    perror("Number of Iterations Must Be >= 1!!\n");
+    return -1;
+  }
 
   printf("N-Body Userspace program started\n");
 
@@ -214,7 +281,7 @@ int main(int argc, char** argv){
              i); //body number
   }
 
-  double* initial_state = get_initial_state("input.csv", N);
+  double* initial_state = get_initial_state(selected_sim, N);
   
   fprintf(stderr, "Initial Bodies Parameters Read In\n");
 
@@ -226,7 +293,6 @@ int main(int argc, char** argv){
   }
 
   //Then set the initial parameters for the simulation
-  int output_step = 6;
   set_simulation_parameters(N,output_step);
 
   // The initial parameters are read in - Send them to the driver
@@ -241,34 +307,37 @@ int main(int argc, char** argv){
   }
   position_history[0] = read_positions(N);
   // Print initial positions to stdout
-  printf("Initial positions:\n");
+  //printf("Initial positions:\n");
   for (int i = 0; i < N; i++) {
-      printf("Body %d: X = %lf, Y = %lf\n",
+      //printf("Body %d: X = %lf, Y = %lf\n",
              i,
              position_history[0].bodies[i].x,
-             position_history[0].bodies[i].y);
+             position_history[0].bodies[i].y;
   }
-  fprintf(stderr, "Simulation bodies and parameters read in\n");
+  //fprintf(stderr, "Simulation bodies and parameters read in\n");
 
   //Send the go signal
   set_go(high);
 
-  fprintf(stderr, "Go signal set high!\n");
+  //fprintf(stderr, "Go signal set high!\n");
   
   //Do the looping - implemented as some sort of silly state machine
   int t = 0;
   while(t < time_steps){
+    if(t % 10 == 0){
+      printf("Iteration %d complete!\n", t);
+    }
 
-    fprintf(stderr, "Timestep %d Beginning:\n", t);
+    //fprintf(stderr, "Timestep %d Beginning:\n", t);
     //Do Polling
     int read = 0;
 
     /**/
     while(!read){
       //Wait for the poll signal
-      fprintf(stderr, "Polling...\n");
+      //fprintf(stderr, "Polling...\n");
       if(poll_done()){
-        fprintf(stderr, "Received Done!\n");
+        //fprintf(stderr, "Received Done!\n");
         read = 1;
         set_read(high);
         break;
@@ -276,7 +345,7 @@ int main(int argc, char** argv){
     }
     //Read the positions from the driver
 
-    fprintf(stderr, "Read Set To High\n");
+    //fprintf(stderr, "Read Set To High\n");
     //usleep(100000);
 
     while(1){
@@ -285,11 +354,11 @@ int main(int argc, char** argv){
       }
     }
     
-    fprintf(stderr, "Done is low again!\n");
+    //fprintf(stderr, "Done is low again!\n");
 
     position_history[t] = read_positions(N);
 
-    fprintf(stderr, "How did we get here?\n");
+    //fprintf(stderr, "How did we get here?\n");
 
     //Reading is finished, set read to low!
     set_read(low);
