@@ -145,6 +145,7 @@ int main(int argc, char** argv) {
             mrange = row_data[0].m;
 
             for (int i = 1; i < n_bodies; i++) {
+                printf("Body %d: x=%.2f, y=%.2f, m=%.2f\n", i, row_data[i].x, row_data[i].y, row_data[i].m);
                 if (row_data[i].x < xzero) xzero = row_data[i].x;
                 if (row_data[i].y < yzero) yzero = row_data[i].y;
                 if (row_data[i].m < mzero) mzero = row_data[i].m;
@@ -166,9 +167,9 @@ int main(int argc, char** argv) {
         for (int i = 0; i < MAX_BODIES; i++) {
             if(row_data[i].x > xzero && row_data[i].x < xzero + xrange &&
                row_data[i].y > yzero && row_data[i].y < yzero + yrange) {
-                simulation_data[actual_timesteps].bodies[i].x = (row_data[i].x - xzero / xrange) * DISPLAY_WIDTH;
-                simulation_data[actual_timesteps].bodies[i].y = (row_data[i].y - yzero / yrange) * DISPLAY_HEIGHT;
-                simulation_data[actual_timesteps].bodies[i].m = (row_data[i].m - mzero / mrange) * 255;
+                simulation_data[actual_timesteps].bodies[i].x = (row_data[i].x - xzero / xrange) * (float)DISPLAY_WIDTH;
+                simulation_data[actual_timesteps].bodies[i].y = (row_data[i].y - yzero / yrange) * (float)DISPLAY_HEIGHT;
+                simulation_data[actual_timesteps].bodies[i].m = (row_data[i].m - mzero / mrange) * (float) 255;
                 simulation_data[actual_timesteps].bodies[i].n = i;
                 simulation_data[actual_timesteps].bodies[i].radius = (unsigned short)(((row_data[i].m - mzero) / mrange) * (MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS);
             } else {
