@@ -272,7 +272,7 @@ int main(int argc, char** argv){
 
   // Read in Initial N-Body State FROM CSV File
 
-  struct timespec start, end;
+  struct timespec start, end, this;
   clock_gettime(CLOCK_MONOTONIC, &start);
 
   double* zeros = (double*)calloc(N * 5, sizeof(double));
@@ -313,6 +313,7 @@ int main(int argc, char** argv){
   }
 
   clock_gettime(CLOCK_MONOTONIC, &end);
+  clock_gettime(CLOCK_MONOTONIC, &this);
   double elapsed_time = (end.tv_sec - start.tv_sec) + 
                         (end.tv_nsec - start.tv_nsec) / 1e9;
   printf("Initial write time: %f seconds\n", elapsed_time);
@@ -369,14 +370,18 @@ int main(int argc, char** argv){
     clock_gettime(CLOCK_MONOTONIC, &end);
     double timestep_elapsed_time = (end.tv_sec - start.tv_sec) + 
                      (end.tv_nsec - start.tv_nsec) / 1e9;
-    printf("Total elapsed time: %f seconds\n", timestep_elapsed_time);
+
+    if ((end.tv_sec - this.tv_sec) + (end.tv_nsec - this.tv_nsec) / 1e9 > 1) {
+      printf("Total elapsed time: %f seconds, Iteration %d\n", timestep_elapsed_time, t);
+      clock_gettime(CLOCK_MONOTONIC, &this);
+    }
 
     //Increment Time Thing
     t += 1;
   }
   set_go(low);
   // Calculate and print the total simulation time
-  
+
   clock_gettime(CLOCK_MONOTONIC, &end);
   double total_simulation_time = (end.tv_sec - start.tv_sec) + 
                                  (end.tv_nsec - start.tv_nsec) / 1e9;
