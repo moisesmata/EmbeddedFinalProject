@@ -145,20 +145,29 @@ static void read_done(int *status) {
 
 /* ========== Display/VGA Functions ========== */
 
-static inline void set_pixel(unsigned short x, unsigned short y, int value) {
-    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT || x < 0 || y < 0) {
+/*
+ * Set a pixel in the framebuffer
+ * x, y: coordinates (0-639, 0-479)
+ */
+static inline void set_pixel(unsigned short x, unsigned short y, int value)
+{
+    if (x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT || x < 0 || y < 0){
         return;
     }
 
     int index = (y*WORDS_PER_ROW) + x/32;
     if (value) {
         dev.framebuffer[index] |= 1 << (x % 32);
-    } else {
+    } else{
         dev.framebuffer[index] &= ~(1 << (x % 32));
     }  
 }
 
-static void clear_framebuffer(void) {
+/*
+ * Clear the entire framebuffer
+ */
+static void clear_framebuffer(void)
+{
     int i;
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         dev.framebuffer[i] = 0;  
@@ -166,28 +175,25 @@ static void clear_framebuffer(void) {
     }
 }
 
-static void clear_framebuffer_virtual(void) {
+/*
+ * Fill the entire framebuffer (turn all pixels on)
+ */
+static void fill_framebuffer(void)
+{
     int i;
-    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        dev.framebuffer[i] = 0;
-    }
-}
-
-static void fill_framebuffer(void) {
-    int i;
-    printk(KERN_INFO "nbody_display: Filling entire framebuffer (all pixels on)\n");
+    printk(KERN_INFO "vga_ball: Filling entire framebuffer (all pixels on)\n");
     
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         dev.framebuffer[i] = 0xFFFFFFFF;  // All bits set to 1
         iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
     }
     
-    printk(KERN_INFO "nbody_display: Framebuffer filled with all pixels on\n");
+    printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
 }
 
-static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius) {
-    if (radius < 2) radius = 2;  // Minimum radius
-    if (radius > 25) radius = 25; // Maximum radius
+//Right now the default radius is 5
+static void draw_circle(unsigned short x0, unsigned short y0){ 
+    int radius = 3;
     
     int radius_squared = radius * radius;
     int x_min = x0 - radius;
@@ -195,44 +201,45 @@ static void draw_circle(unsigned short x0, unsigned short y0, unsigned short rad
     int x_max = x0 + radius;
     int y_max = y0 + radius;
 
-    int x, y; 
-    for (y = y_min; y <= y_max; y++) {
-        for (x = x_min; x <= x_max; x++) {
+    int x; 
+    int y; 
+    for (y = y_min; y <= y_max; y++){
+        for (x = x_min; x <= x_max; x++){
             int dx = x - x0;
             int dy = y - y0;
             int d2 = dx*dx + dy*dy;
-            if (d2 <= radius_squared) {
+            if (d2 <= radius_squared){
+                // set_pixel already has boundary checking, so we can just call it
                 set_pixel(x, y, 1);
             }
         }
     }
 }
 
-static void draw_bodies(void) {
+static void draw_bodies(void)
+{
     int i;
-    printk(KERN_INFO "nbody_display: Drawing the Bodies\n");
+    printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
     
-    // Clear virtual framebuffer
-    clear_framebuffer_virtual();
-
-    // Draw all bodies with their respective radii
-    for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
-        draw_circle(
-            dev.vga_ball_arg.bodies[i].x, 
-            dev.vga_ball_arg.bodies[i].y,
-            dev.vga_ball_arg.bodies[i].radius
-        );
+    //clear virtual framebuffer
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        dev.framebuffer[i] = 0;
     }
 
-    // Write the completed framebuffer to hardware
+    for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
+        draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
+    }
+
     for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
         iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
     }
     
-    printk(KERN_INFO "nbody_display: Bodies Drawn\n");
+    printk(KERN_INFO "vga_ball: Bodies Drawn\n");
 }
 
-static void draw_checkerboard(void) {
+
+static void draw_checkerboard(void)
+{
     int i, j;
     for (i = 0; i < DISPLAY_HEIGHT; i++) {
         for (j = 0; j < DISPLAY_WIDTH; j++) {
