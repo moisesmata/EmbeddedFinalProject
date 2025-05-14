@@ -29,11 +29,8 @@ static void convert_coordinates(float nbody_x, float nbody_y,
 static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
     char* token;
     int timestep;
-    float min_mass = 1e10;  // Start with a very large number
-    float max_mass = 0;     // Start with zero
-    float masses[MAX_BODIES];
     
-    // Ensure num_bodies starts at 0
+    //Ensure num_bodies starts at 0
     arg->num_bodies = 0;
     
     // Get the timestep (first column)
@@ -41,7 +38,7 @@ static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
     if (!token) return -1;
     timestep = atoi(token);
     
-    // First pass: read all coordinates and masses, find min/max mass
+    // Process each body's x and y coordinates
     for (int i = 0; i < max_bodies; i++) {
         // Passing in Null to strtok will continue tokenizing the same string
         token = strtok(NULL, ",");
@@ -52,45 +49,15 @@ static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
         if (!token) break;  //Exit the loop, we've accounted for all bodies
         float y = atof(token);
         
-        // Mass
-        token = strtok(NULL, ",");
-        if (!token) break;
-        float mass = atof(token);
-        
-        // Store the mass temporarily
-        masses[i] = mass;
-        
-        // Update min/max mass
-        if (mass < min_mass) min_mass = mass;
-        if (mass > max_mass) max_mass = mass;
-        
-        // Convert coordinates
         unsigned short display_x, display_y;
         convert_coordinates(x, y, &display_x, &display_y);
         
         arg->bodies[i].x = display_x;
         arg->bodies[i].y = display_y;
+        arg->bodies[i].radius = 25; 
         arg->bodies[i].n = i;
         
         arg->num_bodies++;
-    }
-    
-    // Second pass: calculate radius based on mass
-    // Scale from 2-25 based on mass
-    const int MIN_RADIUS = 2;
-    const int MAX_RADIUS = 25;
-    
-    for (int i = 0; i < arg->num_bodies; i++) {
-        // Linear scaling formula
-        float scale = (masses[i] - min_mass) / (max_mass - min_mass);
-        
-        // Prevent division by zero if all masses are equal
-        if (max_mass == min_mass) {
-            scale = 0.5; // Use middle value
-        }
-        
-        // Calculate radius
-        arg->bodies[i].radius = (unsigned short)(MIN_RADIUS + scale * (MAX_RADIUS - MIN_RADIUS));
     }
     
     return timestep;
