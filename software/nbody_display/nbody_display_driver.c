@@ -194,8 +194,10 @@ static void fill_framebuffer(void)
 //Right now the default radius is 5
 static void draw_circle(unsigned short x0, unsigned short y0, unsigned short radius) {
     // Validate inputs
-    if (radius == 0 || radius > 20) {  // Set reasonable bounds
-        radius = MIN(MAX(radius, 1), 20);
+    if (radius == 0) {  // Set reasonable bounds
+        radius = 1;
+    }else if (radius > 20) {
+        radius = 20;
     }
     
     int radius_squared = radius * radius;
