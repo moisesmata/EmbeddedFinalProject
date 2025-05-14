@@ -345,107 +345,106 @@ static struct miscdevice nbody_display_misc_device = {
     .fops  = &nbody_display_fops,
 };
 
+
 /*
- * Initialization code: get resources and set up
+ * Initialization code: get resources (registers) and display
+ * a welcome message
  */
-static int __init nbody_display_probe(struct platform_device *pdev) {
-    int ret;
-    struct device_node *nbody_node, *display_node;
+static int __init nbody_display_probe(struct platform_device *pdev)
+{
+	int ret;
 
-    /* Register ourselves as a misc device */
-    ret = misc_register(&nbody_display_misc_device);
-    if (ret) {
-        pr_err("%s: failed to register misc device\n", DRIVER_NAME);
-        return ret;
-    }
+	/* Register ourselves as a misc device: creates /dev/vga_ball */
+	ret = misc_register(&nbody_display_misc_device);
 
-    ret = of_address_to_resource(pdev->dev.of_node, 0, &dev.res);
-    if (ret) {
-        ret = -ENOENT;
-        goto out_deregister;
-    }
+	/* Get the address of our registers from the device tree */
+	ret = of_address_to_resource(pdev->dev.of_node, 0, &dev.res);
+	if (ret) {
+		ret = -ENOENT;
+		goto out_deregister;
+	}
 
-    /* Request memory regions */
-    if (request_mem_region(dev.res.start, resource_size(&dev.res),
-                         DRIVER_NAME) == NULL) {
-        ret = -EBUSY;
-        goto out_deregister;
-    }
+	/* Make sure we can use these registers */
+	if (request_mem_region(dev.res.start, resource_size(&dev.res),
+			       DRIVER_NAME) == NULL) {
+		ret = -EBUSY;
+		goto out_deregister;
+	}
 
-    /* Map the registers */
-    dev.virtbase = ioremap(dev.res.start, resource_size(&dev.res));
-    if (dev.display_virtbase == NULL) {
-        ret = -ENOMEM;
-        goto out_unmap_nbody;
-    }
+	/* Arrange access to our registers */
+	dev.virtbase = of_iomap(pdev->dev.of_node, 0);
+	if (dev.virtbase == NULL) {
+		ret = -ENOMEM;
+		goto out_release_mem_region;
+	}
 
-    /* Initialize NBody simulation data */
-    dev.go = 0;
-    dev.done = 0;
-    dev.read = 0;
-    dev.sim_config.N = 0;
-    dev.sim_config.gap = 0;
-    dev.body_parameters.n = 0;
-    dev.body_parameters.x = 0;
-    dev.body_parameters.y = 0;
-    dev.body_parameters.m = 0;
-    dev.body_parameters.vx = 0;
-    dev.body_parameters.vy = 0;
-
-    /* Initialize Display data */
+	//LOOK INTO THIS
+	dev.go = 0;
+	dev.done = 0;
+	dev.read = 0;
+	dev.sim_config.N = 0;
+	dev.sim_config.gap = 0;
+	dev.body_parameters.n = 0;
+	dev.body_parameters.x = 0;
+	dev.body_parameters.y = 0;
+	dev.body_parameters.m = 0;
+	dev.body_parameters.vx = 0;
+	dev.body_parameters.vy = 0;
+    /* Initialize the device with empty screen */
     clear_framebuffer();
-    dev.vga_ball_arg.num_bodies = 0;
+    dev.vga_ball_arg.num_bodies = 0;  // Changed from dev.vga_display_arg
 
-    pr_info("%s: initialized successfully\n", DRIVER_NAME);
-    return 0;
+	return 0;
 
 out_release_mem_region:
 	release_mem_region(dev.res.start, resource_size(&dev.res));
 out_deregister:
-	misc_deregister(&nbody_misc_device);
+	misc_deregister(&nbody_display_misc_device);
 	return ret;
 }
 
 /* Clean-up code: release resources */
-static int nbody_display_remove(struct platform_device *pdev) {
-    iounmap(dev.virtbase);
-    release_mem_region(dev.res.start, resource_size(&dev.res));
-    misc_deregister(&nbody_display_misc_device);
-    return 0;
+static int nbody_display_remove(struct platform_device *pdev)
+{
+	iounmap(dev.virtbase);
+	release_mem_region(dev.res.start, resource_size(&dev.res));
+	misc_deregister(&nbody_display_misc_device);
+	return 0;
 }
 
 /* Which "compatible" string(s) to search for in the Device Tree */
 #ifdef CONFIG_OF
 static const struct of_device_id nbody_display_of_match[] = {
-    { .compatible = "csee4840,nbody-1.0" },
-    { .compatible = "csee4840,vga_ball-1.0" },
-    { .compatible = "Kris,nbody_main-1.0" },
-    {},
+	{ .compatible = "csee4840,nbody-1.0" },
+	{ .compatible = "unknown,unknown-1.0" },
+	{ .compatible = "Kris,nbody_main-1.0" },
+	{},
 };
 MODULE_DEVICE_TABLE(of, nbody_display_of_match);
 #endif
 
 /* Information for registering ourselves as a "platform" driver */
 static struct platform_driver nbody_display_driver = {
-    .driver = {
-        .name   = DRIVER_NAME,
-        .owner  = THIS_MODULE,
-        .of_match_table = of_match_ptr(nbody_display_of_match),
-    },
-    .remove = __exit_p(nbody_display_remove),
-    .probe  = nbody_display_probe,
+	.driver	= {
+		.name	= DRIVER_NAME,
+		.owner	= THIS_MODULE,
+		.of_match_table = of_match_ptr(nbody_display_of_match),
+	},
+	.remove	= __exit_p(nbody_display_remove),
 };
 
 /* Called when the module is loaded: set things up */
-static int __init nbody_display_init(void) {
-    pr_info("%s: init\n", DRIVER_NAME);
-    return platform_driver_register(&nbody_display_driver);
+static int __init nbody_display_init(void)
+{
+	pr_info(DRIVER_NAME ": init\n");
+	return platform_driver_probe(&nbody_display_driver, nbody_display_probe);
 }
 
-/* Called when the module is unloaded: release resources */
-static void __exit nbody_display_exit(void) {
-    platform_driver_unregister(&nbody_display_driver);
-    pr_info("%s: exit\n", DRIVER_NAME);
+/* Calball when the module is unloaded: release resources */
+static void __exit nbody_display_exit(void)
+{
+	platform_driver_unregister(&nbody_display_driver);
+	pr_info(DRIVER_NAME ": exit\n");
 }
 
 module_init(nbody_display_init);
@@ -453,4 +452,4 @@ module_exit(nbody_display_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Robbie, Moises, Isaac, Adib, Kris");
-MODULE_DESCRIPTION("Combined NBody Simulation and Display Driver");
+MODULE_DESCRIPTION("nbody_display driver");
