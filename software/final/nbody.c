@@ -34,7 +34,7 @@ void set_body(double x, double y, double xv, double yv, double m, int n){
   vla.vy = yv;
   vla.m = m;
   vla.n = n;
-  fprintf(stderr, "Setting Body %d: X: %f, Y: %f, M: %f\n",n,x,y,m);
+  //fprintf(stderr, "Setting Body %d: X: %f, Y: %f, M: %f\n",n,x,y,m);
   if(ioctl(nbody_fd, SET_BODY, &vla)){
     perror("ioctl(SET_BODY) failed");
     return;
@@ -91,13 +91,13 @@ all_positions_t read_positions(int N){
   all_positions_t positions;
   
   for(int i = 0; i < N; i++){
-    fprintf(stderr, "Reading Body Number %d\n", i);
+    //fprintf(stderr, "Reading Body Number %d\n", i);
     body_pos_t vla;
     vla.n = i;
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
       perror("ioctl(READ_POSITION) failed\n");
     } 
-    fprintf(stderr, "Body %d Position Read: X:%f, Y:%f \n", N,vla.x,vla.y);
+    //fprintf(stderr, "Body %d Position Read: X:%f, Y:%f \n", N,vla.x,vla.y);
     positions.bodies[i] = vla;
   }
   return positions;
@@ -307,34 +307,34 @@ int main(int argc, char** argv){
   }
   position_history[0] = read_positions(N);
   // Print initial positions to stdout
-  printf("Initial positions:\n");
+  //printf("Initial positions:\n");
   for (int i = 0; i < N; i++) {
-      printf("Body %d: X = %lf, Y = %lf\n",
+      //printf("Body %d: X = %lf, Y = %lf\n",
              i,
              position_history[0].bodies[i].x,
-             position_history[0].bodies[i].y);
+             position_history[0].bodies[i].y;
   }
-  fprintf(stderr, "Simulation bodies and parameters read in\n");
+  //fprintf(stderr, "Simulation bodies and parameters read in\n");
 
   //Send the go signal
   set_go(high);
 
-  fprintf(stderr, "Go signal set high!\n");
+  //fprintf(stderr, "Go signal set high!\n");
   
   //Do the looping - implemented as some sort of silly state machine
   int t = 0;
   while(t < time_steps){
 
-    fprintf(stderr, "Timestep %d Beginning:\n", t);
+    //fprintf(stderr, "Timestep %d Beginning:\n", t);
     //Do Polling
     int read = 0;
 
     /**/
     while(!read){
       //Wait for the poll signal
-      fprintf(stderr, "Polling...\n");
+      //fprintf(stderr, "Polling...\n");
       if(poll_done()){
-        fprintf(stderr, "Received Done!\n");
+        //fprintf(stderr, "Received Done!\n");
         read = 1;
         set_read(high);
         break;
@@ -342,7 +342,7 @@ int main(int argc, char** argv){
     }
     //Read the positions from the driver
 
-    fprintf(stderr, "Read Set To High\n");
+    //fprintf(stderr, "Read Set To High\n");
     //usleep(100000);
 
     while(1){
@@ -351,11 +351,11 @@ int main(int argc, char** argv){
       }
     }
     
-    fprintf(stderr, "Done is low again!\n");
+    //fprintf(stderr, "Done is low again!\n");
 
     position_history[t] = read_positions(N);
 
-    fprintf(stderr, "How did we get here?\n");
+    //fprintf(stderr, "How did we get here?\n");
 
     //Reading is finished, set read to low!
     set_read(low);
