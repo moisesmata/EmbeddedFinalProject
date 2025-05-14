@@ -42,7 +42,6 @@ static int parse_csv_line(char* line, body_full* arg, int max_bodies) {
     // Get the timestep (first column)
     token = strtok(line, ",");
     if (!token) return -1;
-    timestep = atoi(token);
     
     // Process each body's x and y coordinates
     for (int i = 0; i < max_bodies; i++) {
