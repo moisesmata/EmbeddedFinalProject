@@ -75,7 +75,6 @@ static void write_body(body_t * body_parameters) {
     int m_bits[2];
     int vx_bits[2];
     int vy_bits[2];
-    static int write_count = 0;
     
     memcpy(&x_bits, &body_parameters->x, sizeof(uint64_t));
     memcpy(&y_bits, &body_parameters->y, sizeof(uint64_t));
