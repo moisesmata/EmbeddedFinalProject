@@ -10,14 +10,17 @@ else
 	KERNEL_SOURCE := /usr/src/linux-headers-$(shell uname -r)
         PWD := $(shell pwd)
 
+# Add compilation flags
+CFLAGS = -g -Wall -O0
+
 default: module nbody display
 
 module:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
 
 clean:
-	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
-	${RM} hello
+    ${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
+    ${RM} nbody display
 
 TARFILES = Makefile README nbody_display_driver.h nbody_display_driver.c nbody.c display.c
 TARFILE = lab3-sw.tar.gz
