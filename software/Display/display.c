@@ -18,10 +18,10 @@
 
 // Function to convert nbody simulation coordinates to display coordinates
 static void convert_coordinates(float nbody_x, float nbody_y, 
-                               unsigned short *display_x, unsigned short *display_y) {
+                               short *display_x, short *display_y) {
     // Scale from -500,500 range to display coordinates
-    *display_x = (unsigned short)((nbody_x + 500.0) / 1000.0 * (DISPLAY_WIDTH));
-    *display_y = (unsigned short)((nbody_y + 500.0) / 1000.0 * (DISPLAY_HEIGHT));
+    *display_x = (short)((nbody_x + 500.0) / 1000.0 * (DISPLAY_WIDTH));
+    *display_y = (short)((nbody_y + 500.0) / 1000.0 * (DISPLAY_HEIGHT));
     
 }
 
@@ -49,7 +49,7 @@ static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
         if (!token) break;  //Exit the loop, we've accounted for all bodies
         float y = atof(token);
         
-        unsigned short display_x, display_y;
+        short display_x, display_y;
         convert_coordinates(x, y, &display_x, &display_y);
         
         arg->bodies[i].x = display_x;
