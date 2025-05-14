@@ -235,7 +235,7 @@ int main(int argc, char** argv){
     case 4:
       printf("You selected 512 Bodies!\n");
       selected_sim = five_one_two;
-      N = 256;
+      N = 511;
       break;
 
     case 5:
