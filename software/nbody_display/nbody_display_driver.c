@@ -60,10 +60,8 @@
 /* Combined device information */
 struct nbody_display_dev {
     // Hardware resources
-    struct resource nbody_res;
-    struct resource display_res;
-    void __iomem *nbody_virtbase;
-    void __iomem *display_virtbase;
+    struct resource res;
+    void __iomem *virtbase;
     
     // NBody simulation data
     body_t body_parameters;
@@ -361,55 +359,21 @@ static int __init nbody_display_probe(struct platform_device *pdev) {
         return ret;
     }
 
-    /* Find the NBody and Display nodes in the device tree */
-    nbody_node = of_find_compatible_node(NULL, NULL, "csee4840,nbody-1.0");
-    if (!nbody_node) {
-        nbody_node = of_find_compatible_node(NULL, NULL, "Kris,nbody_main-1.0");
-    }
-    
-    display_node = of_find_compatible_node(NULL, NULL, "csee4840,vga_ball-1.0");
-    
-    if (!nbody_node || !display_node) {
-        pr_err("%s: failed to find compatible device nodes\n", DRIVER_NAME);
-        ret = -ENOENT;
-        goto out_deregister;
-    }
-
-    /* Get NBody registers from the device tree */
-    ret = of_address_to_resource(nbody_node, 0, &dev.nbody_res);
-    if (ret) {
-        ret = -ENOENT;
-        goto out_deregister;
-    }
-
-    /* Get Display registers from the device tree */
-    ret = of_address_to_resource(display_node, 0, &dev.display_res);
+    ret = of_address_to_resource(pdev->dev.of_node, 0, &dev.res);
     if (ret) {
         ret = -ENOENT;
         goto out_deregister;
     }
 
     /* Request memory regions */
-    if (request_mem_region(dev.nbody_res.start, resource_size(&dev.nbody_res),
+    if (request_mem_region(dev.res.start, resource_size(&dev.res),
                          DRIVER_NAME) == NULL) {
         ret = -EBUSY;
         goto out_deregister;
     }
 
-    if (request_mem_region(dev.display_res.start, resource_size(&dev.display_res),
-                         DRIVER_NAME) == NULL) {
-        ret = -EBUSY;
-        goto out_release_nbody_mem;
-    }
-
     /* Map the registers */
-    dev.nbody_virtbase = ioremap(dev.nbody_res.start, resource_size(&dev.nbody_res));
-    if (dev.nbody_virtbase == NULL) {
-        ret = -ENOMEM;
-        goto out_release_display_mem;
-    }
-
-    dev.display_virtbase = ioremap(dev.display_res.start, resource_size(&dev.display_res));
+    dev.virtbase = ioremap(dev.res.start, resource_size(&dev.res));
     if (dev.display_virtbase == NULL) {
         ret = -ENOMEM;
         goto out_unmap_nbody;
@@ -435,23 +399,17 @@ static int __init nbody_display_probe(struct platform_device *pdev) {
     pr_info("%s: initialized successfully\n", DRIVER_NAME);
     return 0;
 
-out_unmap_nbody:
-    iounmap(dev.nbody_virtbase);
-out_release_display_mem:
-    release_mem_region(dev.display_res.start, resource_size(&dev.display_res));
-out_release_nbody_mem:
-    release_mem_region(dev.nbody_res.start, resource_size(&dev.nbody_res));
+out_release_mem_region:
+	release_mem_region(dev.res.start, resource_size(&dev.res));
 out_deregister:
-    misc_deregister(&nbody_display_misc_device);
-    return ret;
+	misc_deregister(&nbody_misc_device);
+	return ret;
 }
 
 /* Clean-up code: release resources */
 static int nbody_display_remove(struct platform_device *pdev) {
-    iounmap(dev.display_virtbase);
-    iounmap(dev.nbody_virtbase);
-    release_mem_region(dev.display_res.start, resource_size(&dev.display_res));
-    release_mem_region(dev.nbody_res.start, resource_size(&dev.nbody_res));
+    iounmap(dev.virtbase);
+    release_mem_region(dev.res.start, resource_size(&dev.res));
     misc_deregister(&nbody_display_misc_device);
     return 0;
 }
