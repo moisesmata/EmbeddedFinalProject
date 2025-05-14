@@ -401,7 +401,7 @@ int main(int argc, char** argv){
       for (int t = 0; t < time_steps; t++) {
           fprintf(output, "%d", t);
           for (int i = 0; i < N; i++) {
-              fprintf(output, ",%f,%f", 
+              fprintf(output, ",%f,%f,%f", 
                   position_history[t].bodies[i].x, 
                   position_history[t].bodies[i].y,
                 initial_state[5*i + 4]); // mass
