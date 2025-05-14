@@ -169,7 +169,7 @@ int main(int argc, char** argv) {
                 simulation_data[actual_timesteps].bodies[i].y = ((row_data[i].y - yzero) / yrange) * (float)DISPLAY_HEIGHT;
                 simulation_data[actual_timesteps].bodies[i].m = ((row_data[i].m - mzero) / mrange) * (float) 255;
                 simulation_data[actual_timesteps].bodies[i].n = i;
-                simulation_data[actual_timesteps].bodies[i].radius = (unsigned short)(((row_data[i].m - mzero) / mrange) * (float)((MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS));
+                simulation_data[actual_timesteps].bodies[i].radius = (unsigned short)(((row_data[i].m - mzero) / mrange) * (float)(MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS);
                 
 
             } else {
