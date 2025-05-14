@@ -20,8 +20,8 @@
 static void convert_coordinates(float nbody_x, float nbody_y, 
                                short *display_x, short *display_y) {
     // Scale from -500,500 range to display coordinates
-    *display_x = (short)((nbody_x + 500.0) / 1000.0 * (DISPLAY_WIDTH));
-    *display_y = (short)((nbody_y + 500.0) / 1000.0 * (DISPLAY_HEIGHT));
+    *display_x = (short)((nbody_x + 500.0) / 1000.0 * (DISPLAY_WIDTH/4));
+    *display_y = (short)((nbody_y + 500.0) / 1000.0 * (DISPLAY_HEIGHT/4));
     
 }
 
