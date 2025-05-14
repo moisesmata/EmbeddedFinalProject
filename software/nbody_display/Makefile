@@ -27,4 +27,4 @@ tar : $(TARFILE)
 $(TARFILE) : $(TARFILES)
 	tar zcfC $(TARFILE) .. $(TARFILES:%=lab3-sw/%)
 
-endif display.c 
+endif
