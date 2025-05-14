@@ -166,7 +166,7 @@ int main(int argc, char** argv) {
                 mass_normalized = (simulation_data[t].bodies[i].m - min_mass) / (max_mass - min_mass);
             }
             
-            simulation_data[t].bodies[i].radius = (unsigned short)(mass_normalized * MAX_RADIUS);
+            simulation_data[t].bodies[i].radius = (unsigned short)(mass_normalized * MAX_RADIUS + MIN_RADIUS);
         }
     }
     
