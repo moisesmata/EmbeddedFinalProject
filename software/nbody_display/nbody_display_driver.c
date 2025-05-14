@@ -422,6 +422,7 @@ static int nbody_display_remove(struct platform_device *pdev)
 /* Which "compatible" string(s) to search for in the Device Tree */
 #ifdef CONFIG_OF
 static const struct of_device_id nbody_display_of_match[] = {
+    { .compatible = "Isaac,nbody-1.0" },
 	{ .compatible = "Kris,nbody_main-1.0" },
 	{ .compatible = "csee4840,nbody-1.0" },
 	{ .compatible = "unknown,unknown-1.0" },
