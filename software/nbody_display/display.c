@@ -15,7 +15,7 @@
 #define CSV_FILENAME "nbody_results.csv"
 #define PLAYBACK_DELAY_MS 100  
 #define MAX_TIMESTEPS 40000   //Fixed allocation (will fix later)
-#define MIN_RADIUS 1
+#define MIN_RADIUS 2
 #define MAX_RADIUS 6
 
 typedef struct {
