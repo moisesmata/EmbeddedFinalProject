@@ -243,7 +243,7 @@ int main(int argc, char** argv){
     case 5: 
       printf("You selected the solar system!\n");
       selected_sim = solar;
-      N = 15;
+      N = 14;
       break;
 
     case 6:
