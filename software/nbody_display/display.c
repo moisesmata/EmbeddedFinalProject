@@ -172,6 +172,13 @@ int main(int argc, char** argv) {
                 simulation_data[actual_timesteps].bodies[i].m = (row_data[i].m - mzero / mrange) * (float) 255;
                 simulation_data[actual_timesteps].bodies[i].n = i;
                 simulation_data[actual_timesteps].bodies[i].radius = (unsigned short)(((row_data[i].m - mzero) / mrange) * (MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS);
+                printf("Timestep %d, Body %d: x=%.2f, y=%.2f, m=%.2f, radius=%d\n", 
+                       actual_timesteps, i, 
+                       simulation_data[actual_timesteps].bodies[i].x, 
+                          simulation_data[actual_timesteps].bodies[i].y,
+                            simulation_data[actual_timesteps].bodies[i].m,
+                            simulation_data[actual_timesteps].bodies[i].radius);
+
             } else {
                 simulation_data[actual_timesteps].bodies[i].radius = 0;
             }
