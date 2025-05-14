@@ -157,8 +157,8 @@ int main(int argc, char** argv) {
             yrange -= yzero;
             xzero -= .5 * xrange;
             yzero -= .5 * yrange;
-            xrange *= 1.5;
-            yrange *= 1.5; 
+            xrange *= 2;
+            yrange *= 2; 
             mrange -= mzero;
         }
 
