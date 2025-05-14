@@ -371,20 +371,32 @@ int main(int argc, char** argv){
   // Write all data to a CSV file
   FILE* output = fopen("nbody_results.csv", "w");
   if (output) {
-      //Header with timestep, body0_x, body0_y, body1_x, body1_y, ...
+      // Header with timestep, body0_x, body0_y, body0_mass, body1_x, body1_y, body1_mass ...
       fprintf(output, "timestep");
       for (int i = 0; i < N; i++) {
-          fprintf(output, ",body%d_x,body%d_y", i, i);
+          fprintf(output, ",body%d_x,body%d_y,body%d_mass", i, i, i);
       }
 
       fprintf(output, "\n");
       
-      for (int t = 0; t < time_steps; t++) {
+      // Write initial timestep (t=0) with initial masses
+      fprintf(output, "0");
+      for (int i = 0; i < N; i++) {
+          fprintf(output, ",%f,%f,%f", 
+              position_history[0].bodies[i].x, 
+              position_history[0].bodies[i].y,
+              initial_state[5*i + 4]); // mass from initial state
+      }
+      fprintf(output, "\n");
+      
+      // Write remaining timesteps
+      for (int t = 1; t < time_steps; t++) {
           fprintf(output, "%d", t);
           for (int i = 0; i < N; i++) {
-              fprintf(output, ",%f,%f", 
+              fprintf(output, ",%f,%f,%f", 
                   position_history[t].bodies[i].x, 
-                  position_history[t].bodies[i].y);
+                  position_history[t].bodies[i].y,
+                  initial_state[5*i + 4]); // mass from initial state (mass doesn't change)
           }
           fprintf(output, "\n");
       }
