@@ -166,27 +166,12 @@ double* get_initial_state(char* filename, int N){
 // ----------------------------------------------------
 int main(int argc, char** argv){  
   //Check to make sure that the 
-  if (argc != 3) {
-    fprintf(stderr, "Usage: ./nbody <# of bodies> <# of outputs>\n");
+  if (argc > 1) {
+    fprintf(stderr, "Usage: ./nbody \n");
     return -1;
   }
 
-
-  //Parse User Input
-  int N = atoi(argv[1]); 
-  fprintf(stderr, "Number of bodies is %d\n",N);
-
-  int time_steps = atoi(argv[2]); 
   int dt = 2; //Set timestep to 2 because it makes our lives easier!
-
-  //Make sure that N wasn't set to something weird
-  if(N <= 0){
-    perror("N must be a positive integer!\n");
-    return -1; 
-  } else if(N > 512){
-    perror("N must be less than 512!\n");
-    return -1; 
-  }
 
   //Begin the userspace program
   int i;
@@ -199,6 +184,83 @@ int main(int argc, char** argv){
 
   set_go(low);
   set_read(low);
+
+  //Check to make sure that the
+  char one[] = " _   _       ____   ___  ______   __";
+  char two[] = "| \\ | |     | __ ) / _ \\|  _ \\ \\ / /";
+  char three[] = "|  \\| |_____|  _ \\| | | | | | \\ V /";
+  char four[] = "| |\\  |_____| |_) | |_| | |_| || | ";
+  char five[] = "|_| \\_|     |____/ \\___/|____/ |_|  ";
+  printf("%s\n",one);
+  printf("%s\n",two);
+  printf("%s\n",three);
+  printf("%s\n",four);
+  printf("%s\n",five);
+
+  char thirty_two[] = "32body_input.csv";
+  char sixty_four[] = "64body_input.csv";
+  char one_two_eight[] = "128body_input.csv";
+  char five_one_two[] = "512body_input.csv";
+  char initial_test[] = "input.csv";
+
+  printf("\nWelcome to the N-Body Simulation Final Project!\n\n");
+  printf("Please select a setting for how many bodies you would like to simulate:\n 1 - 32 Bodies \n 2 - 64 Bodies \n 3 - 128 Bodies \n 4 - 512 Bodies\n");
+
+  int num;
+  char* selected_sim;
+
+  scanf("%d",&num);
+
+  int N;
+
+  switch (num){
+    case 1:
+      printf("You selected 32 Bodies!\n");
+      selected_sim = thirty_two;
+      N = 32;
+    
+    case 2:
+      printf("You selected 64 Bodies!\n");
+      selected_sim = sixty_four;
+      N = 64;
+    
+    case 3:
+      printf("You selected 128 Bodies!\n");
+      selected_sim = one_two_eight;
+      N = 128;
+
+    case 4:
+      printf("You selected 512 Bodies!\n");
+      selected_sim = five_one_two;
+      N = 512;
+
+    case 5:
+      printf("You selected secret test!\n");
+      selected_sim = initial_test;
+      N = 28;
+    
+    default:
+      printf("Bad input! Please run the program again.\n");
+      return -1;
+  }
+  
+  printf("Set Gap Size:\n");
+
+  int output_step;
+  scanf("%d",&output_step);
+  if(output_step < 1){
+    perror("Gap Size Must Be >= 1!!\n"); //For testing set to 6
+    return -1;
+  }
+
+  printf("Number of Iterations\n"); //Set to 12
+
+  int time_steps;
+  scanf("%d",&time_steps);
+  if(time_steps < 1){
+    perror("Number of Iterations Must Be >= 1!!\n");
+    return -1;
+  }
 
   printf("N-Body Userspace program started\n");
 
@@ -214,7 +276,7 @@ int main(int argc, char** argv){
              i); //body number
   }
 
-  double* initial_state = get_initial_state("input.csv", N);
+  double* initial_state = get_initial_state(selected_sim, N);
   
   fprintf(stderr, "Initial Bodies Parameters Read In\n");
 
@@ -226,7 +288,6 @@ int main(int argc, char** argv){
   }
 
   //Then set the initial parameters for the simulation
-  int output_step = 6;
   set_simulation_parameters(N,output_step);
 
   // The initial parameters are read in - Send them to the driver
