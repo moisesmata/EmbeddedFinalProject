@@ -5,35 +5,31 @@ def create_solar_system():
     bodies = []
     
     # Sun at the center with large mass
-    bodies.append([0, 0, 0, 0, 1000.0])
+    bodies.append([0, 0, 0, 0, 1.0000])
     
     # Mercury
-    bodies.append([20, 0, 0, 2.0, 3.3])
+    bodies.append([20, 0, 0, 2.0, .0033])
     
     # Venus
-    bodies.append([35, 0, 0, 1.6, 48.7])
+    bodies.append([35, 0, 0, 1.6, .0487])
     
     # Earth
-    bodies.append([50, 0, 0, 1.4, 60.0])
+    bodies.append([50, 0, 0, 1.4, .0600])
     
     # Mars
-    bodies.append([75, 0, 0, 1.1, 6.4])
+    bodies.append([75, 0, 0, 1.1, .0064])
     
     # Jupiter
-    bodies.append([250, 0, 0, 0.6, 190.0])
+    bodies.append([250, 0, 0, 0.6, .1900])
     
     # Saturn
-    bodies.append([450, 0, 0, 0.4, 95.0])
+    bodies.append([450, 0, 0, 0.4, .0950])
     
     # Uranus
-    bodies.append([900, 0, 0, 0.3, 14.5])
+    bodies.append([900, 0, 0, 0.3, .0145])
     
     # Neptune
-    bodies.append([1400, 0, 0, 0.25, 17.1])
-    
-    # Fill remaining slots with zeros
-    for i in range(23):
-        bodies.append([0, 0, 0, 0, 0])
+    bodies.append([1400, 0, 0, 0.25, .0171])
     
     # Write to CSV
     with open("input.csv", "w") as f:
