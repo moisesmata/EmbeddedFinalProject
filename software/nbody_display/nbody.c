@@ -175,7 +175,7 @@ int main(int argc, char** argv){
 
   //Begin the userspace program
   int i;
-  static const char filename[] = "/dev/nbody";
+  static const char filename[] = "/dev/nbody_display";
 
   if ( (nbody_fd = open(filename, O_RDWR)) == -1) {
     fprintf(stderr, "could not open %s\n", filename);
