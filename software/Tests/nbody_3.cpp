@@ -57,12 +57,12 @@ int main( int argc, char* argv[]) {
     int timesteps; cin >> timesteps;
     // std::cout << "Number of timesteps: " << timesteps << std::endl;
     for(int i = 0; i < timesteps; ++i) {
-        for(int j = 0; j < 511; ++j) {
-            for(int k = 0; k < 511; ++k) {
+        for(int j = 0; j < 3; ++j) {
+            for(int k = 0; k < 3; ++k) {
                 getAccl(&positions[j], &positions[k], i);
             }
         }
-        for(int j = 0; j < 511; ++j) {
+        for(int j = 0; j < 3; ++j) {
             positions[j].x += positions[j].vx;
             positions[j].y += positions[j].vy;
         }
