@@ -277,6 +277,7 @@ static int nbody_remove(struct platform_device *pdev)
 #ifdef CONFIG_OF
 static const struct of_device_id nbody_of_match[] = {
 	{ .compatible = "csee4840,nbody-1.0" },
+	{ .compatible = "Kris,nbody_main-1.0" },
 	{ .compatible = "unknown,unknown-1.0" },
 	{ .compatible = "Kris,nbody_main-1.0" },
 	{},
