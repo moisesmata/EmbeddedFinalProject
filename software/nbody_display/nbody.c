@@ -172,10 +172,8 @@ int main(int argc, char** argv){
     return -1;
   }
 
-  int dt = 2; //Set timestep to 2 because it makes our lives easier!
 
   //Begin the userspace program
-  int i;
   static const char filename[] = "/dev/nbody_display";
 
   if ( (nbody_fd = open(filename, O_RDWR)) == -1) {

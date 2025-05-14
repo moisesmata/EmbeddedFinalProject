@@ -36,7 +36,6 @@ static void convert_coordinates(float nbody_x, float nbody_y,
 // Function to parse a CSV line into a vga_ball_arg_t structure -- This populates one timestep of data
 static int parse_csv_line(char* line, body_full* arg, int max_bodies) {
     char* token;
-    int timestep;
     
     //Ensure num_bodies starts at 0
     int num_bodies = 0;
@@ -135,7 +134,7 @@ int main(int argc, char** argv) {
             //Bodies stay the same for each timestep
             simulation_data[actual_timesteps].num_bodies = simulation_data[0].num_bodies;
         }
-        if(first_line) {
+        if(1) {
             first_line = 0;
             xzero = row_data[0].x;
             yzero = row_data[0].y;
