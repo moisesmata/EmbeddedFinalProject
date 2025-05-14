@@ -16,7 +16,7 @@
 #define PLAYBACK_DELAY_MS 100  
 #define MAX_TIMESTEPS 10000   //Fixed allocation (will fix later)
 #define MIN_RADIUS 1
-#define MAX_RADIUS 5
+#define MAX_RADIUS 10
 
 // Function to convert nbody simulation coordinates to display coordinates
 static void convert_coordinates(float nbody_x, float nbody_y, 
