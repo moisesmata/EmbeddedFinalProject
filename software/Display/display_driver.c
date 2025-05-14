@@ -74,27 +74,6 @@ static void fill_framebuffer(void)
     printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
 }
 
-static void draw_bodies(void)
-{
-    int i;
-    printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
-    
-    //clear virtual framebuffer
-    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        dev.framebuffer[i] = 0;
-    }
-
-    for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
-        draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
-    }
-
-    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
-    }
-    
-    printk(KERN_INFO "vga_ball: Bodies Drawn\n");
-}
-
 //Right now the default radius is 5
 static void draw_circle(unsigned short x0, unsigned short y0){ 
     int radius = 3;
@@ -119,6 +98,28 @@ static void draw_circle(unsigned short x0, unsigned short y0){
         }
     }
 }
+
+static void draw_bodies(void)
+{
+    int i;
+    printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
+    
+    //clear virtual framebuffer
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        dev.framebuffer[i] = 0;
+    }
+
+    for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
+        draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
+    }
+
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
+    }
+    
+    printk(KERN_INFO "vga_ball: Bodies Drawn\n");
+}
+
 
 static void draw_checkerboard(void)
 {
