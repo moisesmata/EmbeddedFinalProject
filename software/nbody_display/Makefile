@@ -1,7 +1,7 @@
 ifneq (${KERNELRELEASE},)
 
 # KERNELRELEASE defined: we are being compiled as part of the Kernel
-        obj-m := nbody_driver.o
+        obj-m := nbody_display_driver.o
 
 else
 
@@ -19,7 +19,7 @@ clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 	${RM} hello
 
-TARFILES = Makefile README nbody_driver.h nbody_driver.c nbody.c display.c
+TARFILES = Makefile README nbody_display_driver.h nbody_display_driver.c nbody.c display.c
 TARFILE = lab3-sw.tar.gz
 .PHONY : tar
 tar : $(TARFILE)
