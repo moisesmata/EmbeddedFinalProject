@@ -48,7 +48,7 @@ int main( int argc, char* argv[]) {
         std::cerr << "Usage: " << argv[0] << " <bodies> <timesteps>" << std::endl;
         return 1;
     }
-    std::vector<Body> positions = {
+    Body positions[] = {
     {-3,3,-4,2,427},
     {-50,55,-1,-1,240},
     {-41,71,-3,-5,402},
@@ -559,32 +559,31 @@ int main( int argc, char* argv[]) {
     {-23,-16,2,5,1767},
     {20,8,1,-2,1156},
     {65,-64,-3,-1,263},
-    {74,-37,-5,3,127}
-    // ... (add more if needed to reach 511)
+    {74,-37,-5,3,127},
 };
     std::cout << "Initial values of bodies:" << std::endl;
-    for (size_t i = 0; i < positions.size(); ++i) {
+    for (size_t i = 0; i < 511; ++i) {
         std::cout << "Body " << i << ": Position (" << positions[i].x << ", " << positions[i].y 
                   << "), Velocity (" << positions[i].vx << ", " << positions[i].vy 
                   << "), Mass " << positions[i].m << std::endl;
     }
 
-    int timesteps = std::stoi(argv[2]);
+    int timesteps; cin >> timesteps;
     // std::cout << "Number of timesteps: " << timesteps << std::endl;
     for(int i = 0; i < timesteps; ++i) {
-        for(int j = 0; j < positions.size(); ++j) {
-            for(int k = 0; k < positions.size(); ++k) {
+        for(int j = 0; j < 511; ++j) {
+            for(int k = 0; k < 511; ++k) {
                 getAccl(&positions[j], &positions[k], i);
             }
         }
-        for(int j = 0; j < positions.size(); ++j) {
+        for(int j = 0; j < 511; ++j) {
             positions[j].x += positions[j].vx;
             positions[j].y += positions[j].vy;
         }
         // std::cout << "Timestep " << i << "\n";
     }
     std::cout.precision(20);
-    for (size_t j = 0; j < positions.size(); ++j) {
+    for (size_t j = 0; j < 511; ++j) {
         std::cout << "Body " << j << ": Position (" << positions[j].x << ", " << positions[j].y 
                   << "), Velocity (" << positions[j].vx << ", " << positions[j].vy << ")" << std::endl;
     }
