@@ -123,7 +123,7 @@ double* get_initial_state(char* filename, int N){
     fprintf(stderr, "Memory allocation failed\n");
     return NULL;
   }
-  fprintf(stderr, "Allocated %d bytes for initial state\n", N * 5 * sizeof(double));
+  //fprintf(stderr, "Allocated %d bytes for initial state\n", N * 5 * sizeof(double));
 
   //Open the file and read it
   FILE* file = fopen(filename, "r");
@@ -134,7 +134,7 @@ double* get_initial_state(char* filename, int N){
   char row[MAXCHAR];
   int i = 0;
   int flag = 0;
-  fprintf(stderr, "Reading file %s\n", filename);
+  //fprintf(stderr, "Reading file %s\n", filename);
   //Go through file and save all the data
   while(fgets(row, MAXCHAR, file)){
     char* token = strtok(row,",");
@@ -153,11 +153,11 @@ double* get_initial_state(char* filename, int N){
     }
   }
 
-  fprintf(stderr, "Do we get here???? %lf %lf %lf\n", initial_state[0], initial_state[1], initial_state[2]);
+  //fprintf(stderr, "Do we get here???? %lf %lf %lf\n", initial_state[0], initial_state[1], initial_state[2]);
 
   //Close final and return pointer to the initial parameters
   fclose(file);
-  fprintf(stderr, "we closed the file\n");
+  //fprintf(stderr, "we closed the file\n");
   return initial_state;
 }
 
@@ -258,7 +258,7 @@ int main(int argc, char** argv){
     return -1;
   }
 
-  printf("Number of Iterations\n"); //Set to 12
+  printf("Number of Iterations:\n"); //Set to 12
 
   int time_steps;
   scanf("%d",&time_steps);
@@ -325,7 +325,7 @@ int main(int argc, char** argv){
   int t = 0;
   while(t < time_steps){
     if(t % 10 == 0){
-      printf("Iteration %d complete!\n", t);
+      //printf("Iteration %d complete!\n", t);
     }
 
     //fprintf(stderr, "Timestep %d Beginning:\n", t);
@@ -400,6 +400,8 @@ int main(int argc, char** argv){
   free(position_history);
 
   printf("N-Body Userspace program terminating\n");
+
+  printf("Displaying simulation!\n");
   return 0;
 }
 

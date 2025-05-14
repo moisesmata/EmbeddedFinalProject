@@ -21,37 +21,37 @@
 
 /* Device registers */
 
-#define GO_ADDR(base) (base) + (64 << 11)
-#define READ_ADDR(base) (base) + (65 << 11)
-#define N_ADDR(base) (base) + (66 << 11)
-#define GAP_ADDR(base) (base) + (67 << 11)
+#define GO_ADDR(base) (base) + (0x40 << 11)
+#define READ_ADDR(base) (base) + (0x41 << 11)
+#define N_ADDR(base) (base) + (0x42 << 11)
+#define GAP_ADDR(base) (base) + (0x43 << 11)
 
 /* Memory */
 
-#define X_ADDR_LOW(base, body) (base) + ((body<<2) + (68 << 11))
-#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + (69 << 11))
+#define X_ADDR_LOW(base, body) (base) + ((body<<2) + (0x44 << 11))
+#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x45 << 11))
 
-#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + (70 << 11))
-#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + (71 << 11))
+#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + (0x46 << 11))
+#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x47 << 11))
 
-#define M_ADDR_LOW(base, body) (base) + ((body<<2) + (72 << 11))
-#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + (73 << 11))
+#define M_ADDR_LOW(base, body) (base) + ((body<<2) + (0x48 << 11))
+#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x49 << 11))
 
-#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + (74 << 11))
-#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + (75 << 11))
+#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + (0x4a << 11))
+#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x4b << 11))
 
-#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + (76 << 11))
-#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + (77 << 11))
+#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + (0x4c << 11))
+#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x4d << 11))
 
 /* More Memory */
 
-#define DONE_ADDR(base) (base) + (64 << 11)
+#define DONE_ADDR(base) (base) + (0x50 << 11)
 
-#define READX_ADDR_LOW(base, body) (base) + ((80 << 11) + ((body)<<2))
-#define READX_ADDR_HIGH(base, body) (base) + ((81 << 11) + ((body)<<2))
+#define READX_ADDR_LOW(base, body) (base) + ((0x51 << 11) + ((body)<<2))
+#define READX_ADDR_HIGH(base, body) (base) + ((0x52 << 11) + ((body)<<2))
 
-#define READY_ADDR_LOW(base, body) (base) + ((82 << 11) + ((body)<<2))
-#define READY_ADDR_HIGH(base, body) (base) + ((83 << 11) + ((body)<<2))
+#define READY_ADDR_LOW(base, body) (base) + ((0x53 << 11) + ((body)<<2))
+#define READY_ADDR_HIGH(base, body) (base) + ((0x54 << 11) + ((body)<<2))
 
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */

@@ -74,27 +74,6 @@ static void fill_framebuffer(void)
     printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
 }
 
-static void draw_bodies(void)
-{
-    int i;
-    printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
-    
-    //clear virtual framebuffer
-    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        dev.framebuffer[i] = 0;
-    }
-
-    for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
-        draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
-    }
-
-    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
-    }
-    
-    printk(KERN_INFO "vga_ball: Bodies Drawn\n");
-}
-
 //Right now the default radius is 5
 static void draw_circle(unsigned short x0, unsigned short y0){ 
     int radius = 3;
@@ -119,6 +98,28 @@ static void draw_circle(unsigned short x0, unsigned short y0){
         }
     }
 }
+
+static void draw_bodies(void)
+{
+    int i;
+    printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
+    
+    //clear virtual framebuffer
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        dev.framebuffer[i] = 0;
+    }
+
+    for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
+        draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
+    }
+
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
+    }
+    
+    printk(KERN_INFO "vga_ball: Bodies Drawn\n");
+}
+
 
 static void draw_checkerboard(void)
 {
@@ -255,10 +256,10 @@ static int vga_ball_remove(struct platform_device *pdev)  // Changed from vga_di
 /* Which "compatible" string(s) to search for in the Device Tree */
 #ifdef CONFIG_OF
 static const struct of_device_id vga_ball_of_match[] = {  // Changed from vga_display_of_match
+    { .compatible = "Kris,nbody_main-1.0" },
     { .compatible = "csee4840,vga_display-1.0" },  // Changed from vga_display-1.0
     { .compatible = "csee4840,vga_ball-1.0" },
     { .compatible = "unknown,unknown-1.0" },
-    { .compatible = "Kris,nbody_main-1.0" },
     {},
 };
 MODULE_DEVICE_TABLE(of, vga_ball_of_match);  // Changed from vga_display_of_match
