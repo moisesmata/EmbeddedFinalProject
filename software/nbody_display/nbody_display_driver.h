@@ -5,7 +5,7 @@
 
 // Display parameters
 #define DISPLAY_WIDTH 640
-#define DISPLAY_HEIGHT 640
+#define DISPLAY_HEIGHT 480
 #define MAX_BODIES 512
 
 // Framebuffer calculations
