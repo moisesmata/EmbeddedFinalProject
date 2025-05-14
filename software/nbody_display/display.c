@@ -18,6 +18,12 @@
 #define MIN_RADIUS 1
 #define MAX_RADIUS 6
 
+typedef struct {
+    float x;
+    float y;
+    int n;
+    float m;
+} body_full;
 // Function to convert nbody simulation coordinates to display coordinates
 static void convert_coordinates(float nbody_x, float nbody_y, 
                                short *display_x, short *display_y) {
@@ -28,7 +34,7 @@ static void convert_coordinates(float nbody_x, float nbody_y,
 }
 
 // Function to parse a CSV line into a vga_ball_arg_t structure -- This populates one timestep of data
-static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
+static int parse_csv_line(char* line, body_full* arg, int max_bodies) {
     char* token;
     int timestep;
     
@@ -53,20 +59,16 @@ static int parse_csv_line(char* line, vga_ball_arg_t* arg, int max_bodies) {
         
         token = strtok(NULL, ",");
         if (!token) break;  //Exit the loop, we've accounted for all bodies
-        double m = atof(token);
+        float m = atof(token);
 
         short display_x, display_y;
         convert_coordinates(x, y, &display_x, &display_y);
         
-        arg->bodies[i].x = display_x;
-        arg->bodies[i].y = display_y;
-        arg->bodies[i].radius = 25; 
-        arg->bodies[i].n = i;
-        arg->bodies[i].m = m;
+        arg[i].x = display_x;
+        arg[i].y = display_y;
+        arg[i].n = i;
+        arg[i].m = m;
 
-
-        
-        arg->num_bodies++;
     }
     
     return timestep;
@@ -107,6 +109,7 @@ int main(int argc, char** argv) {
     
     // Allocate memory for all timesteps at once (fixed allocation)
     vga_ball_arg_t* simulation_data = calloc(MAX_TIMESTEPS, sizeof(vga_ball_arg_t));
+    body_full* row_data = calloc(MAX_BODIES, sizeof(body_full));
     
     if (!simulation_data) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -118,13 +121,56 @@ int main(int argc, char** argv) {
     //Find the actual amt of timesteps
     int actual_timesteps = 0;
     
+    char first_line = 1; 
+    float xzero, yzero, xrange, yrange;
+    float mzero, mrange;
     //Read from CSV (one line per timestep)
     while (fgets(line, MAXCHAR, csv_file)) {
         //Use above function to parse the line
-        int timestep = parse_csv_line(line, &simulation_data[actual_timesteps], MAX_BODIES);
+        int timestep = parse_csv_line(line, row_data, MAX_BODIES);
         if (timestep < 0) {
             fprintf(stderr, "Error parsing line: %s", line);
             continue;
+        }
+        if(first_line) {
+            first_line = 0;
+            xzero = row_data[0].x;
+            yzero = row_data[0].y;
+            mzero = row_data[0].m;
+            xrange = row_data[0].x;
+            yrange = row_data[0].y;
+            mrange = row_data[0].m;
+
+            for (int i = 1; i < MAX_BODIES; i++) {
+                if (row_data[i].x < xzero) xzero = row_data[i].x;
+                if (row_data[i].y < yzero) yzero = row_data[i].y;
+                if (row_data[i].m < mzero) mzero = row_data[i].m;
+
+                if (row_data[i].x > xrange) xrange = row_data[i].x;
+                if (row_data[i].y > yrange) yrange = row_data[i].y;
+                if (row_data[i].m > mrange) mrange = row_data[i].m;
+            }
+
+            xrange -= xzero;
+            yrange -= yzero;
+            xzero -= .5 * xrange;
+            yzero -= .5 * yrange;
+            xrange *= 1.5;
+            yrange *= 1.5; 
+            mrange -= mzero;
+        }
+
+        for (int i = 0; i < MAX_BODIES; i++) {
+            if(row_data[i].x > xzero && row_data[i].x < xzero + xrange &&
+               row_data[i].y > yzero && row_data[i].y < yzero + yrange) {
+                simulation_data[actual_timesteps].bodies[i].x = (row_data[i].x - xzero / xrange) * DISPLAY_WIDTH;
+                simulation_data[actual_timesteps].bodies[i].y = (row_data[i].y - yzero / yrange) * DISPLAY_HEIGHT;
+                simulation_data[actual_timesteps].bodies[i].m = (row_data[i].m - mzero / mrange) * 255;
+                simulation_data[actual_timesteps].bodies[i].n = i;
+                simulation_data[actual_timesteps].bodies[i].radius = (unsigned short)(((row_data[i].m - mzero) / mrange) * (MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS);
+            } else {
+                simulation_data[actual_timesteps].bodies[i].radius = 0;
+            }
         }
         
         // When reading the first line, theres a special case to populate num_bodies
@@ -142,33 +188,33 @@ int main(int argc, char** argv) {
     fclose(csv_file);
     printf("Loaded %d timesteps with %d bodies\n", actual_timesteps, simulation_data[0].num_bodies);
     
-    double min_mass = 1e30;  // Start with a very large number
-    double max_mass = 0; //Start with 0
+    // double min_mass = 1e100;  // Start with a very large number
+    // double max_mass = 0; //Start with 0
     
-    for (int i = 0; i < simulation_data[0].num_bodies; i++) {
-        if (simulation_data[0].bodies[i].m < min_mass) {
-            min_mass = simulation_data[0].bodies[i].m;
-        }
-        if (simulation_data[0].bodies[i].m > max_mass) {
-            max_mass = simulation_data[0].bodies[i].m;
-        }
-    }
+    // for (int i = 0; i < simulation_data[0].num_bodies; i++) {
+    //     if (simulation_data[0].bodies[i].m < min_mass) {
+    //         min_mass = simulation_data[0].bodies[i].m;
+    //     }
+    //     if (simulation_data[0].bodies[i].m > max_mass) {
+    //         max_mass = simulation_data[0].bodies[i].m;
+    //     }
+    // }
 
-    printf("Mass range: min=%.2f, max=%.2f\n", min_mass, max_mass);
+    // printf("Mass range: min=%.2f, max=%.2f\n", min_mass, max_mass);
 
-    for (int t = 0; t < actual_timesteps; t++) {
-        for (int i = 0; i < simulation_data[t].num_bodies; i++) {
-            double mass_normalized = 0.0;
+    // for (int t = 0; t < actual_timesteps; t++) {
+    //     for (int i = 0; i < simulation_data[t].num_bodies; i++) {
+    //         double mass_normalized = 0.0;
             
-            // Prevent division by zero if all masses are the same
-            if (max_mass > min_mass) {
-                //the percentage of max mass
-                mass_normalized = (simulation_data[t].bodies[i].m - min_mass) / (max_mass - min_mass);
-            }
+    //         // Prevent division by zero if all masses are the same
+    //         if (max_mass > min_mass) {
+    //             //the percentage of max mass
+    //             mass_normalized = (simulation_data[t].bodies[i].m - min_mass) / (max_mass - min_mass);
+    //         }
             
-            simulation_data[t].bodies[i].radius = (unsigned short)(mass_normalized * MAX_RADIUS + MIN_RADIUS);
-        }
-    }
+    //         simulation_data[t].bodies[i].radius = (unsigned short)(mass_normalized * MAX_RADIUS + MIN_RADIUS);
+    //     }
+    // }
     
 
     // Clear screen
