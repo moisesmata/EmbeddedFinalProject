@@ -7,8 +7,6 @@
 #define DISPLAY_WIDTH 640
 #define DISPLAY_HEIGHT 640
 #define MAX_BODIES 512
-#define MIN_RADIUS 1
-#define MAX_RADIUS 10
 
 // Framebuffer calculations
 #define FRAMEBUFFER_SIZE (DISPLAY_HEIGHT * DISPLAY_WIDTH/32)
