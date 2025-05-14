@@ -561,12 +561,6 @@ int main( int argc, char* argv[]) {
     {65,-64,-3,-1,263},
     {74,-37,-5,3,127},
 };
-    std::cout << "Initial values of bodies:" << std::endl;
-    for (size_t i = 0; i < 511; ++i) {
-        std::cout << "Body " << i << ": Position (" << positions[i].x << ", " << positions[i].y 
-                  << "), Velocity (" << positions[i].vx << ", " << positions[i].vy 
-                  << "), Mass " << positions[i].m << std::endl;
-    }
 
     int timesteps; cin >> timesteps;
     // std::cout << "Number of timesteps: " << timesteps << std::endl;
@@ -582,11 +576,7 @@ int main( int argc, char* argv[]) {
         }
         // std::cout << "Timestep " << i << "\n";
     }
-    std::cout.precision(20);
-    for (size_t j = 0; j < 511; ++j) {
-        std::cout << "Body " << j << ": Position (" << positions[j].x << ", " << positions[j].y 
-                  << "), Velocity (" << positions[j].vx << ", " << positions[j].vy << ")" << std::endl;
-    }
+
 
     return 0;
 }
