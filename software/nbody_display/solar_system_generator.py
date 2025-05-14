@@ -5,7 +5,7 @@ def create_solar_system():
     bodies = []
     
     # Sun at the center with large mass
-    bodies.append([0, 0, 0, 0, 1.0000])
+    bodies.append([0, 0, 0, 0, 10.000])
     
     # Mercury
     bodies.append([20, 0, 0, 2.0, .0033])
