@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #define MAXCHAR 1000
 
@@ -271,6 +272,9 @@ int main(int argc, char** argv){
 
   // Read in Initial N-Body State FROM CSV File
 
+  struct timespec start, end;
+  clock_gettime(CLOCK_MONOTONIC, &start);
+
   double* zeros = (double*)calloc(N * 5, sizeof(double));
   for(int i = 0; i < N; i++){
     set_body(zeros[5*i + 0], //x
@@ -280,6 +284,8 @@ int main(int argc, char** argv){
              zeros[5*i + 4], //m
              i); //body number
   }
+
+  
 
   double* initial_state = get_initial_state(selected_sim, N);
   
@@ -305,16 +311,13 @@ int main(int argc, char** argv){
              initial_state[5*i + 4], //m
              i); //body number
   }
-  position_history[0] = read_positions(N);
+
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  double elapsed_time = (end.tv_sec - start.tv_sec) + 
+                        (end.tv_nsec - start.tv_nsec) / 1e9;
+  printf("Initial write time: %f seconds\n", elapsed_time);
   // Print initial positions to stdout
-  //printf("Initial positions:\n");
-  for (int i = 0; i < N; i++) {
-      //printf("Body %d: X = %lf, Y = %lf\n",
-             i,
-             position_history[0].bodies[i].x,
-             position_history[0].bodies[i].y;
-  }
-  //fprintf(stderr, "Simulation bodies and parameters read in\n");
+
 
   //Send the go signal
   set_go(high);
@@ -362,11 +365,22 @@ int main(int argc, char** argv){
 
     //Reading is finished, set read to low!
     set_read(low);
+    // Calculate and print the elapsed time for the current timestep
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double timestep_elapsed_time = (end.tv_sec - start.tv_sec) + 
+                     (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("Total elapsed time: %f seconds\n", timestep_elapsed_time);
 
     //Increment Time Thing
     t += 1;
   }
   set_go(low);
+  // Calculate and print the total simulation time
+  
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  double total_simulation_time = (end.tv_sec - start.tv_sec) + 
+                                 (end.tv_nsec - start.tv_nsec) / 1e9;
+  printf("Total simulation time: %f seconds\n", total_simulation_time);
 
   // Write all data to a CSV file
   FILE* output = fopen("nbody_results.csv", "w");
