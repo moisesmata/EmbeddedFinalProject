@@ -97,7 +97,7 @@ all_positions_t read_positions(int N){
     if (ioctl(nbody_fd, READ_POSITIONS, &vla)){
       perror("ioctl(READ_POSITION) failed\n");
     } 
-    fprintf(stderr, "Body %d Position Read: X:%f, Y:%f \n", i,vla.x,vla.y);
+    //fprintf(stderr, "Body %d Position Read: X:%f, Y:%f \n", N,vla.x,vla.y);
     positions.bodies[i] = vla;
   }
   return positions;
@@ -153,7 +153,7 @@ double* get_initial_state(char* filename, int N){
     }
   }
 
-  //fprintf(stderr, "Do we get here???? %lf %lf %lf\n", initial_state[0], initial_state[1], initial_state[2]);
+  fprintf(stderr, "Do we get here???? %lf %lf %lf\n", initial_state[0], initial_state[1], initial_state[2]);
 
   //Close final and return pointer to the initial parameters
   fclose(file);
@@ -328,16 +328,16 @@ int main(int argc, char** argv){
       printf("Iteration %d complete!\n", t);
     }
 
-    fprintf(stderr, "Timestep %d Beginning:\n", t);
+    //fprintf(stderr, "Timestep %d Beginning:\n", t);
     //Do Polling
     int read = 0;
 
     /**/
     while(!read){
       //Wait for the poll signal
-      fprintf(stderr, "Polling...\n");
+      //fprintf(stderr, "Polling...\n");
       if(poll_done()){
-        fprintf(stderr, "Received Done!\n");
+        //fprintf(stderr, "Received Done!\n");
         read = 1;
         set_read(high);
         break;
