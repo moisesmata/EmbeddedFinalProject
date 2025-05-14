@@ -71,7 +71,7 @@ for obj_id, obj_name in object_ids.items():
     records.append({
         "Object": obj_name,
         "X (m)": x, "Y (m)": y, 
-        "VX (m/s)": vx, "VY (m/s)": vy, "M (kg)": masses_kg[obj_name]*6.67430e-11*60*60*12,
+        "VX (m/s)": vx, "VY (m/s)": vy, "M (kg)": masses_kg[obj_name]*6.67430e-11*60,
     })
 
 df = pd.DataFrame(records)

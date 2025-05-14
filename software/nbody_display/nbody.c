@@ -202,10 +202,11 @@ int main(int argc, char** argv){
   char sixty_four[] = "64body_input.csv";
   char one_two_eight[] = "128body_input.csv";
   char five_one_one[] = "511body_input.csv";
+  char solar[] = "solar_system.csv";
   char initial_test[] = "input.csv";
 
   printf("\nWelcome to the N-Body Simulation Final Project!\n\n");
-  printf("Please select a setting for how many bodies you would like to simulate:\n 1 - 32 Bodies \n 2 - 64 Bodies \n 3 - 128 Bodies \n 4 - 511 Bodies\n");
+  printf("Please select a setting for how many bodies you would like to simulate:\n 1 - 32 Bodies \n 2 - 64 Bodies \n 3 - 128 Bodies \n 4 - 511 Bodies\n 5 - Solar System\n");
 
   int num;
   char* selected_sim;
@@ -238,12 +239,19 @@ int main(int argc, char** argv){
       selected_sim = five_one_one;
       N = 511;
       break;
+    
+    case 5: 
+      printf("You selected the solar system!\n");
+      selected_sim = solar;
+      N = 15;
+      break;
 
-    case 5:
+    case 6:
       printf("You selected secret test!\n");
       selected_sim = initial_test;
       N = 28;
       break;
+    
     
     default:
       printf("Bad input! Please run the program again.\n");
