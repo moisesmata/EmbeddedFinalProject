@@ -74,32 +74,15 @@ static void fill_framebuffer(void)
     printk(KERN_INFO "vga_ball: Framebuffer filled with all pixels on\n");
 }
 
-static void draw_bodies(void)
-{
-    int i;
-    printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
-    
-    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
-        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
-    }
-    
-    printk(KERN_INFO "vga_ball: Bodies Drawn\n");
-}
-
 //Right now the default radius is 5
 static void draw_circle(unsigned short x0, unsigned short y0){ 
-    int radius = 5;
-    if (x0 >= DISPLAY_WIDTH || y0 >= DISPLAY_HEIGHT || x0 < 0 || y0 < 0) {
-        printk(KERN_WARNING "vga_ball: Circle center (%d,%d) is outside display bounds\n", 
-               x0, y0);
-        return;
-    }
+    int radius = 3;
+    
     int radius_squared = radius * radius;
     int x_min = x0 - radius;
     int y_min = y0 - radius;
     int x_max = x0 + radius;
     int y_max = y0 + radius;
-
 
     int x; 
     int y; 
@@ -109,12 +92,34 @@ static void draw_circle(unsigned short x0, unsigned short y0){
             int dy = y - y0;
             int d2 = dx*dx + dy*dy;
             if (d2 <= radius_squared){
-                set_pixel(x,y,1);
+                // set_pixel already has boundary checking, so we can just call it
+                set_pixel(x, y, 1);
             }
         }
     }
-
 }
+
+static void draw_bodies(void)
+{
+    int i;
+    printk(KERN_INFO "vga_ball: Drawing the Bodies\n");
+    
+    //clear virtual framebuffer
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        dev.framebuffer[i] = 0;
+    }
+
+    for (i = 0; i < dev.vga_ball_arg.num_bodies; i++) {
+        draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
+    }
+
+    for (i = 0; i < FRAMEBUFFER_SIZE; i++) {
+        iowrite32(dev.framebuffer[i], dev.virtbase + (i << 2));
+    }
+    
+    printk(KERN_INFO "vga_ball: Bodies Drawn\n");
+}
+
 
 static void draw_checkerboard(void)
 {
@@ -136,6 +141,7 @@ static void draw_checkerboard(void)
 static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
     vga_ball_arg_t vla;
+    int i;
 
     printk(KERN_INFO "vga_ball: ioctl command %u received\n", cmd);
 
@@ -144,14 +150,13 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
         if (copy_from_user(&vla, (vga_ball_arg_t *) arg, sizeof(vga_ball_arg_t))){
             return -EACCES;
         }
-        int i;
-        for(i = 0; i < vla.num_bodies; i++){
-            dev.vga_ball_arg.bodies[i].x = vla.bodies[i].x;
-            dev.vga_ball_arg.bodies[i].y = vla.bodies[i].y;
-            dev.vga_ball_arg.bodies[i].radius = vla.bodies[i].radius;
-            dev.vga_ball_arg.bodies[i].n = vla.bodies[i].n;
-            draw_circle(dev.vga_ball_arg.bodies[i].x, dev.vga_ball_arg.bodies[i].y);
-        }
+        
+        
+        // Copy new body data
+        memcpy(&dev.vga_ball_arg, &vla, sizeof(vga_ball_arg_t));
+        
+        
+        // Now write the complete framebuffer to hardware in one go
         draw_bodies();
         break;
 
@@ -251,7 +256,10 @@ static int vga_ball_remove(struct platform_device *pdev)  // Changed from vga_di
 /* Which "compatible" string(s) to search for in the Device Tree */
 #ifdef CONFIG_OF
 static const struct of_device_id vga_ball_of_match[] = {  // Changed from vga_display_of_match
-    { .compatible = "csee4840,vga_ball-1.0" },  // Changed from vga_display-1.0
+    { .compatible = "Kris,nbody_main-1.0" },
+    { .compatible = "csee4840,vga_display-1.0" },  // Changed from vga_display-1.0
+    { .compatible = "csee4840,vga_ball-1.0" },
+    { .compatible = "unknown,unknown-1.0" },
     {},
 };
 MODULE_DEVICE_TABLE(of, vga_ball_of_match);  // Changed from vga_display_of_match

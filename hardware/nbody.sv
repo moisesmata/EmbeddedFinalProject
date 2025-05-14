@@ -47,7 +47,12 @@ module nbody #(
     input logic write,
     input logic [ADDR_WIDTH-1:0] addr,
     input logic chipselect,
-    output logic [EXT_DATA_WIDTH-1:0] readdata
+    output logic [EXT_DATA_WIDTH-1:0] readdata,
+    output logic [7:0] VGA_R, VGA_G, VGA_B,
+	output logic 	   VGA_CLK, VGA_HS, VGA_VS,
+		                   VGA_BLANK_n,
+	output logic 	   VGA_SYNC_n
+
 );
 
     localparam SW_READ_WRITE = 2'b00;
@@ -55,33 +60,33 @@ module nbody #(
     localparam UPDATE_POS = 2'b10;
 
     // Registers:
-    localparam GO             = 7'h00;
-    localparam READ           = 7'h01;
-    localparam N_BODIES       = 7'h02;
-    localparam GAP            = 7'h03;
+    localparam GO             = 7'h40;
+    localparam READ           = 7'h41;
+    localparam N_BODIES       = 7'h42;
+    localparam GAP            = 7'h43;
     // Memory:
-    localparam X_SEL_LOWER    = 7'h04;
-    localparam X_SEL_UPPER    = 7'h05;
-    localparam Y_SEL_LOWER    = 7'h06;
-    localparam Y_SEL_UPPER    = 7'h07;
-    localparam M_SEL_LOWER    = 7'h08;
-    localparam M_SEL_UPPER    = 7'h09;
-    localparam VX_SEL_LOWER   = 7'h10;
-    localparam VX_SEL_UPPER   = 7'h11;
-    localparam VY_SEL_LOWER   = 7'h12;
-    localparam VY_SEL_UPPER   = 7'h13;
+    localparam X_SEL_LOWER    = 7'h44;
+    localparam X_SEL_UPPER    = 7'h45;
+    localparam Y_SEL_LOWER    = 7'h46;
+    localparam Y_SEL_UPPER    = 7'h47;
+    localparam M_SEL_LOWER    = 7'h48;
+    localparam M_SEL_UPPER    = 7'h49;
+    localparam VX_SEL_LOWER   = 7'h4a;
+    localparam VX_SEL_UPPER   = 7'h4b;
+    localparam VY_SEL_LOWER   = 7'h4c;
+    localparam VY_SEL_UPPER   = 7'h4d;
     // Out:
-    localparam DONE           = 7'b1000000;
-    localparam READ_X_LOWER   = 7'b1000001;
-    localparam READ_X_UPPER   = 7'b1000010;
-    localparam READ_Y_LOWER   = 7'b1000011;
-    localparam READ_Y_UPPER   = 7'b1000100;
+    localparam DONE           = 7'h50;
+    localparam READ_X_LOWER   = 7'h51;
+    localparam READ_X_UPPER   = 7'h52;
+    localparam READ_Y_LOWER   = 7'h53;
+    localparam READ_Y_UPPER   = 7'h54;
 
     logic go;
     logic done;
     logic read_sw;
     logic [$clog2(BODIES)-1:0] num_bodies;
-    logic [DATA_WIDTH-1:0] gap, gap_counter;
+    logic [EXT_DATA_WIDTH-1:0] gap, gap_counter;
     logic [DATA_WIDTH-1:0] write_vy_data, write_vx_data, write_m_data, write_x_data, write_y_data;
     logic wren_x, wren_y, wren_m, wren_vx, wren_vy;
     logic [DATA_WIDTH-1:0] out_x, out_y, out_m, out_vx, out_vy;
@@ -112,6 +117,27 @@ module nbody #(
     logic first_time;
 
 
+    // // Instantiating the display
+    Display display(
+        .clk(clk),
+        .reset(rst),
+        .writedata(writedata),
+        .write(write&(~addr[15])), // Don't write to the display
+        .chipselect(chipselect),
+        .address(addr[14:0]),
+        .VGA_R(VGA_R), 
+        .VGA_G(VGA_G), 
+        .VGA_B(VGA_B),
+        .VGA_CLK(VGA_CLK), 
+        .VGA_HS(VGA_HS), 
+        .VGA_VS(VGA_VS),
+        .VGA_BLANK_n(VGA_BLANK_n),
+        .VGA_SYNC_n(VGA_SYNC_n)
+    ); 
+    // For testing: force all VGA outputs low
+    
+
+    // The main state machine
     always_ff @(posedge clk or posedge rst) begin
         //TODO: logic for letting software read and write values goes here
         if (rst) begin
@@ -129,10 +155,10 @@ module nbody #(
                 end else if (addr[15:9] == N_BODIES) begin
                     num_bodies <= writedata[BODY_ADDR_WIDTH-1:0];
                 end else if (addr[15:9] == GAP) begin
-                    gap <= writedata[BODY_ADDR_WIDTH-1:0];
+                    gap <= writedata;
                 end
                 if (addr[9] == 0) begin
-                    write_register <= writedata[BODY_ADDR_WIDTH-1:0];
+                    write_register <= writedata;
                 end
             end
 
@@ -263,7 +289,7 @@ module nbody #(
     always_comb begin : blockName
         if (read == 1 && chipselect == 1) begin
             if (addr[15:9] == DONE) begin
-                readdata = {{(DATA_WIDTH-1){1'b0}}, done};
+                readdata = {{(EXT_DATA_WIDTH-1){1'b0}}, done};
             end else if (addr[15:9] == READ_X_LOWER) begin
                 readdata =  x_output_1[EXT_DATA_WIDTH-1:0];
             end else if (addr[15:9] == READ_X_UPPER) begin
@@ -273,11 +299,11 @@ module nbody #(
             end else if (addr[15:9] == READ_Y_UPPER) begin
                 readdata =  y_output_1[DATA_WIDTH-1:EXT_DATA_WIDTH];
             end else begin 
-                readdata = {64{1'b1}};
+                readdata = {EXT_DATA_WIDTH{1'b1}};
             end
         end
         else begin
-            readdata <= {64{1'b0}};
+            readdata <= {EXT_DATA_WIDTH{1'b0}};
         end
         case (state)
             SW_READ_WRITE: begin

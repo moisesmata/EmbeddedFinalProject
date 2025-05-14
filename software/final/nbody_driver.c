@@ -4,13 +4,16 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/errno.h>
+#include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
 #include <linux/miscdevice.h>
-#include <linux/fs.h>
-#include <linux/types.h>
-#include <linux/uaccess.h>
+#include <linux/slab.h>
 #include <linux/io.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/fs.h>
+#include <linux/uaccess.h>
 #include "nbody_driver.h"
 
 
@@ -18,93 +21,109 @@
 
 /* Device registers */
 
-#define GO_ADDR(base) (base) + ( 0 << 12)
-#define READ_ADDR(base) (base) + (1 << 12)
-#define N_ADDR(base) (base) + ( 2 << 12)
-#define GAP_ADDR(base) (base) + ( 3 << 12)
+#define GO_ADDR(base) (base) + (0x40 << 11)
+#define READ_ADDR(base) (base) + (0x41 << 11)
+#define N_ADDR(base) (base) + (0x42 << 11)
+#define GAP_ADDR(base) (base) + (0x43 << 11)
 
 /* Memory */
 
-#define X_ADDR_LOW(base, body) (base) + ((body<<2) + 4 << 11)
-#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + 5 << 11)
+#define X_ADDR_LOW(base, body) (base) + ((body<<2) + (0x44 << 11))
+#define X_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x45 << 11))
 
-#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + 6 << 11)
-#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + 7 << 11)
+#define Y_ADDR_LOW(base, body) (base) + ((body<<2) + (0x46 << 11))
+#define Y_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x47 << 11))
 
-#define M_ADDR_LOW(base, body) (base) + ((body<<2) + 8 << 11)
-#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + 9 << 11)
+#define M_ADDR_LOW(base, body) (base) + ((body<<2) + (0x48 << 11))
+#define M_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x49 << 11))
 
-#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + 10 << 11)
-#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + 11 << 11)
+#define VX_ADDR_LOW(base, body) (base) + ((body<<2) + (0x4a << 11))
+#define VX_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x4b << 11))
 
-#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + 12 << 11)
-#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + 13 << 11)
+#define VY_ADDR_LOW(base, body) (base) + ((body<<2) + (0x4c << 11))
+#define VY_ADDR_HIGH(base, body) (base) + ((body<<2) + (0x4d << 11))
 
 /* More Memory */
-#define DONE_ADDR(base) (base) + ( 65 << 12)
 
-#define READX_ADDR_LOW(base) (base) + ( 65 << 12)
-#define READX_ADDR_HIGH(base) (base) + ( 66 << 12)
+#define DONE_ADDR(base) (base) + (0x50 << 11)
 
-#define READY_ADDR_LOW(base) (base) + ( 67 << 12)
-#define READY_ADDR_HIGH(base) (base) + ( 68 << 12)
+#define READX_ADDR_LOW(base, body) (base) + ((0x51 << 11) + ((body)<<2))
+#define READX_ADDR_HIGH(base, body) (base) + ((0x52 << 11) + ((body)<<2))
+
+#define READY_ADDR_LOW(base, body) (base) + ((0x53 << 11) + ((body)<<2))
+#define READY_ADDR_HIGH(base, body) (base) + ((0x54 << 11) + ((body)<<2))
 
 
 /* Macros to get the upper and lower 32 bits of a 64-bit number */
-#define GET_UPPER(x) ((x >> 32) & 0xFFFFFFFF)
-#define GET_LOWER(x) (x & 0xFFFFFFFF) 
 
 /* Information about our device */
 struct nbody_dev {
     struct resource res;
     void __iomem *virtbase;
-    nbody_parameters_t parameters;
+    //nbody_parameters_t parameters;
+	body_t body_parameters;
 	nbody_sim_config_t sim_config;
 	int go;
 	int done;
 	int read;
 } dev;
 
-static void write_parameters(n_body_parameters_t *parameters){
-	int i = 0;
-	for (i = 0; i < dev.sim_config.N; i++){
-		iowrite32(GET_LOWER(parameters->bodies[i].x), X_ADDR_LOW(dev.virtbase, i)); //Writing to memory
-		iowrite32(GET_UPPER(parameters->bodies[i].x), X_ADDR_HIGH(dev.virtbase, i));
+static void write_body(body_t * body_parameters) {
+    int i = (int) body_parameters->n;
+    int x_bits[2];
+    int y_bits[2];
+    int m_bits[2];
+    int vx_bits[2];
+    int vy_bits[2];
+    
+    memcpy(&x_bits, &body_parameters->x, sizeof(uint64_t));
+    memcpy(&y_bits, &body_parameters->y, sizeof(uint64_t));
+    memcpy(&m_bits, &body_parameters->m, sizeof(uint64_t));
+    memcpy(&vx_bits, &body_parameters->vx, sizeof(uint64_t));
+    memcpy(&vy_bits, &body_parameters->vy, sizeof(uint64_t));
+    
+    // Perform actual writes
+    iowrite32(x_bits[0], X_ADDR_LOW(dev.virtbase, i)); 
+    iowrite32(x_bits[1], X_ADDR_HIGH(dev.virtbase, i));
 
-		iowrite32(GET_LOWER(parameters->bodies[i].y), Y_ADDR_LOW(dev.virtbase, i));
-		iowrite32(GET_UPPER(parameters->bodies[i].y), Y_ADDR_HIGH(dev.virtbase, i));
+    iowrite32(y_bits[0], Y_ADDR_LOW(dev.virtbase, i));
+    iowrite32(y_bits[1], Y_ADDR_HIGH(dev.virtbase, i));
 
-		iowrite32(GET_LOWER(parameters->bodies[i].m), M_ADDR_LOW(dev.virtbase, i));
-		iowrite32(GET_UPPER(parameters->bodies[i].m), M_ADDR_HIGH(dev.virtbase, i));
+    iowrite32(m_bits[0], M_ADDR_LOW(dev.virtbase, i));
+    iowrite32(m_bits[1], M_ADDR_HIGH(dev.virtbase, i));
 
-		iowrite32(GET_LOWER(parameters->bodies[i].vx), VX_ADDR_LOW(dev.virtbase, i));
-		iowrite32(GET_UPPER(parameters->bodies[i].vx), VX_ADDR_HIGH(dev.virtbase, i));
+    iowrite32(vx_bits[0], VX_ADDR_LOW(dev.virtbase, i));
+    iowrite32(vx_bits[1], VX_ADDR_HIGH(dev.virtbase, i));
 
-		iowrite32(GET_LOWER(parameters->bodies[i].vy), VY_ADDR_LOW(dev.virtbase, i));
-		iowrite32(GET_UPPER(parameters->bodies[i].vy), VY_ADDR_HIGH(dev.virtbase, i));
-	}
-	dev.parameters = *parameters;
-	
+    iowrite32(vy_bits[0], VY_ADDR_LOW(dev.virtbase, i));
+    iowrite32(vy_bits[1], VY_ADDR_HIGH(dev.virtbase, i));
+    
 }
 
 /* Start the N-body simulation in hardware */
-static void write_simulation_parameters(n_body_sim_config_t *parameters){
+static void write_simulation_parameters(nbody_sim_config_t *parameters){
 	iowrite32(parameters->N, N_ADDR(dev.virtbase));
 	iowrite32(parameters->gap, GAP_ADDR(dev.virtbase));
 	dev.sim_config = *parameters;
 }
 
+static void read_position(body_pos_t *body){
+	int i = body->n; 
+    int x_bits[2];
+	int y_bits[2];
+	x_bits[0] = ioread32(READX_ADDR_LOW(dev.virtbase, i));
+	x_bits[1] = ioread32(READX_ADDR_HIGH(dev.virtbase, i));
 
-static void read_positions(all_positions_t *positions){
-	int i = 0;
-	for (i = 0; i < dev.sim_config.N; i++){
-		positions->bodies[i].x = ioread32(X_ADDR_LOW(dev.virtbase, i)) + ioread32(X_ADDR_HIGH(dev.virtbase, i)<<32);
-		positions->bodies[i].y = ioread32(Y_ADDR_LOW(dev.virtbase, i)) + ioread32(Y_ADDR_HIGH(dev.virtbase, i)<<32);
-	}
+	y_bits[0] = ioread32(READY_ADDR_LOW(dev.virtbase, i));
+	y_bits[1] = ioread32(READY_ADDR_HIGH(dev.virtbase, i));
+	
+
+	memcpy(&body->x, &x_bits, sizeof(uint64_t));
+	memcpy(&body->y, &y_bits, sizeof(uint64_t));	
 }
 
 static void write_go(int go){
-	iowrite32(go,GO_ADDR(dev.virtbase));
+	iowrite32(go, GO_ADDR(dev.virtbase));
 	dev.go = go;
 }
 
@@ -120,56 +139,59 @@ static void read_done(int *status){
 /* Handle ioctl calls from userspace */
 static long nbody_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-    n_body_parameters_t nbody_parameters;
-	n_body_sim_config_t sim_config;
-	all_positions_t all_positions;
-	int go;
+    //nbody_parameters_t nbody_parameters;
+	nbody_sim_config_t sim_config;
+	body_pos_t body_position;
+	body_t body_parameters;
+	int go = 0;
 	int status = 0;
 
     switch (cmd) {
-    case NBODY_SET_BODY_PARAMETERS:
-	//shouldn't be needed?
-	//nbody_parameters = dev.parameters;
-        if (copy_from_user(&nbody_parameters, (n_body_parameters_t *)arg, sizeof(n_body_parameters_t)))
-            return -EFAULT;
-        write_parameters(&nbody_parameters);
-        break;
-
-	case NBODY_SET_SIM_PARAMETERS:
-	//sim_config = dev.sim_config;
-		if (copy_from_user(&sim_config, (n_body_sim_config_t *)arg, sizeof(n_body_sim_config_t)))
-			return -EFAULT;
-		write_simulation_parameters(&sim_config);
-		break;
-
-    case WRITE_GO:
-	//go = dev.go;
-        if (copy_from_user(&go, (int *)arg, sizeof(int)))
-            return -EFAULT;
-        write_go(go);
-        break;
 	
-	case WRITE_READ:
-	//read = dev.read;
-		if (copy_from_user(&go, (int *)arg, sizeof(int)))
-			return -EFAULT;
-		write_read(go);
-		break;
+		case WRITE_GO:
+		//go = dev.go;
+			if (copy_from_user(&go, (int *)arg, sizeof(int)))
+				return -EFAULT;
+			
+			write_go(go);
+			break;
 
-	case READ_DONE:
-		read_done(&status);
-		if (copy_to_user((int *)arg, &status, sizeof(int)))
-			return -EFAULT;
-		break;
+		case NBODY_SET_SIM_PARAMETERS:
+		//sim_config = dev.sim_config;
+			if (copy_from_user(&sim_config, (nbody_sim_config_t *)arg, sizeof(nbody_sim_config_t)))
+				return -EFAULT;
+			write_simulation_parameters(&sim_config);
+			break;
 
-	case NBODY_READ_POSITIONS:
-		read_positions(&all_positions);
-		if (copy_to_user((all_positions_t *)arg, &all_positions, sizeof(all_positions_t)))
-			return -EFAULT;
-		break;
+		case WRITE_READ:
+		//read = dev.read;
+			if (copy_from_user(&go, (int *)arg, sizeof(int)))
+				return -EFAULT;
+			write_read(go);
+			break;
 
-    default:
-        return -EINVAL;
+		case READ_DONE:
+			read_done(&status);
+			if (copy_to_user((int *)arg, &status, sizeof(int)))
+				return -EFAULT;
+			break;
+
+		case READ_POSITIONS:
+			if (copy_from_user(&body_position, (body_pos_t *)arg, sizeof(body_pos_t)))
+				return -EFAULT;
+			read_position(&body_position);
+			if (copy_to_user((body_pos_t *)arg, &body_position, sizeof(body_pos_t)))
+				return -EFAULT;
+			break;
+
+		case SET_BODY:
+			if (copy_from_user(&body_parameters, (body_t *)arg, sizeof(body_t)))
+				return -EFAULT;
+			write_body(&body_parameters);
+			break;
+
+		default:
+			return -EINVAL;
     }
 
     return 0;
@@ -222,7 +244,17 @@ static int __init nbody_probe(struct platform_device *pdev)
 	}
 
 	//LOOK INTO THIS
-	memset(&dev.parameters, 0, sizeof(dev.parameters));
+	dev.go = 0;
+	dev.done = 0;
+	dev.read = 0;
+	dev.sim_config.N = 0;
+	dev.sim_config.gap = 0;
+	dev.body_parameters.n = 0;
+	dev.body_parameters.x = 0;
+	dev.body_parameters.y = 0;
+	dev.body_parameters.m = 0;
+	dev.body_parameters.vx = 0;
+	dev.body_parameters.vy = 0;
 	return 0;
 
 out_release_mem_region:
@@ -245,6 +277,8 @@ static int nbody_remove(struct platform_device *pdev)
 #ifdef CONFIG_OF
 static const struct of_device_id nbody_of_match[] = {
 	{ .compatible = "csee4840,nbody-1.0" },
+	{ .compatible = "unknown,unknown-1.0" },
+	{ .compatible = "Kris,nbody_main-1.0" },
 	{},
 };
 MODULE_DEVICE_TABLE(of, nbody_of_match);

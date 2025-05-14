@@ -14,7 +14,7 @@
  * - Pixels are read from framebuffer in sequence and displayed on screen
  */
 // This module is built to run on 50 mhz, to get it on 100 you need to do some things.
-module vga_ball(input logic        clk,
+module Display(input logic        clk,
 	        input logic 	   reset,
 		input logic [31:0]  writedata,
 		input logic 	   write,
@@ -37,6 +37,7 @@ module vga_ball(input logic        clk,
    logic [31:0]    placecounter;
    logic [31:0]    next_pix;
    logic [31:0]   readdata;
+   logic [31:0]    hcount_32;
    
    vga_counters counters(.clk50(clk), .*);
 
@@ -49,16 +50,16 @@ module vga_ball(input logic        clk,
       .q(readdata)
     );
     assign vcount_32 = {22'b0, vcount};
-    assign next_pix = placecounter + 32'd1;
-    assign vcount_x_512 = vcount_32 << 7;
-    assign vcount_x_128 = vcount_32 << 9;
-      assign vcountx20 = vcount_x_128 + vcount_x_512;
-      assign placecounter = vcountx20 + hcount[10:1] + 32'b1;
-    assign rdaddress = placecounter[19:5];
+    assign vcount_x_512 = vcount_32 << 8;
+    assign vcount_x_128 = vcount_32 << 10;
+    assign hcount_32 = (hcount > 11'd1300) ? 32'd1300 : {21'b0, hcount};
+    assign vcountx20 = vcount_x_128 + vcount_x_512;
+    assign placecounter = vcountx20 + hcount_32 + 32'd2;
+    assign rdaddress = placecounter[20:6];
     
 
    always_comb begin
-      if (readdata[placecounter[4:0]-4'b1] == 1'b1) begin
+      if (readdata[hcount[5:1]] == 1'b1) begin
          VGA_R = 8'hff;
          VGA_G = 8'hff;
          VGA_B = 8'hff;
