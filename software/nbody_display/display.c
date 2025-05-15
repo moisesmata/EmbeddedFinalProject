@@ -9,7 +9,6 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
-#include <math.h>
 #include "nbody_display_driver.h"
 
 #define MAXCHAR 100000
@@ -65,7 +64,7 @@ static int parse_csv_line(char* line, body_full* arg, int max_bodies) {
         arg[i].x = x;
         arg[i].y = y;
         arg[i].n = i;
-        arg[i].m = cbrtf(m);
+        arg[i].m = sqrt(m)
         num_bodies++;
     }
     
