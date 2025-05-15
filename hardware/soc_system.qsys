@@ -66,6 +66,7 @@
  <interface name="hps" internal="hps_0.hps_io" type="conduit" dir="end" />
  <interface name="hps_ddr3" internal="hps_0.memory" type="conduit" dir="end" />
  <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
+ <interface name="vga" internal="nbody_0.vga" type="conduit" dir="end" />
  <module name="clk_0" kind="clock_source" version="21.1" enabled="1">
   <parameter name="clockFrequency" value="100000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -604,17 +605,18 @@
  </module>
  <module name="nbody_0" kind="nbody" version="1.0" enabled="1">
   <parameter name="ADDR_WIDTH" value="16" />
-  <parameter name="AddTime" value="20" />
+  <parameter name="AddTime" value="9" />
   <parameter name="BODIES" value="512" />
   <parameter name="DATA_WIDTH" value="64" />
-  <parameter name="InvSqrtTime" value="27" />
+  <parameter name="EXT_DATA_WIDTH" value="32" />
+  <parameter name="InvSqrtTime" value="17" />
   <parameter name="MinBodies" value="21" />
-  <parameter name="MultTime" value="11" />
+  <parameter name="MultTime" value="5" />
  </module>
  <connection
    kind="avalon"
    version="21.1"
-   start="hps_0.h2f_axi_master"
+   start="hps_0.h2f_lw_axi_master"
    end="nbody_0.avalon_slave_0">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />

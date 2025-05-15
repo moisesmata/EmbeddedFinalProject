@@ -1,6 +1,0 @@
--v "/home/user/intelFPGA_lite/21.1/quartus/eda/sim_lib/220model.v"
--v "/home/user/intelFPGA_lite/21.1/quartus/eda/sim_lib/altera_mf.v"
--v "/home/user/intelFPGA_lite/21.1/quartus/eda/sim_lib/sgate.v"
--v "/home/user/intelFPGA_lite/21.1/quartus/eda/sim_lib/altera_lnsim.sv"
-
-
