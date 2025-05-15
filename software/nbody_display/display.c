@@ -64,7 +64,7 @@ static int parse_csv_line(char* line, body_full* arg, int max_bodies) {
         arg[i].x = x;
         arg[i].y = y;
         arg[i].n = i;
-        arg[i].m = sqrt(m)
+        arg[i].m = m;
         num_bodies++;
     }
     
