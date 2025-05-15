@@ -273,6 +273,15 @@ int main(int argc, char** argv){
     return -1;
   }
 
+  double dt;
+  printf("Set dt (time step):\n");
+  scanf("%lf",&dt);
+  if(dt < 0){
+    perror("dt must be positive!\n");
+    return -1;
+  }
+
+
   printf("N-Body Userspace program started\n");
 
   // Read in Initial N-Body State FROM CSV File
@@ -311,9 +320,9 @@ int main(int argc, char** argv){
   for(int i = 0; i < N; i++){
     set_body(initial_state[5*i + 0], //x
              initial_state[5*i + 1], //y
-             initial_state[5*i + 2], //vx
-             initial_state[5*i + 3], //vy
-             initial_state[5*i + 4], //m
+             initial_state[5*i + 2] * dt, //vx
+             initial_state[5*i + 3] * dt, //vy
+             initial_state[5*i + 4] * dt * dt, //m
              i); //body number
   }
 
