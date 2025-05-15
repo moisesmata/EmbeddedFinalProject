@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
 #include "nbody_display_driver.h"
 
 #define MAXCHAR 100000
